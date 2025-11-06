@@ -28,6 +28,33 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background: linear-gradient(135deg,  	#271810 0%, #4f200f 50%, #954520 100%);
+  background-attachment: fixed;
+  background-size: cover;
+}
+/* Animações de entrada (reveal on scroll) */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px) scale(0.995);
+  transition: opacity 700ms cubic-bezier(.2,.9,.2,1), transform 700ms cubic-bezier(.2,.9,.2,1);
+  will-change: opacity, transform;
+}
+.reveal.reveal--visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Variante com atraso via custom property ou data-revealdelay */
+.reveal[data-revealdelay] {
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
 }
 
 h1 {

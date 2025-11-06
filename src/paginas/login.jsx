@@ -10,7 +10,7 @@ function Login() {
       <form>
         <input type="text" placeholder="Usuário" /><br />
         <input type="password" placeholder="Senha" /><br />
-        <button type="submit">Entrar</button>
+        <button onClick={()=> navigate('/painel')}type="submit">Entrar</button>
       </form>
      <button onClick={() => navigate('/')}>Voltar</button>
     </div>
