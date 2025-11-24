@@ -1,0 +1,22 @@
+[
+  { "id": 1, "name": "Barbearia Central", "address": "Rua das Flores, 123", "rating": 4.8 },
+  { "id": 2, "name": "Barbearia Moderno", "address": "Av. Paulista, 2000", "rating": 4.6 },
+  { "id": 3, "name": "Clássica Barbers", "address": "R. do Mercado, 45", "rating": 4.7 },
+  { "id": 4, "name": "Estação Corte", "address": "Praça Nova, 9", "rating": 4.4 },
+  { "id": 5, "name": "Navalha & Fio", "address": "R. Velha, 77", "rating": 4.5 },
+  { "id": 6, "name": "Barba Forte", "address": "Av. Central, 10", "rating": 4.2 },
+  { "id": 7, "name": "Sala do Corte", "address": "R. Jardim, 210", "rating": 4.3 },
+  { "id": 8, "name": "Barbearia do Zé", "address": "R. Azul, 12", "rating": 4.1 },
+  { "id": 9, "name": "Senhor Corte", "address": "Av. Sol, 444", "rating": 4.0 },
+  { "id": 10, "name": "Master Barbers", "address": "R. Nova, 99", "rating": 4.9 },
+  { "id": 11, "name": "Ateliê do Corte", "address": "R. Bela, 8", "rating": 4.6 },
+  { "id": 12, "name": "Corte Nobre", "address": "Praça do Mercado, 3", "rating": 4.5 },
+  { "id": 13, "name": "Gentlemen's Barbers", "address": "Av. Reis, 210", "rating": 4.7 },
+  { "id": 14, "name": "Corte e Estilo", "address": "R. Alegria, 56", "rating": 4.2 },
+  { "id": 15, "name": "Barbearia dos Amigos", "address": "R. União, 30", "rating": 4.3 },
+  { "id": 16, "name": "Old School Barbers", "address": "Av. Antiga, 77", "rating": 4.4 },
+  { "id": 17, "name": "Top Cut", "address": "R. Leste, 21", "rating": 4.5 },
+  { "id": 18, "name": "Precision Barbers", "address": "R. Oeste, 88", "rating": 4.6 },
+  { "id": 19, "name": "Barbearia Express", "address": "Av. Rápida, 11", "rating": 4.0 },
+  { "id": 20, "name": "Corte Final", "address": "R. do Porto, 2", "rating": 4.1 }
+]
