@@ -1,18 +1,74 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../../server/api';
 
 function Login() {
   const navigate = useNavigate();
+  const [erro, setErro] = useState('');
+  const [carregando, setCarregando] = useState(false);
+  const [formData, setFormData] = useState({
+    usuario: '',
+    senha: ''
+  }); 
+  
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErro('');
+    setCarregando(true);
 
+    try {
+      const response = await api.login(formData);
+      
+      // Salva os dados do usuário no localStorage
+      localStorage.setItem('usuario', JSON.stringify(response.usuario));
+      
+      alert('Login realizado com sucesso!');
+      navigate('/painel');
+    } catch (error) {
+      setErro(error.message || 'Erro ao fazer login. Tente novamente.');
+      console.error(error);
+    } finally {
+      setCarregando(false);
+    }
+  };
+  
   return (
     <div className="card">
       <h2>Página de Login</h2>
-      <form onSubmit={(e) => e.preventDefault()}>
-        <input type="text" placeholder="Usuário" />
-        <input type="password" placeholder="Senha" />
-        <button type="button" onClick={() => navigate('/painel')}>Entrar</button>
+      {erro && <div style={{ color: 'red', marginBottom: '10px' }}>{erro}</div>}
+      
+      <form onSubmit={handleSubmit}>
+        <input 
+          type="text" 
+          name="usuario"
+          placeholder="Email ou CPF" 
+          value={formData.usuario} 
+          onChange={handleChange}
+          disabled={carregando}
+        />
+        <input 
+          type="password" 
+          name="senha"
+          placeholder="Senha" 
+          value={formData.senha} 
+          onChange={handleChange}
+          disabled={carregando}
+        />
+        <button type="submit" disabled={carregando}>
+          {carregando ? 'Entrando...' : 'Entrar'}
+        </button>
       </form>
-      <button type="button" onClick={() => navigate('/')}>Voltar</button>
+      
+      <button type="button" onClick={() => navigate('/')} disabled={carregando}>
+        Voltar
+      </button>
     </div>
   );
 }

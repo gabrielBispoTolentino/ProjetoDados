@@ -10,7 +10,7 @@ function Cadastro() {
     senha: '',
     cpf: '',
     telefone: '',
-    role: 'cliente' // default role: 'cliente' or 'admin'
+    role: 'cliente' 
   });
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -86,7 +86,7 @@ function Cadastro() {
           required
         >
           <option value="cliente">Cliente</option>
-          <option value="admin">Administrador da Barbearia</option>
+          <option value="ADM_Estabelecimento">Administrador da Barbearia</option>
         </select>
 
         <input 

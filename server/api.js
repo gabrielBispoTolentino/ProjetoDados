@@ -26,6 +26,20 @@ export const api = {
     return response.json();
   },
 
+  // Autenticação (login)
+  async login(credentials) {
+    const response = await fetch(`${API_BASE_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    });
+    if (!response.ok) {
+      const text = await response.text().catch(() => null);
+      throw new Error(text || 'Erro ao efetuar login');
+    }
+    return response.json();
+  },
+
   async updateUser(id, userData) {
     const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
       method: 'PUT',
