@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { api } from '../../server/api'
 import UserBar from './UserBar';
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 
 function ShopsList({ onView }) {
   const [shops, setShops] = useState([]);

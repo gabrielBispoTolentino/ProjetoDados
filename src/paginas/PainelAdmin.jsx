@@ -11,6 +11,8 @@ function PainelAdmin() {
   const [modalAberto, setModalAberto] = useState(false);
   const [modoEdicao, setModoEdicao] = useState(false);
   const [barbeariaAtual, setBarbeariaAtual] = useState(null);
+  const [foto, setFoto] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   
   // Verificar se o usuário é admin
   useEffect(() => {
@@ -61,6 +63,8 @@ function PainelAdmin() {
       phone: '',
       mei: ''
     });
+    setFoto(null);
+    setPreviewUrl(null);
     setModoEdicao(false);
     setModalAberto(true);
   };
@@ -76,8 +80,11 @@ function PainelAdmin() {
       pais: barbearia.fullAddress?.pais || barbearia.pais || 'Brasil',
       cep: barbearia.fullAddress?.cep || barbearia.cep || '',
       phone: barbearia.phone || '',
-      mei: barbearia.mei || ''
+      mei: barbearia.mei || '',
+      imagemUrl: barbearia.imagem_url || null
     });
+    setFoto(null);
+    setPreviewUrl(barbearia.imagem_url ? api.getPhotoUrl(barbearia.imagem_url) : null);
     setModoEdicao(true);
     setModalAberto(true);
   };
@@ -86,6 +93,8 @@ function PainelAdmin() {
     setModalAberto(false);
     setBarbeariaAtual(null);
     setModoEdicao(false);
+    setFoto(null);
+    setPreviewUrl(null);
   };
   
   const handleChange = (e) => {
@@ -93,6 +102,43 @@ function PainelAdmin() {
       ...barbeariaAtual,
       [e.target.name]: e.target.value
     });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    
+    if (file) {
+      // Validar tipo de arquivo
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        setErro('Por favor, selecione uma imagem válida (JPEG, PNG, GIF ou WebP)');
+        return;
+      }
+      
+      // Validar tamanho (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErro('A imagem deve ter no máximo 5MB');
+        return;
+      }
+      
+      setErro('');
+      setFoto(file);
+      
+      // Criar preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removePhoto = () => {
+    setFoto(null);
+    setPreviewUrl(modoEdicao && barbeariaAtual.imagemUrl ? api.getPhotoUrl(barbeariaAtual.imagemUrl) : null);
+    // Limpar input file
+    const fileInput = document.getElementById('foto-establishment-input');
+    if (fileInput) fileInput.value = '';
   };
   
   const handleSubmit = async (e) => {
@@ -103,16 +149,33 @@ function PainelAdmin() {
       const usuarioStr = localStorage.getItem('usuario');
       const usuario = JSON.parse(usuarioStr);
       
+      // Criar FormData para enviar arquivo + dados
+      const formDataToSend = new FormData();
+      formDataToSend.append('nome', barbeariaAtual.nome);
+      formDataToSend.append('description', barbeariaAtual.description || '');
+      formDataToSend.append('rua', barbeariaAtual.rua);
+      formDataToSend.append('cidade', barbeariaAtual.cidade);
+      formDataToSend.append('stado', barbeariaAtual.stado);
+      formDataToSend.append('pais', barbeariaAtual.pais || 'Brasil');
+      formDataToSend.append('cep', barbeariaAtual.cep);
+      formDataToSend.append('phone', barbeariaAtual.phone || '');
+      formDataToSend.append('mei', barbeariaAtual.mei || '');
+      
+      if (!modoEdicao) {
+        formDataToSend.append('dono_id', usuario.id);
+      }
+      
+      if (foto) {
+        formDataToSend.append('foto', foto);
+      }
+      
       if (modoEdicao) {
         // Atualizar barbearia existente
-        await api.updateEstablishment(barbeariaAtual.id, barbeariaAtual);
+        await api.updateEstablishmentWithPhoto(barbeariaAtual.id, formDataToSend);
         alert('Barbearia atualizada com sucesso!');
       } else {
         // Criar nova barbearia
-        await api.createEstablishment({
-          ...barbeariaAtual,
-          dono_id: usuario.id
-        });
+        await api.createEstablishmentWithPhoto(formDataToSend);
         alert('Barbearia criada com sucesso!');
       }
       
@@ -163,7 +226,7 @@ function PainelAdmin() {
           </button>
         </div>
 
-        {erro && (
+        {erro && !modalAberto && (
           <div style={{ 
             padding: '1rem', 
             backgroundColor: '#fee2e2', 
@@ -212,6 +275,39 @@ function PainelAdmin() {
                   cursor: 'default'
                 }}
               >
+                {/* Foto da barbearia no card */}
+                <div className="shop-image" style={{ 
+                  width: '100%', 
+                  height: '180px',
+                  minWidth: 'unset'
+                }}>
+                  {barbearia.imagem_url ? (
+                    <img 
+                      src={api.getPhotoUrl(barbearia.imagem_url)} 
+                      alt={barbearia.name || barbearia.nome}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className="shop-image-placeholder" style={{ 
+                    display: barbearia.imagem_url ? 'none' : 'flex' 
+                  }}>
+                    <svg 
+                      width="60" 
+                      height="60" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2"
+                    >
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                      <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                  </div>
+                </div>
+
                 <div className="shop-info">
                   <h4 className="shop-name">
                     {barbearia.name || barbearia.nome}
@@ -297,6 +393,109 @@ function PainelAdmin() {
               )}
               
               <form onSubmit={handleSubmit}>
+                {/* Preview da foto do estabelecimento */}
+                <div style={{ 
+                  textAlign: 'center', 
+                  marginBottom: '1.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}>
+                  <div style={{
+                    width: '100%',
+                    maxWidth: '400px',
+                    height: '200px',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    border: '2px solid #e6eef2',
+                    backgroundColor: '#f3f4f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative'
+                  }}>
+                    {previewUrl ? (
+                      <img 
+                        src={previewUrl} 
+                        alt="Preview" 
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'cover' 
+                        }} 
+                      />
+                    ) : (
+                      <svg 
+                        width="80" 
+                        height="80" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="#9ca3af" 
+                        strokeWidth="2"
+                      >
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                      </svg>
+                    )}
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    <label 
+                      htmlFor="foto-establishment-input" 
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#f3f4f6',
+                        border: '1px solid #e6eef2',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        fontWeight: '500',
+                        color: '#374151',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = '#e5e7eb'}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+                    >
+                      {previewUrl ? 'Trocar foto' : 'Adicionar foto'}
+                    </label>
+                    <input 
+                      id="foto-establishment-input"
+                      type="file" 
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      onChange={handleFileChange}
+                      style={{ display: 'none' }}
+                    />
+                    
+                    {foto && (
+                      <button
+                        type="button"
+                        onClick={removePhoto}
+                        style={{
+                          padding: '0.5rem 1rem',
+                          backgroundColor: '#fee2e2',
+                          border: '1px solid #fecaca',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontSize: '0.9rem',
+                          fontWeight: '500',
+                          color: '#b91c1c'
+                        }}
+                      >
+                        Remover
+                      </button>
+                    )}
+                  </div>
+                  
+                  <p style={{ 
+                    fontSize: '0.8rem', 
+                    color: '#6b7280',
+                    margin: 0
+                  }}>
+                    Formatos aceitos: JPEG, PNG, GIF, WebP (máx. 5MB)
+                  </p>
+                </div>
+
                 <label>Nome da Barbearia *</label>
                 <input 
                   type="text"

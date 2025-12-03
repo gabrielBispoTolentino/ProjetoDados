@@ -117,6 +117,20 @@ export const api = {
     return response.json();
   },
 
+  async createEstablishmentWithPhoto(formData) {
+    const response = await fetch(`${API_BASE_URL}/establishments`, {
+      method: 'POST',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao criar estabelecimento');
+    }
+    
+    return response.json();
+  },
+
   async createEstablishment(establishmentData) {
     const response = await fetch(`${API_BASE_URL}/establishments`, {
       method: 'POST',
@@ -127,6 +141,20 @@ export const api = {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao criar estabelecimento');
+    }
+    
+    return response.json();
+  },
+
+  async updateEstablishmentWithPhoto(id, formData) {
+    const response = await fetch(`${API_BASE_URL}/establishments/${id}`, {
+      method: 'PUT',
+      body: formData
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao atualizar estabelecimento');
     }
     
     return response.json();
