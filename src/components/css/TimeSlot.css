@@ -1,0 +1,110 @@
+.timeslot-no-date {
+  padding: 1rem;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.timeslot-loading {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.timeslot-error {
+  padding: 1rem;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.timeslot-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.timeslot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e6eef2;
+}
+
+.timeslot-button {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #e6eef2;
+  background-color: white;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.timeslot-button.selected {
+  border: 2px solid var(--accent);
+  background-color: var(--accent);
+  color: white;
+  font-weight: 600;
+}
+
+.timeslot-button.disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.timeslot-button.passed {
+  text-decoration: line-through;
+}
+
+.timeslot-occupied {
+  display: block;
+  font-size: 0.7rem;
+  margin-top: 0.1rem;
+}
+
+.timeslot-legend {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.timeslot-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.timeslot-legend-box {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.timeslot-legend-box.available {
+  background-color: white;
+  border: 1px solid #e6eef2;
+}
+
+.timeslot-legend-box.selected {
+  background-color: var(--accent);
+}
+
+.timeslot-legend-box.occupied {
+  background-color: #f3f4f6;
+}

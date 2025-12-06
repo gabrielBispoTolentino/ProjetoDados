@@ -1,0 +1,53 @@
+.booked-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.booked-modal {
+  background: white;
+  width: 100%;
+  max-width: 600px;
+  border-radius: 12px;
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.booked-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.booked-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: black;
+}
+
+.booked-item {
+  padding: 12px;
+  margin-bottom: 12px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.booked-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.booked-text {
+  font-size: 14px;
+  margin-top: 4px;
+}

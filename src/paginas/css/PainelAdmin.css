@@ -1,0 +1,203 @@
+.admin-main {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.admin-title {
+  margin: 0;
+  color: var(--text);
+}
+
+.admin-error {
+  padding: 1rem;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.admin-empty-state {
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--surface);
+  border-radius: 12px;
+  border: 1px solid rgba(15, 23, 36, 0.06);
+}
+
+.admin-empty-text {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.admin-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.admin-shop-card {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  cursor: default;
+}
+
+.admin-shop-image {
+  width: 100%;
+  height: 180px;
+  min-width: unset;
+}
+
+.admin-shop-phone {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.admin-shop-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.admin-btn-edit {
+  flex: 1;
+}
+
+.admin-btn-delete {
+  flex: 1;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.admin-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.admin-modal-container {
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.admin-form-photo-preview {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-form-photo-container {
+  width: 100%;
+  max-width: 400px;
+  height: 200px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #e6eef2;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.admin-form-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-form-photo-placeholder {
+  width: 80px;
+  height: 80px;
+  color: #9ca3af;
+}
+
+.admin-form-photo-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.admin-form-photo-label {
+  padding: 0.5rem 1rem;
+  background-color: #f3f4f6;
+  border: 1px solid #e6eef2;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.admin-form-photo-label:hover {
+  background-color: #e5e7eb;
+}
+
+.admin-form-photo-remove {
+  padding: 0.5rem 1rem;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #b91c1c;
+}
+
+.admin-form-photo-hint {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.admin-form-textarea {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  margin: 0.45rem 0;
+  border-radius: 8px;
+  border: 1px solid #e6eef2;
+  background: #ffffff;
+  color: var(--text);
+  box-sizing: border-box;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.admin-form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.admin-form-btn-submit {
+  flex: 1;
+}
+
+.admin-form-btn-cancel {
+  flex: 1;
+}

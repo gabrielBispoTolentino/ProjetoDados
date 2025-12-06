@@ -1,0 +1,31 @@
+.avaliacoes-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.avaliacoes-textarea {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #e6eef2;
+}
+
+.avaliacoes-select {
+  padding: 0.45rem;
+  border-radius: 8px;
+  border: 1px solid #e6eef2;
+}
+
+.avaliacoes-submit {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background-color: var(--accent);
+  color: white;
+  border: none;
+}
+
+.avaliacoes-error {
+  color: #b91c1c;
+  margin-left: 0.5rem;
+}

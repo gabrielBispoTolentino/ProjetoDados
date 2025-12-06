@@ -1,0 +1,78 @@
+.cadastro-photo-preview {
+  text-align: center;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cadastro-photo-container {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #e6eef2;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cadastro-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cadastro-photo-placeholder {
+  width: 60px;
+  height: 60px;
+  color: #9ca3af;
+}
+
+.cadastro-photo-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.cadastro-photo-label {
+  padding: 0.5rem 1rem;
+  background-color: #f3f4f6;
+  border: 1px solid #e6eef2;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s;
+}
+
+.cadastro-photo-label:hover {
+  background-color: #e5e7eb;
+}
+
+.cadastro-photo-remove {
+  padding: 0.5rem 1rem;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #b91c1c;
+}
+
+.cadastro-photo-hint {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.cadastro-role-label {
+  display: block;
+  margin-top: 0.4rem;
+  margin-bottom: 0.25rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
