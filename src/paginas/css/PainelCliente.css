@@ -1,26 +1,117 @@
 .painel-main {
   padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .painel-header {
-  margin-bottom: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
   gap: 1rem;
 }
 
-.painel-search-container {
-  margin-left: auto;
+/* Shops List Grid */
+.shops-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
 }
 
-.painel-schedule-button {
-  width: 45px;
-  height: 45px;
-  min-width: 45px;
+.shops-title {
+  font-family: var(--font-heading, serif);
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+/* Shop Card */
+.shop-card {
+  background-color: var(--surface, #2c3440);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.shop-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.shop-content-wrapper {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.shop-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #14181c;
+  flex-shrink: 0;
+}
+
+.shop-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shop-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #556677;
+}
+
+.shop-info {
+  flex: 1;
+}
+
+.shop-name {
+  margin: 0 0 0.4rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  font-family: var(--font-heading, serif);
+}
+
+.shop-address {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #99aabb;
+  line-height: 1.4;
+}
+
+.shop-rating {
+  margin-top: 0.5rem;
+  color: var(--accent, #00e054);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Schedule Button (Fab or inline) */
+.schedule-btn {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background-color: var(--accent);
-  color: white;
+  background-color: var(--accent, #00e054);
+  color: #fff;
   border: none;
   font-size: 1.5rem;
   font-weight: bold;
@@ -28,6 +119,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
-  transition: all 150ms ease;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.schedule-btn:hover {
+  background-color: #00b042;
+  transform: scale(1.1);
+}
+
+/* Loader */
+.loader {
+  color: #99aabb;
+  text-align: center;
+  margin-top: 2rem;
+  width: 100%;
+  grid-column: 1 / -1;
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .shops-list {
+    grid-template-columns: 1fr;
+  }
 }

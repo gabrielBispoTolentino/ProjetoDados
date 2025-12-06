@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { api } from '../../server/api';
 import UserBar from '../components/UserBar';
 import SearchBar from '../components/SearchBar';
-import AvaliaçõesBar from '../components/AvaliaçõesBar';
 import BookingModal from '../components/BookingModal';
+import ShopDetailsModal from '../components/ShopDetailsModal';
+import './css/PainelCliente.css';
 
 const PAGE_SIZE = 10;
 
@@ -14,13 +15,15 @@ function ShopsList({
   sortOption = 'relevance'
 }) {
   const [shops, setShops] = useState([]);
-  const [expandedId, setExpandedId] = useState(null);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
   const sentinelRef = useRef(null);
   const loadingRef = useRef(false);
+
+  // Modal State
+  const [detailsShop, setDetailsShop] = useState(null);
 
   const visibleShops = useMemo(() => {
     const q = (searchQuery || '').trim().toLowerCase();
@@ -153,28 +156,6 @@ function ShopsList({
     }
   }
 
-  async function refreshShop(id) {
-    try {
-      const est = await api.getEstablishmentById(id);
-
-      const normalized = {
-        id: est.id,
-        name: est.name ?? est.nome ?? 'Sem nome',
-        address: est.address ?? est.cidade ?? 'Sem endereço',
-        rating: est.rating ?? est.rating_avg ?? 0,
-        ratingCount: est.ratingCount ?? est.rating_count ?? 0,
-        imageUrl: est.img || est.imageUrl || est.imagem_url || null,
-        fullAddress: est.fullAddress
-      };
-
-      setShops((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, ...normalized } : s))
-      );
-    } catch (err) {
-      console.warn('Erro ao atualizar estabelecimento:', err);
-    }
-  }
-
   return (
     <section className="shops-section">
       <h3 className="shops-title">Barbearias disponíveis</h3>
@@ -187,16 +168,13 @@ function ShopsList({
         )}
 
         {visibleShops.map((s) => (
-          <div key={s.id}>
-            <article
-              className="shop-card"
-              role="listitem"
-              onClick={() =>
-                setExpandedId(expandedId === s.id ? null : s.id)
-              }
-              aria-expanded={expandedId === s.id}
-              style={{ cursor: 'pointer' }}
-            >
+          <div key={s.id}
+            className="shop-card"
+            role="listitem"
+            onClick={() => setDetailsShop(s)}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="shop-content-wrapper">
               <div className="shop-image">
                 {s.imageUrl ? (
                   <img
@@ -211,147 +189,31 @@ function ShopsList({
 
                 <div
                   className="shop-image-placeholder"
-                  style={{
-                    display: s.imageUrl ? 'none' : 'flex'
-                  }}
+                  style={{ display: s.imageUrl ? 'none' : 'flex' }}
                 >
-                  <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                    <polyline points="9 22 9 12 15 12 15 22" />
                   </svg>
                 </div>
               </div>
 
-              <div className="shop-info" style={{ flex: 1 }}>
+              <div className="shop-info">
                 <h4 className="shop-name">{s.name}</h4>
                 <p className="shop-address">{s.address}</p>
-                <div className="shop-rating" style={{ marginTop: '0.5rem' }}>
-                  ⭐ {Number(s.rating).toFixed(1)}
-                  {s.ratingCount > 0 && (
-                    <span
-                      style={{
-                        fontSize: '0.85em',
-                        color: '#6b7280'
-                      }}
-                    >
-                      {' '}
-                      ({s.ratingCount})
-                    </span>
-                  )}
+                <div className="shop-rating">
+                  ⭐ {Number(s.rating).toFixed(1)} <span style={{ color: '#6b7280', fontWeight: '400' }}>({s.ratingCount})</span>
                 </div>
               </div>
 
               <button
+                className="schedule-btn"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSchedule(s);
                 }}
-                style={{
-                  width: '45px',
-                  height: '45px',
-                  minWidth: '45px',
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--accent)',
-                  color: 'white',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(15,118,110,0.3)',
-                  transition: 'all 150ms ease'
-                }}
               >
                 +
               </button>
-            </article>
-
-            <div
-              className={`shop-details ${
-                expandedId === s.id ? 'open' : ''
-              }`}
-            >
-              <div className="shop-details-inner">
-                <div className="shop-photos">
-                  {s.imageUrl ? (
-                    <img
-                      src={api.getPhotoUrl(s.imageUrl)}
-                      alt={s.name}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: '8px'
-                      }}
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display =
-                          'flex';
-                      }}
-                    />
-                  ) : null}
-
-                  <div
-                    className="photo-placeholder"
-                    style={{ display: s.imageUrl ? 'none' : 'flex' }}
-                  />
-                </div>
-
-                <div className="shop-desc">
-                  {s.description ? (
-                    <p>
-                      <strong>Sobre:</strong> {s.description}
-                    </p>
-                  ) : (
-                    <p>
-                      <strong>Sobre:</strong> Barbearia de qualidade
-                      com profissionais experientes.
-                    </p>
-                  )}
-
-                  {s.phone && (
-                    <p>
-                      <strong>Telefone:</strong> {s.phone}
-                    </p>
-                  )}
-
-                  {s.fullAddress && (
-                    <p>
-                      <strong>Endereço completo:</strong>{' '}
-                      {s.fullAddress.rua}, {s.fullAddress.cidade} -{' '}
-                      {s.fullAddress.estado}, CEP:{' '}
-                      {s.fullAddress.cep}
-                    </p>
-                  )}
-
-                  <button
-                    className="btn btn-primary"
-                    style={{ marginTop: '0.5rem' }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onView(s);
-                    }}
-                  >
-                    Ver mais detalhes
-                  </button>
-
-                  <div style={{ marginTop: '0.75rem' }}>
-                    <AvaliaçõesBar
-                      estabelecimentoId={s.id}
-                      onSubmitted={() => refreshShop(s.id)}
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         ))}
@@ -360,6 +222,17 @@ function ShopsList({
       </div>
 
       {loading && <div className="loader">Carregando...</div>}
+
+      {/* MODAL OF DETAILS */}
+      <ShopDetailsModal
+        shop={detailsShop}
+        isOpen={!!detailsShop}
+        onClose={() => setDetailsShop(null)}
+        onSchedule={(s) => {
+          setDetailsShop(null); // Close details
+          onSchedule(s); // Open booking
+        }}
+      />
     </section>
   );
 }
@@ -373,12 +246,6 @@ function PainelCliente() {
   useEffect(() => {
     console.log("ID salvo no localStorage:", localStorage.getItem("usuarioId"));
   }, []);
-
-  function handleView(shop) {
-    alert(
-      `Abrindo detalhes de: ${shop.name}\n\nEndereço: ${shop.address}\nAvaliação: ${shop.rating}`
-    );
-  }
 
   function handleScheduleClick(shop) {
     setSelectedShop(shop);
@@ -425,16 +292,8 @@ function PainelCliente() {
   return (
     <>
       <UserBar />
-      <main style={{ padding: '2rem' }}>
-        <div
-          style={{
-            marginBottom: '1.5rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '1rem'
-          }}
-        >
+      <main className="painel-main">
+        <div className="painel-header">
           <div style={{ marginLeft: 'auto' }}>
             <SearchBar
               value={searchQuery}
@@ -445,12 +304,8 @@ function PainelCliente() {
           </div>
         </div>
 
-        {/* A seção "Meus Agendamentos" foi removida daqui pois agora
-           reside no componente UserAppointments.jsx
-        */}
-
         <ShopsList
-          onView={handleView}
+          onView={() => { }} // Not needed anymore as modal handles it
           onSchedule={handleScheduleClick}
           searchQuery={searchQuery}
           sortOption={sortOption}

@@ -1,53 +1,83 @@
+/* Dark Theme for BookedModal */
 .booked-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.85);
+  /* Darker backdrop */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
   padding: 20px;
+  backdrop-filter: blur(4px);
 }
 
 .booked-modal {
-  background: white;
+  background: #2c3440;
+  /* Dark Card Surface */
   width: 100%;
   max-width: 600px;
   border-radius: 12px;
-  padding: 20px;
+  padding: 24px;
   max-height: 80vh;
   overflow-y: auto;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
 .booked-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 10px;
+}
+
+.booked-title {
+  font-size: 1.5rem;
+  font-family: var(--font-heading, serif);
+  font-weight: 700;
+  margin: 0;
+  color: #fff;
 }
 
 .booked-close-btn {
   background: transparent;
   border: none;
-  font-size: 22px;
+  font-size: 2rem;
+  line-height: 1;
   cursor: pointer;
-  color: black;
+  color: #99aabb;
+  transition: color 0.2s;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.booked-close-btn:hover {
+  color: #fff;
 }
 
 .booked-item {
-  padding: 12px;
+  padding: 16px;
   margin-bottom: 12px;
-  background: #f5f5f5;
+  background: #1f252e;
+  /* Darker inner card */
   border-radius: 8px;
-}
-
-.booked-title {
-  font-size: 18px;
-  font-weight: bold;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .booked-text {
-  font-size: 14px;
-  margin-top: 4px;
+  font-size: 0.95rem;
+  margin-top: 6px;
+  color: #d1d5db;
+  line-height: 1.5;
+}
+
+.booked-text b {
+  color: #fff;
+  font-weight: 600;
+  margin-right: 4px;
 }

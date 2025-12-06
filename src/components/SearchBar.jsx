@@ -1,5 +1,5 @@
 import React from 'react';
-import './SearchBar.css';
+import './css/SearchBar.css';
 
 export default function SearchBar({ value, onChange, sort, onSortChange, placeholder }) {
   return (

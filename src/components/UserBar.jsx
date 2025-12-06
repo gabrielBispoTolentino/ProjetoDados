@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
+import './css/UserBar.css';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../server/api';
 import BookingModal from './BookingModal';
-import { useState } from 'react';
 import UserAppointments from './UserApointment';
 import BookedModal from './BookedModal';
 function UserBar() {
   const navigate = useNavigate();
-  const [aberto , setAberto] = useState(false);
+  const [aberto, setAberto] = useState(false);
   // Recupera os dados do usuário do localStorage
   const usuarioStr = localStorage.getItem('usuario');
   const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
@@ -25,7 +25,7 @@ function UserBar() {
   }
 
   // Pega a URL da foto ou usa um avatar padrão
-  const fotoUrl = usuario.fotoUrl 
+  const fotoUrl = usuario.fotoUrl
     ? api.getPhotoUrl(usuario.fotoUrl)
     : null;
 
@@ -37,12 +37,12 @@ function UserBar() {
             {fotoUrl ? (
               <img src={fotoUrl} alt={usuario.nome} />
             ) : (
-              <svg 
-                width="32" 
-                height="32" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
                 strokeWidth="2"
               >
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -50,16 +50,16 @@ function UserBar() {
               </svg>
             )}
           </div>
-          
+
           <div className="user-details">
             <span className="user-name">{usuario.nome}</span>
             <span className="user-email">{usuario.email}</span>
           </div>
         </div>
-        {IS_CLIENT &&(
+        {IS_CLIENT && (
           <>
-          <button  
-              className="edit-profile-button" 
+            <button
+              className="edit-profile-button"
               onClick={() => setAberto(true)}
             >
               Meus Agendamentos
@@ -70,29 +70,29 @@ function UserBar() {
             />
           </>
         )
-          
+
         }
-        {IS_ADMIN &&(
+        {IS_ADMIN && (
           <>
-          <button onClick={()=> setAberto(true)}>
-            Listar Agendamentos
-          </button>
-          <BookedModal
-            isOpen={aberto} 
-            onClose={() => setAberto(false)}/>
+            <button onClick={() => setAberto(true)}>
+              Listar Agendamentos
+            </button>
+            <BookedModal
+              isOpen={aberto}
+              onClose={() => setAberto(false)} />
           </>
         )}
 
-        <button onClick={()=> navigate("/login")}
-          className="logout-button" 
+        <button onClick={() => navigate("/login")}
+          className="logout-button"
           title="Sair da conta"
         >
-          <svg 
-            width="20" 
-            height="20" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
             strokeWidth="2"
           >
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

@@ -27,22 +27,22 @@ function Cadastro() {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    
+
     if (file) {
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
       if (!allowedTypes.includes(file.type)) {
         setErro('Por favor, selecione uma imagem válida (JPEG, PNG, GIF ou WebP)');
         return;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
         setErro('A imagem deve ter no máximo 5MB');
         return;
       }
-      
+
       setErro('');
       setFoto(file);
-      
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreviewUrl(reader.result);
@@ -71,13 +71,13 @@ function Cadastro() {
       formDataToSend.append('cpf', formData.cpf);
       formDataToSend.append('telefone', formData.telefone);
       formDataToSend.append('role', formData.role);
-      
+
       if (foto) {
         formDataToSend.append('foto', foto);
       }
 
       await api.createUserWithPhoto(formDataToSend);
-      alert('Cadastro realizado com sucesso!');
+      // alert('Cadastro realizado com sucesso!');
       navigate('/login');
     } catch (error) {
       setErro(error.message || 'Erro ao cadastrar. Tente novamente.');
@@ -88,147 +88,150 @@ function Cadastro() {
   };
 
   return (
-    <div className="card">
-      <h2>Página de Cadastro</h2>
-      {erro && <p style={{ color: 'red', marginBottom: '10px' }}>{erro}</p>}
-      
-      <form onSubmit={handleSubmit}>
-        <div className="cadastro-photo-preview">
-          <div className="cadastro-photo-container">
-            {previewUrl ? (
-              <img 
-                src={previewUrl} 
-                alt="Preview" 
-                className="cadastro-photo-img"
+    <div className="cadastro-container">
+      <div className="cadastro-card">
+        <h2>Criar Conta</h2>
+        {erro && <p className="cadastro-error">{erro}</p>}
+
+        <form onSubmit={handleSubmit} className="cadastro-form">
+          <div className="cadastro-photo-preview">
+            <div className="cadastro-photo-container">
+              {previewUrl ? (
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className="cadastro-photo-img"
+                />
+              ) : (
+                <svg
+                  width="60"
+                  height="60"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#9ca3af"
+                  strokeWidth="2"
+                  className="cadastro-photo-placeholder"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+              )}
+            </div>
+
+            <div className="cadastro-photo-actions">
+              <label
+                htmlFor="foto-input"
+                className="cadastro-photo-label"
+              >
+                {previewUrl ? 'Trocar foto' : 'Adicionar foto'}
+              </label>
+              <input
+                id="foto-input"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+                disabled={carregando}
               />
-            ) : (
-              <svg 
-                width="60" 
-                height="60" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="#9ca3af" 
-                strokeWidth="2"
-                className="cadastro-photo-placeholder"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-            )}
+
+              {previewUrl && (
+                <button
+                  type="button"
+                  onClick={removePhoto}
+                  className="cadastro-photo-remove"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
+
+            <p className="cadastro-photo-hint">
+              Formatos aceitos: JPEG, PNG, GIF, WebP (máx. 5MB)
+            </p>
           </div>
-          
-          <div className="cadastro-photo-actions">
-            <label 
-              htmlFor="foto-input" 
-              className="cadastro-photo-label"
-            >
-              {previewUrl ? 'Trocar foto' : 'Adicionar foto'}
-            </label>
-            <input 
-              id="foto-input"
-              type="file" 
-              accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-              onChange={handleFileChange}
-              style={{ display: 'none' }}
-              disabled={carregando}
-            />
-            
-            {previewUrl && (
-              <button
-                type="button"
-                onClick={removePhoto}
-                className="cadastro-photo-remove"
-              >
-                Remover
-              </button>
-            )}
-          </div>
-          
-          <p className="cadastro-photo-hint">
-            Formatos aceitos: JPEG, PNG, GIF, WebP (máx. 5MB)
-          </p>
-        </div>
 
-        <input 
-          type="text" 
-          name="nome"
-          placeholder="Nome Completo"
-          value={formData.nome}
-          onChange={handleChange}
-          disabled={carregando}
-          required
-        />
-        
-        <input 
-          type="email" 
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          disabled={carregando}
-          required
-        />
-        
-        <input 
-          type="password" 
-          name="senha"
-          placeholder="Senha"
-          value={formData.senha}
-          onChange={handleChange}
-          disabled={carregando}
-          required
-        />
-        
-        <input 
-          type="text" 
-          name="cpf"
-          placeholder="CPF"
-          value={formData.cpf}
-          onChange={handleChange}
-          disabled={carregando}
-          required
-        />
+          <input
+            type="text"
+            name="nome"
+            placeholder="Nome Completo"
+            value={formData.nome}
+            onChange={handleChange}
+            disabled={carregando}
+            required
+          />
 
-        <label 
-          htmlFor="role" 
-          className="cadastro-role-label"
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            disabled={carregando}
+            required
+          />
+
+          <input
+            type="password"
+            name="senha"
+            placeholder="Senha"
+            value={formData.senha}
+            onChange={handleChange}
+            disabled={carregando}
+            required
+          />
+
+          <input
+            type="text"
+            name="cpf"
+            placeholder="CPF"
+            value={formData.cpf}
+            onChange={handleChange}
+            disabled={carregando}
+            required
+          />
+
+          <label
+            htmlFor="role"
+            className="cadastro-role-label"
+          >
+            Tipo de conta
+          </label>
+          <select
+            id="role"
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            disabled={carregando}
+            required
+          >
+            <option value="cliente">Cliente</option>
+            <option value="ADM_Estabelecimento">Administrador da Barbearia</option>
+          </select>
+
+          <input
+            type="tel"
+            name="telefone"
+            placeholder="Número de telefone"
+            value={formData.telefone}
+            onChange={handleChange}
+            disabled={carregando}
+            required
+          />
+
+          <button type="submit" className="cadastro-btn" disabled={carregando}>
+            {carregando ? 'Cadastrando...' : 'Cadastrar'}
+          </button>
+        </form>
+
+        <button
+          className="cadastro-back-btn"
+          type="button"
+          onClick={() => navigate('/')}
+          disabled={carregando}
         >
-          Tipo de conta
-        </label>
-        <select
-          id="role"
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          disabled={carregando}
-          required
-        >
-          <option value="cliente">Cliente</option>
-          <option value="ADM_Estabelecimento">Administrador da Barbearia</option>
-        </select>
-
-        <input 
-          type="tel" 
-          name="telefone"
-          placeholder="Número de telefone"
-          value={formData.telefone}
-          onChange={handleChange}
-          disabled={carregando}
-          required
-        />
-        
-        <button type="submit" disabled={carregando}>
-          {carregando ? 'Cadastrando...' : 'Cadastrar'}
+          &larr; Voltar para Home
         </button>
-      </form>
-      
-      <button 
-        type="button" 
-        onClick={() => navigate('/')} 
-        disabled={carregando}
-      >
-        Voltar
-      </button>
+      </div>
     </div>
   );
 }
