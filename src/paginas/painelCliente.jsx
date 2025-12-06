@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { api } from '../../server/api'
-import UserBar from './UserBar';
+import UserBar from '../components/UserBar';
+import SearchBar from '../components/SearchBar';
+import AvaliaçõesBar from '../components/AvaliaçõesBar';
 
 const PAGE_SIZE = 10;
 
@@ -12,7 +14,7 @@ const PLANOS = {
 
 const getNomePlano = (planoId) => PLANOS[String(planoId)] || `Plano ${planoId}`;
 
-function ShopsList({ onView, onSchedule }) {
+function ShopsList({ onView, onSchedule, searchQuery = '', sortOption = 'relevance' }) {
   const [shops, setShops] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [page, setPage] = useState(0);
@@ -21,6 +23,41 @@ function ShopsList({ onView, onSchedule }) {
   const [error, setError] = useState(null);
   const sentinelRef = useRef(null);
   const loadingRef = useRef(false);
+
+  const visibleShops = useMemo(() => {
+    const q = (searchQuery || '').trim().toLowerCase();
+    let filtered = shops;
+    if (q.length > 0) {
+      filtered = shops.filter(s => (s.name || '').toLowerCase().includes(q));
+    }
+
+    const sorted = [...filtered];
+    switch (sortOption) {
+      case 'alpha-asc':
+        sorted.sort((a,b) => (a.name || '').localeCompare(b.name || '', 'pt-BR'));
+        break;
+      case 'alpha-desc':
+        sorted.sort((a,b) => (b.name || '').localeCompare(a.name || '', 'pt-BR'));
+        break;
+      case 'rating-desc':
+        sorted.sort((a,b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
+        break;
+      case 'rating-asc':
+        sorted.sort((a,b) => (Number(a.rating) || 0) - (Number(b.rating) || 0));
+        break;
+      case 'reviews-desc':
+        sorted.sort((a,b) => (Number(b.ratingCount) || 0) - (Number(a.ratingCount) || 0));
+        break;
+      case 'reviews-asc':
+        sorted.sort((a,b) => (Number(a.ratingCount) || 0) - (Number(b.ratingCount) || 0));
+        break;
+      default:
+        // relevance: keep server order
+        break;
+    }
+
+    return sorted;
+  }, [shops, searchQuery, sortOption]);
 
   useEffect(() => {
     loadPage(1);
@@ -117,6 +154,25 @@ function ShopsList({ onView, onSchedule }) {
     }
   }
 
+  async function refreshShop(id) {
+    try {
+      const est = await api.getEstablishmentById(id);
+      const normalized = {
+        id: est.id,
+        name: est.name ?? est.nome ?? 'Sem nome',
+        address: est.address ?? est.cidade ?? est.address ?? 'Sem endereço',
+        rating: est.rating ?? est.rating_avg ?? 0,
+        ratingCount: est.ratingCount ?? est.rating_count ?? 0,
+        imageUrl: est.img || est.imageUrl || est.imagem_url || null,
+        fullAddress: est.fullAddress ?? est.fullAddress
+      };
+
+      setShops(prev => prev.map(s => (s.id === id ? { ...s, ...normalized } : s)));
+    } catch (err) {
+      console.warn('Erro ao atualizar estabelecimento:', err);
+    }
+  }
+
   return (
     <section className="shops-section">
       <h3 className="shops-title">Barbearias disponíveis</h3>
@@ -128,7 +184,7 @@ function ShopsList({ onView, onSchedule }) {
           <div className="loader">Nenhuma barbearia encontrada</div>
         )}
         
-        {shops.map((s) => (
+        {visibleShops.map((s) => (
           <div key={s.id}>
             <article
               className="shop-card"
@@ -260,6 +316,9 @@ function ShopsList({ onView, onSchedule }) {
                   >
                     Ver mais detalhes
                   </button>
+                  <div style={{ marginTop: '0.75rem' }}>
+                    <AvaliaçõesBar estabelecimentoId={s.id} onSubmitted={() => refreshShop(s.id)} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -511,6 +570,8 @@ function PainelCliente() {
   const [selectedShop, setSelectedShop] = useState(null);
   const [agendamentos, setAgendamentos] = useState([]);
   const [loadingAgendamentos, setLoadingAgendamentos] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortOption, setSortOption] = useState('relevance');
 
   useEffect(() => {
     loadAgendamentosDoUsuario();
@@ -626,8 +687,21 @@ function PainelCliente() {
     <>
       <UserBar />
       <main style={{ padding: '2rem' }}>
-        <div style={{ marginBottom: '1.5rem' }}>
-          <h2>Painel do Cliente</h2>
+        <div style={{
+          marginBottom: '1.5rem',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <div style={{ marginLeft: 'auto' }}>
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              sort={sortOption}
+              onSortChange={setSortOption}
+            />
+          </div>
         </div>
 
         {agendamentos.length > 0 && (
@@ -659,7 +733,12 @@ function PainelCliente() {
           </section>
         )}
 
-        <ShopsList onView={handleView} onSchedule={handleScheduleClick} />
+        <ShopsList
+          onView={handleView}
+          onSchedule={handleScheduleClick}
+          searchQuery={searchQuery}
+          sortOption={sortOption}
+        />
 
         <BookingModal
           isOpen={showBookingModal}

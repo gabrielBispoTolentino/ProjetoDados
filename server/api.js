@@ -207,7 +207,21 @@ export const api = {
     if (!response.ok) throw new Error('Erro ao buscar agendamentos');
     return response.json();
   },
-  
+  //============ Avaliações ============
+  async createReview(reviewData) {
+    const response = await fetch(`${API_BASE_URL}/avaliacoes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reviewData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao criar avaliação');
+    }
+
+    return response.json();
+  },
   // ============= HELPERS =============
   
   getPhotoUrl(photoPath) {

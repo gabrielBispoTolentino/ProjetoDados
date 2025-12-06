@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserBar from './UserBar';
+import UserBar from '../components/UserBar';
 import { api } from '../../server/api';
 
 function PainelAdmin() {
