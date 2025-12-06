@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { api } from "../../server/api";
 import { createPortal } from "react-dom";
 import TimeSlotSelector from "./TimeSlotSelector";
+import './css/UserApointment.css';
 
 const PLANOS = {
   '1': 'Corte Simples',
@@ -138,18 +139,18 @@ export default function UserAppointments({ isOpen, onClose }) {
   }, [isOpen]);
 
   return createPortal(
-    <div style={styles.overlay}>
-      <div style={styles.modal}>
-        <button style={styles.closeButton} onClick={onClose}>×</button>
+    <div className="appointments-overlay">
+      <div className="appointments-modal">
+        <button className="appointments-close-button" onClick={onClose}>×</button>
 
-        <h3 style={{ marginTop: 0 }}>Meus Agendamentos</h3>
+        <h3 className="appointments-title">Meus Agendamentos</h3>
 
         {loading ? (
           <p>Carregando...</p>
         ) : agendamentos.length === 0 ? (
           <p>Nenhum agendamento encontrado.</p>
         ) : (
-          <div style={{ display: "grid", gap: "1rem" }}>
+          <div className="appointments-grid">
             {agendamentos.map((ag) => {
               const agora = new Date();
               const dataAgendamento = new Date(ag.proximo_pag);
@@ -157,11 +158,10 @@ export default function UserAppointments({ isOpen, onClose }) {
               const podeEditar = !isPast && ag.status !== 'cancelado';
 
               return (
-                <div key={ag.id} style={{
-                  ...styles.card,
-                  opacity: ag.status === 'cancelado' ? 0.6 : 1,
-                  border: ag.status === 'cancelado' ? '1px solid #ef4444' : '1px solid #000000ff'
-                }}>
+                <div 
+                  key={ag.id} 
+                  className={`appointment-card ${ag.status === 'cancelado' ? 'canceled' : ''}`}
+                >
                   <p><strong>Estabelecimento:</strong> {ag.nome}</p>
                   <p><strong>Plano:</strong> {ag.plano_nome}</p>
                   <p>
@@ -170,62 +170,28 @@ export default function UserAppointments({ isOpen, onClose }) {
                   </p>
                   <p>
                     <strong>Status:</strong>{" "}
-                    <span style={{
-                      padding: '0.25rem 0.5rem',
-                      borderRadius: '4px',
-                      fontSize: '0.85rem',
-                      fontWeight: '600',
-                      backgroundColor: 
-                        ag.status === 'ativo' ? '#dcfce7' :
-                        ag.status === 'cancelado' ? '#fee2e2' :
-                        ag.status === 'atrasado' ? '#fef3c7' :
-                        '#f3f4f6',
-                      color:
-                        ag.status === 'ativo' ? '#166534' :
-                        ag.status === 'cancelado' ? '#991b1b' :
-                        ag.status === 'atrasado' ? '#854d0e' :
-                        '#374151'
-                    }}>
+                    <span className={`appointment-status ${
+                      ag.status === 'ativo' ? 'active' :
+                      ag.status === 'cancelado' ? 'canceled' :
+                      ag.status === 'atrasado' ? 'late' :
+                      'default'
+                    }`}>
                       {ag.status}
                     </span>
                   </p>
 
                   {podeEditar && (
-                    <div style={{ 
-                      display: 'flex', 
-                      gap: '0.5rem', 
-                      marginTop: '0.75rem' 
-                    }}>
+                    <div className="appointment-actions">
                       <button
                         onClick={() => abrirReagendamento(ag)}
-                        style={{
-                          flex: 1,
-                          padding: '0.5rem',
-                          backgroundColor: 'var(--accent)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '0.9rem'
-                        }}
+                        className="appointment-btn-reschedule"
                       >
                         Reagendar
                       </button>
                       
                       <button
                         onClick={() => handleCancelar(ag.id)}
-                        style={{
-                          flex: 1,
-                          padding: '0.5rem',
-                          backgroundColor: '#fee2e2',
-                          color: '#b91c1c',
-                          border: '1px solid #fecaca',
-                          borderRadius: '6px',
-                          cursor: 'pointer',
-                          fontWeight: '600',
-                          fontSize: '0.9rem'
-                        }}
+                        className="appointment-btn-cancel"
                       >
                         Cancelar
                       </button>
@@ -233,11 +199,7 @@ export default function UserAppointments({ isOpen, onClose }) {
                   )}
 
                   {isPast && ag.status !== 'cancelado' && (
-                    <p style={{ 
-                      marginTop: '0.5rem', 
-                      fontSize: '0.85rem', 
-                      color: '#6b7280' 
-                    }}>
+                    <p className="appointment-past-notice">
                       Este agendamento já passou
                     </p>
                   )}
@@ -250,19 +212,14 @@ export default function UserAppointments({ isOpen, onClose }) {
 
       {/* Modal de Reagendamento */}
       {reagendandoId && createPortal(
-        <div style={styles.overlay}>
-          <div style={styles.modal}>
-            <button style={styles.closeButton} onClick={fecharReagendamento}>×</button>
+        <div className="appointments-overlay">
+          <div className="appointments-modal">
+            <button className="appointments-close-button" onClick={fecharReagendamento}>×</button>
             
-            <h3 style={{ marginTop: 0 }}>Reagendar Horário</h3>
+            <h3 className="appointments-title">Reagendar Horário</h3>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem',
-                fontWeight: '600',
-                color: 'var(--text)'
-              }}>
+            <div className="reschedule-form-group">
+              <label className="reschedule-label">
                 Selecione uma nova data
               </label>
               <input
@@ -273,18 +230,12 @@ export default function UserAppointments({ isOpen, onClose }) {
                   setNovoHorario('');
                 }}
                 min={new Date().toISOString().split('T')[0]}
-                style={{
-                  width: '100%',
-                  padding: '0.6rem',
-                  border: '1px solid #e6eef2',
-                  borderRadius: '8px',
-                  boxSizing: 'border-box'
-                }}
+                className="reschedule-input"
               />
             </div>
 
             {novaData && (
-              <div style={{ marginBottom: '1rem' }}>
+              <div className="reschedule-form-group">
                 <TimeSlotSelector
                   estabelecimentoId={
                     agendamentos.find(a => a.id === reagendandoId)?.estabelecimento_id
@@ -296,40 +247,18 @@ export default function UserAppointments({ isOpen, onClose }) {
               </div>
             )}
 
-            <div style={{ 
-              display: 'flex', 
-              gap: '0.5rem', 
-              marginTop: '1.5rem' 
-            }}>
+            <div className="reschedule-actions">
               <button
                 onClick={handleReagendar}
                 disabled={!novoHorario}
-                style={{
-                  flex: 1,
-                  padding: '0.6rem',
-                  backgroundColor: novoHorario ? 'var(--accent)' : '#d1d5db',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: novoHorario ? 'pointer' : 'not-allowed',
-                  fontWeight: '600'
-                }}
+                className={`reschedule-btn-confirm ${!novoHorario ? 'disabled' : ''}`}
               >
                 Confirmar
               </button>
               
               <button
                 onClick={fecharReagendamento}
-                style={{
-                  flex: 1,
-                  padding: '0.6rem',
-                  backgroundColor: '#f3f4f6',
-                  color: '#374151',
-                  border: '1px solid #e6eef2',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: '600'
-                }}
+                className="reschedule-btn-cancel"
               >
                 Cancelar
               </button>
@@ -342,44 +271,3 @@ export default function UserAppointments({ isOpen, onClose }) {
     document.body
   );
 }
-
-const styles = {
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 9999,
-    padding: "20px",
-    overflowY: "auto",
-  },
-  modal: {
-    background: "white",
-    borderRadius: "12px",
-    padding: "20px",
-    width: "90%",
-    maxWidth: "600px",
-    maxHeight: "80vh",
-    overflowY: "auto",
-    position: "relative",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.25)",
-  },
-  closeButton: {
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    background: "none",
-    border: "none",
-    fontSize: "22px",
-    cursor: "pointer",
-    color: "black"
-  },
-  card: { 
-    padding: "1rem", 
-    backgroundColor: "#dd11115a", 
-    borderRadius: "10px", 
-    border: "1px solid #000000ff" 
-  }
-};

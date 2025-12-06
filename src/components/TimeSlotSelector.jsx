@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../server/api';
+import './css/TimeSlot.css';
 
 const HORARIOS_TRABALHO = [
   '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -76,13 +77,7 @@ export default function TimeSlotSelector({
 
   if (!selectedDate) {
     return (
-      <div style={{
-        padding: '1rem',
-        backgroundColor: '#f3f4f6',
-        borderRadius: '8px',
-        textAlign: 'center',
-        color: '#6b7280'
-      }}>
+      <div className="timeslot-no-date">
         Selecione uma data primeiro
       </div>
     );
@@ -90,11 +85,7 @@ export default function TimeSlotSelector({
 
   if (loading) {
     return (
-      <div style={{
-        padding: '1rem',
-        textAlign: 'center',
-        color: '#6b7280'
-      }}>
+      <div className="timeslot-loading">
         Carregando horários disponíveis...
       </div>
     );
@@ -102,13 +93,7 @@ export default function TimeSlotSelector({
 
   if (error) {
     return (
-      <div style={{
-        padding: '1rem',
-        backgroundColor: '#fee2e2',
-        color: '#b91c1c',
-        borderRadius: '8px',
-        textAlign: 'center'
-      }}>
+      <div className="timeslot-error">
         {error}
       </div>
     );
@@ -118,26 +103,11 @@ export default function TimeSlotSelector({
 
   return (
     <div>
-      <label style={{
-        display: 'block',
-        marginBottom: '0.75rem',
-        fontWeight: '600',
-        color: 'var(--text)'
-      }}>
+      <label className="timeslot-label">
         Selecione um horário
       </label>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
-        gap: '0.5rem',
-        maxHeight: '300px',
-        overflowY: 'auto',
-        padding: '0.5rem',
-        backgroundColor: '#f9fafb',
-        borderRadius: '8px',
-        border: '1px solid #e6eef2'
-      }}>
+      <div className="timeslot-grid">
         {HORARIOS_TRABALHO.map((horario) => {
           const ocupado = isHorarioOcupado(horario);
           const passado = isHorarioPassado(horario);
@@ -150,35 +120,11 @@ export default function TimeSlotSelector({
               type="button"
               onClick={() => !desabilitado && handleSelectHorario(horario)}
               disabled={desabilitado}
-              style={{
-                padding: '0.6rem',
-                borderRadius: '8px',
-                border: selecionado ? '2px solid var(--accent)' : '1px solid #e6eef2',
-                backgroundColor: desabilitado 
-                  ? '#f3f4f6' 
-                  : selecionado 
-                    ? 'var(--accent)' 
-                    : 'white',
-                color: desabilitado 
-                  ? '#9ca3af' 
-                  : selecionado 
-                    ? 'white' 
-                    : 'var(--text)',
-                cursor: desabilitado ? 'not-allowed' : 'pointer',
-                fontSize: '0.9rem',
-                fontWeight: selecionado ? '600' : '500',
-                transition: 'all 0.2s',
-                opacity: desabilitado ? 0.5 : 1,
-                textDecoration: passado ? 'line-through' : 'none'
-              }}
+              className={`timeslot-button ${selecionado ? 'selected' : ''} ${desabilitado ? 'disabled' : ''} ${passado ? 'passed' : ''}`}
             >
               {horario}
               {ocupado && !passado && (
-                <span style={{ 
-                  display: 'block', 
-                  fontSize: '0.7rem',
-                  marginTop: '0.1rem' 
-                }}>
+                <span className="timeslot-occupied">
                   Ocupado
                 </span>
               )}
@@ -187,42 +133,19 @@ export default function TimeSlotSelector({
         })}
       </div>
 
-      <div style={{
-        marginTop: '0.75rem',
-        display: 'flex',
-        gap: '1rem',
-        flexWrap: 'wrap',
-        fontSize: '0.85rem',
-        color: '#6b7280'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-          <div style={{
-            width: '12px',
-            height: '12px',
-            borderRadius: '4px',
-            backgroundColor: 'white',
-            border: '1px solid #e6eef2'
-          }} />
+      <div className="timeslot-legend">
+        <div className="timeslot-legend-item">
+          <div className="timeslot-legend-box available" />
           <span>Disponível</span>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-          <div style={{
-            width: '12px',
-            height: '12px',
-            borderRadius: '4px',
-            backgroundColor: 'var(--accent)'
-          }} />
+        <div className="timeslot-legend-item">
+          <div className="timeslot-legend-box selected" />
           <span>Selecionado</span>
         </div>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-          <div style={{
-            width: '12px',
-            height: '12px',
-            borderRadius: '4px',
-            backgroundColor: '#f3f4f6'
-          }} />
+        <div className="timeslot-legend-item">
+          <div className="timeslot-legend-box occupied" />
           <span>Ocupado</span>
         </div>
       </div>
