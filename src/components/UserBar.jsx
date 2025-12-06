@@ -4,14 +4,13 @@ import { api } from '../../server/api';
 import BookingModal from './BookingModal';
 import { useState } from 'react';
 import UserAppointments from './UserApointment';
-
 function UserBar() {
   const navigate = useNavigate();
   const [aberto , setAberto] = useState(false);
   // Recupera os dados do usuário do localStorage
   const usuarioStr = localStorage.getItem('usuario');
   const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
-
+  const IS_CLIENT = usuario && usuario.role === 'Cliente';
   const handleLogout = () => {
     if (window.confirm('Deseja realmente sair?')) {
       localStorage.removeItem('usuario');
@@ -55,17 +54,24 @@ function UserBar() {
             <span className="user-email">{usuario.email}</span>
           </div>
         </div>
-        <button  
-  className="edit-profile-button" 
-  onClick={() => setAberto(true)}
->
-  Abrir Modal
-</button>
-<UserAppointments
-  isOpen={aberto}
-  onClose={() => setAberto(false)}
-/>
-        <button 
+        {IS_CLIENT &&(
+          <>
+          <button  
+              className="edit-profile-button" 
+              onClick={() => setAberto(true)}
+            >
+              Meus Agendamentos
+            </button>
+            <UserAppointments
+              isOpen={aberto}
+              onClose={() => setAberto(false)}
+            />
+          </>
+        )
+          
+        }
+
+        <button onClick={()=> navigate("/login")}
           className="logout-button" 
           title="Sair da conta"
         >
