@@ -12,7 +12,7 @@ const PLANOS = {
 
 const getNomePlano = (planoId) => PLANOS[String(planoId)] || `Plano ${planoId}`;
 
-function ShopsList({ onView }) {
+function ShopsList({ onView, onSchedule }) {
   const [shops, setShops] = useState([]);
   const [expandedId, setExpandedId] = useState(null);
   const [page, setPage] = useState(0);
@@ -69,7 +69,6 @@ function ShopsList({ onView }) {
         return;
       }
 
-      // Mapeia os dados incluindo a URL da imagem
       data = data.map(shop => ({
         ...shop,
         name: shop.name ?? shop.nome ?? "Sem nome",
@@ -136,8 +135,8 @@ function ShopsList({ onView }) {
               role="listitem"
               onClick={() => setExpandedId(expandedId === s.id ? null : s.id)}
               aria-expanded={expandedId === s.id}
+              style={{ cursor: 'pointer' }}
             >
-              {/* Foto do estabelecimento */}
               <div className="shop-image">
                 {s.imageUrl ? (
                   <img 
@@ -164,13 +163,10 @@ function ShopsList({ onView }) {
                 </div>
               </div>
 
-              <div className="shop-info">
+              <div className="shop-info" style={{ flex: 1 }}>
                 <h4 className="shop-name">{s.name}</h4>
                 <p className="shop-address">{s.address}</p>
-              </div>
-              
-              <div className="shop-meta">
-                <div className="shop-rating">
+                <div className="shop-rating" style={{ marginTop: '0.5rem' }}>
                   ⭐ {Number(s.rating).toFixed(1)} 
                   {s.ratingCount > 0 && (
                     <span style={{ fontSize: '0.85em', color: '#6b7280' }}>
@@ -179,6 +175,41 @@ function ShopsList({ onView }) {
                   )}
                 </div>
               </div>
+              
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSchedule(s);
+                }}
+                style={{
+                  width: '45px',
+                  height: '45px',
+                  minWidth: '45px',
+                  borderRadius: '50%',
+                  backgroundColor: 'var(--accent)',
+                  color: 'white',
+                  border: 'none',
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 12px rgba(15,118,110,0.3)',
+                  transition: 'all 150ms ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'scale(1.1)';
+                  e.target.style.backgroundColor = '#0b5b54';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'scale(1)';
+                  e.target.style.backgroundColor = 'var(--accent)';
+                }}
+                title={`Agendar em ${s.name}`}
+              >
+                +
+              </button>
             </article>
 
             <div className={`shop-details ${expandedId === s.id ? 'open' : ''}`}>
@@ -243,7 +274,7 @@ function ShopsList({ onView }) {
   );
 }
 
-function BookingModal({ isOpen, onClose, onSubmit }) {
+function BookingModal({ isOpen, onClose, onSubmit, selectedShop }) {
   const [formData, setFormData] = useState({
     estabelecimento_id: '',
     plano_id: '1',
@@ -252,27 +283,15 @@ function BookingModal({ isOpen, onClose, onSubmit }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [estabelecimentos, setEstabelecimentos] = useState([]);
-  const [loadingEstabs, setLoadingEstabs] = useState(false);
 
   useEffect(() => {
-    if (isOpen && estabelecimentos.length === 0) {
-      loadEstablishments();
+    if (isOpen && selectedShop) {
+      setFormData(prev => ({
+        ...prev,
+        estabelecimento_id: String(selectedShop.id)
+      }));
     }
-  }, [isOpen]);
-
-  async function loadEstablishments() {
-    setLoadingEstabs(true);
-    try {
-      const data = await api.getEstablishments(1, 100);
-      setEstabelecimentos(data || []);
-    } catch (err) {
-      console.error('Erro ao carregar estabelecimentos:', err);
-      setEstabelecimentos([]);
-    } finally {
-      setLoadingEstabs(false);
-    }
-  }
+  }, [isOpen, selectedShop]);
 
   const handleChange = (e) => {
     setFormData({
@@ -288,7 +307,7 @@ function BookingModal({ isOpen, onClose, onSubmit }) {
 
     try {
       if (!formData.estabelecimento_id) {
-        throw new Error('Selecione um estabelecimento');
+        throw new Error('Estabelecimento não selecionado');
       }
       if (!formData.proximo_pag) {
         throw new Error('Escolha uma data/hora');
@@ -322,54 +341,55 @@ function BookingModal({ isOpen, onClose, onSubmit }) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 1000
+      zIndex: 1000,
+      padding: '1rem'
     }}>
       <div style={{
         backgroundColor: 'var(--surface)',
         borderRadius: '12px',
         padding: '2rem',
         maxWidth: '500px',
-        width: '90%',
+        width: '100%',
         maxHeight: '80vh',
         overflowY: 'auto',
         boxShadow: '0 20px 50px rgba(0,0,0,0.15)'
       }}>
-        <h3 style={{ marginTop: 0, color: 'var(--text)' }}>Novo Agendamento</h3>
+        <h3 style={{ marginTop: 0, color: 'var(--text)' }}>
+          Agendar em {selectedShop?.name || 'Barbearia'}
+        </h3>
         
-        {error && <p style={{ color: 'crimson', marginBottom: '1rem' }}>{error}</p>}
+        {error && (
+          <div style={{
+            padding: '0.75rem',
+            backgroundColor: '#fee2e2',
+            color: '#b91c1c',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            fontSize: '0.9rem'
+          }}>
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="estabelecimento_id" style={{ display: 'block', marginBottom: '0.25rem', color: 'var(--muted)', fontSize: '0.9rem' }}>
-              Estabelecimento
-            </label>
-            <select
-              id="estabelecimento_id"
-              name="estabelecimento_id"
-              value={formData.estabelecimento_id}
-              onChange={handleChange}
-              style={{
-                width: '100%',
-                padding: '0.6rem',
-                border: '1px solid #e6eef2',
-                borderRadius: '8px',
-                backgroundColor: 'white',
-                color: 'var(--text)',
-                fontSize: '1rem',
-                boxSizing: 'border-box'
-              }}
-              required
-              disabled={loadingEstabs}
-            >
-              <option value="">
-                {loadingEstabs ? 'Carregando...' : 'Selecione um estabelecimento'}
-              </option>
-              {estabelecimentos.map((est) => (
-                <option key={est.id} value={est.id}>
-                  {est.nome || est.name || `Estabelecimento ${est.id}`}
-                </option>
-              ))}
-            </select>
+          {/* Info do estabelecimento */}
+          <div style={{
+            padding: '1rem',
+            backgroundColor: '#f3f4f6',
+            borderRadius: '8px',
+            marginBottom: '1.5rem'
+          }}>
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#6b7280' }}>
+              <strong>Estabelecimento:</strong>
+            </p>
+            <p style={{ margin: 0, fontSize: '1rem', color: 'var(--text)', fontWeight: '600' }}>
+              {selectedShop?.name}
+            </p>
+            {selectedShop?.address && (
+              <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#6b7280' }}>
+                📍 {selectedShop.address}
+              </p>
+            )}
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
@@ -477,7 +497,7 @@ function BookingModal({ isOpen, onClose, onSubmit }) {
                 fontWeight: '600'
               }}
             >
-              {loading ? 'Agendando...' : 'Agendar'}
+              {loading ? 'Agendando...' : 'Confirmar Agendamento'}
             </button>
           </div>
         </form>
@@ -488,6 +508,7 @@ function BookingModal({ isOpen, onClose, onSubmit }) {
 
 function PainelCliente() {
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedShop, setSelectedShop] = useState(null);
   const [agendamentos, setAgendamentos] = useState([]);
   const [loadingAgendamentos, setLoadingAgendamentos] = useState(true);
 
@@ -499,13 +520,11 @@ function PainelCliente() {
     try {
       const usuarioId = localStorage.getItem('usuarioId') || '1';
       
-      // Tentar carregar do endpoint
       try {
         const response = await fetch(`/api/agendamentos?usuario_id=${usuarioId}`);
         if (response.ok) {
           const data = await response.json();
           
-          // Enriquecer com nomes dos estabelecimentos e planos
           const agendamentosComNome = await Promise.all(
             (data || []).map(async (ag) => {
               try {
@@ -533,11 +552,9 @@ function PainelCliente() {
         console.warn('Endpoint GET /agendamentos não disponível, usando cache local');
       }
       
-      // Se não conseguir do backend, tentar sessionStorage
       const cachedAgendamentos = sessionStorage.getItem('agendamentos');
       if (cachedAgendamentos) {
         const parsed = JSON.parse(cachedAgendamentos);
-        // Garantir que plano_nome está presente
         const comNomePlano = parsed.map(ag => ({
           ...ag,
           plano_nome: ag.plano_nome || getNomePlano(ag.plano_id)
@@ -554,6 +571,11 @@ function PainelCliente() {
 
   function handleView(shop) {
     alert(`Abrindo detalhes de: ${shop.name}\n\nEndereço: ${shop.address}\nAvaliação: ${shop.rating}`);
+  }
+
+  function handleScheduleClick(shop) {
+    setSelectedShop(shop);
+    setShowBookingModal(true);
   }
 
   const handleBookingSubmit = async (formData) => {
@@ -581,7 +603,6 @@ function PainelCliente() {
 
       const result = await response.json();
       
-      // Buscar nome do estabelecimento
       const estab = await api.getEstablishmentById(estabId);
       const nomeEstab = estab?.nome || estab?.name || 'Estabelecimento';
       
@@ -605,32 +626,8 @@ function PainelCliente() {
     <>
       <UserBar />
       <main style={{ padding: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
           <h2>Painel do Cliente</h2>
-          <button
-            onClick={() => setShowBookingModal(true)}
-            style={{
-              width: '50px',
-              height: '50px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--accent)',
-              color: 'white',
-              border: 'none',
-              fontSize: '1.5rem',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(15,118,110,0.3)',
-              transition: 'transform 150ms ease'
-            }}
-            onMouseEnter={(e) => e.target.style.transform = 'scale(1.1)'}
-            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
-            title="Novo agendamento"
-          >
-            +
-          </button>
         </div>
 
         {agendamentos.length > 0 && (
@@ -662,12 +659,16 @@ function PainelCliente() {
           </section>
         )}
 
-        <ShopsList onView={handleView} />
+        <ShopsList onView={handleView} onSchedule={handleScheduleClick} />
 
         <BookingModal
           isOpen={showBookingModal}
-          onClose={() => setShowBookingModal(false)}
+          onClose={() => {
+            setShowBookingModal(false);
+            setSelectedShop(null);
+          }}
           onSubmit={handleBookingSubmit}
+          selectedShop={selectedShop}
         />
       </main>
     </>
