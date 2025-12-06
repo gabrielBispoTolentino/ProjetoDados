@@ -1,10 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../server/api';
+import BookingModal from './BookingModal';
+import { useState } from 'react';
+import UserAppointments from './UserApointment';
 
 function UserBar() {
   const navigate = useNavigate();
-  
+  const [aberto , setAberto] = useState(false);
   // Recupera os dados do usuário do localStorage
   const usuarioStr = localStorage.getItem('usuario');
   const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
@@ -52,10 +55,18 @@ function UserBar() {
             <span className="user-email">{usuario.email}</span>
           </div>
         </div>
-
+        <button  
+  className="edit-profile-button" 
+  onClick={() => setAberto(true)}
+>
+  Abrir Modal
+</button>
+<UserAppointments
+  isOpen={aberto}
+  onClose={() => setAberto(false)}
+/>
         <button 
           className="logout-button" 
-          onClick={handleLogout}
           title="Sair da conta"
         >
           <svg 

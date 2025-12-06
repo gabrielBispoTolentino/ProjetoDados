@@ -27,8 +27,11 @@ function Login() {
       const response = await api.login(formData);
       
       // Salva os dados do usuário no localStorage
-      localStorage.setItem('usuario', JSON.stringify(response.usuario));
-      
+     const { usuario } = response;
+
+      localStorage.setItem('usuarioId', usuario.id);
+      localStorage.setItem('usuario', JSON.stringify(usuario));
+ 
       alert('Login realizado com sucesso!');
       
       // Redireciona baseado no role do usuário

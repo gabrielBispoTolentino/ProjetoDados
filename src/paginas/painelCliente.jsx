@@ -1,20 +1,11 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react'
-import { api } from '../../server/api'
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { api } from '../../server/api';
 import UserBar from '../components/UserBar';
 import SearchBar from '../components/SearchBar';
 import AvaliaçõesBar from '../components/AvaliaçõesBar';
 import BookingModal from '../components/BookingModal';
 
 const PAGE_SIZE = 10;
-
-const PLANOS = {
-  '1': 'Corte Simples',
-  '2': 'Corte + Barba',
-  '3': 'Pacote Premium'
-};
-
-const getNomePlano = (planoId) =>
-  PLANOS[String(planoId)] || `Plano ${planoId}`;
 
 function ShopsList({
   onView,
@@ -372,75 +363,16 @@ function ShopsList({
     </section>
   );
 }
+
 function PainelCliente() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedShop, setSelectedShop] = useState(null);
-  const [agendamentos, setAgendamentos] = useState([]);
-  const [loadingAgendamentos, setLoadingAgendamentos] =
-    useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState('relevance');
 
   useEffect(() => {
-    loadAgendamentosDoUsuario();
+    console.log("ID salvo no localStorage:", localStorage.getItem("usuarioId"));
   }, []);
-
-  async function loadAgendamentosDoUsuario() {
-    try {
-      const usuarioId = localStorage.getItem('usuarioId') || '1';
-
-      try {
-        const data = await api.getAgendamentos(usuarioId);
-
-        const agendamentosComNome = await Promise.all(
-          (data || []).map(async (ag) => {
-            try {
-              const estab = await api.getEstablishmentById(
-                ag.estabelecimento_id
-              );
-              return {
-                ...ag,
-                nome:
-                  estab?.nome || estab?.name || 'Estabelecimento',
-                plano_nome: getNomePlano(ag.plano_id)
-              };
-            } catch {
-              return {
-                ...ag,
-                nome: 'Estabelecimento',
-                plano_nome: getNomePlano(ag.plano_id)
-              };
-            }
-          })
-        );
-
-        setAgendamentos(agendamentosComNome);
-        setLoadingAgendamentos(false);
-        return;
-      } catch (err) {
-        console.warn(
-          'Erro buscando agendamentos via API, tentando cache local…'
-        );
-      }
-
-      const cachedAgendamentos =
-        sessionStorage.getItem('agendamentos');
-      if (cachedAgendamentos) {
-        const parsed = JSON.parse(cachedAgendamentos);
-        const comNomePlano = parsed.map((ag) => ({
-          ...ag,
-          plano_nome:
-            ag.plano_nome || getNomePlano(ag.plano_id)
-        }));
-        setAgendamentos(comNomePlano);
-      }
-    } catch (err) {
-      console.error('Erro ao carregar agendamentos:', err);
-      setAgendamentos([]);
-    } finally {
-      setLoadingAgendamentos(false);
-    }
-  }
 
   function handleView(shop) {
     alert(
@@ -457,9 +389,10 @@ function PainelCliente() {
     try {
       const usuarioId = localStorage.getItem('usuarioId');
       if (!usuarioId) {
-         console.error("Usuário não autenticado!");
-         return;
-}
+        alert('Usuário não autenticado.');
+        return;
+      }
+
       const estabId = parseInt(formData.estabelecimento_id);
 
       const payload = {
@@ -482,27 +415,6 @@ function PainelCliente() {
           errorData.erro || 'Erro ao criar agendamento'
         );
       }
-
-      const result = await response.json();
-
-      const estab = await api.getEstablishmentById(estabId);
-      const nomeEstab =
-        estab?.nome || estab?.name || 'Estabelecimento';
-
-      const novoAgendamento = {
-        id: result.id,
-        ...payload,
-        nome: nomeEstab,
-        plano_nome: getNomePlano(formData.plano_id)
-      };
-
-      const agAtualizados = [...agendamentos, novoAgendamento];
-
-      setAgendamentos(agAtualizados);
-      sessionStorage.setItem(
-        'agendamentos',
-        JSON.stringify(agAtualizados)
-      );
 
       alert('Agendamento criado com sucesso!');
     } catch (err) {
@@ -533,52 +445,9 @@ function PainelCliente() {
           </div>
         </div>
 
-        {agendamentos.length > 0 && (
-          <section style={{ marginBottom: '2rem' }}>
-            <h3>Meus Agendamentos</h3>
-            {loadingAgendamentos ? (
-              <div className="loader">
-                Carregando agendamentos...
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: 'grid',
-                  gap: '1rem'
-                }}
-              >
-                {agendamentos.map((ag) => (
-                  <div
-                    key={ag.id}
-                    style={{
-                      padding: '1rem',
-                      backgroundColor: 'var(--surface)',
-                      border: '1px solid #e6eef2',
-                      borderRadius: '10px',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                    }}
-                  >
-                    <p>
-                      <strong>Estabelecimento:</strong> {ag.nome}
-                    </p>
-                    <p>
-                      <strong>Plano:</strong> {ag.plano_nome}
-                    </p>
-                    <p>
-                      <strong>Data/Hora:</strong>{' '}
-                      {new Date(
-                        ag.proximo_pag
-                      ).toLocaleString('pt-BR')}
-                    </p>
-                    <p>
-                      <strong>Status:</strong> {ag.status}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
+        {/* A seção "Meus Agendamentos" foi removida daqui pois agora
+           reside no componente UserAppointments.jsx
+        */}
 
         <ShopsList
           onView={handleView}
