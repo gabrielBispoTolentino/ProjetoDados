@@ -236,6 +236,14 @@ export const api = {
 
     return response.json();
   },
+  async getAgendamentosMinhaBarbearia(usuarioId) {
+  const response = await fetch(`${API_BASE_URL}/agendamentos/minha-barbearia?usuario_id=${usuarioId}`);
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.erro || 'Erro ao buscar agendamentos da minha barbearia');
+  }
+  return response.json(); // retorna array
+},  
   //============ Avaliações ============
   async createReview(reviewData) {
     const response = await fetch(`${API_BASE_URL}/avaliacoes`, {

@@ -4,6 +4,7 @@ import { api } from '../../server/api';
 import BookingModal from './BookingModal';
 import { useState } from 'react';
 import UserAppointments from './UserApointment';
+import BookedModal from './BookedModal';
 function UserBar() {
   const navigate = useNavigate();
   const [aberto , setAberto] = useState(false);
@@ -11,6 +12,7 @@ function UserBar() {
   const usuarioStr = localStorage.getItem('usuario');
   const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
   const IS_CLIENT = usuario && usuario.role === 'Cliente';
+  const IS_ADMIN = usuario && usuario.role === 'ADM_Estabelecimento';
   const handleLogout = () => {
     if (window.confirm('Deseja realmente sair?')) {
       localStorage.removeItem('usuario');
@@ -70,6 +72,16 @@ function UserBar() {
         )
           
         }
+        {IS_ADMIN &&(
+          <>
+          <button onClick={()=> setAberto(true)}>
+            Listar Agendamentos
+          </button>
+          <BookedModal
+            isOpen={aberto} 
+            onClose={() => setAberto(false)}/>
+          </>
+        )}
 
         <button onClick={()=> navigate("/login")}
           className="logout-button" 
