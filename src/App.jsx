@@ -1,24 +1,51 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Link } from 'react-router-dom'
 import './App.css'
 import Cadastro from './paginas/cadastro'
 import Login from './paginas/login'
 import PainelCliente from './paginas/painelCliente'
 import PainelAdmin from './paginas/PainelAdmin'
 
+function Navbar() {
+  const navigate = useNavigate();
+  return (
+    <nav className="navbar">
+      <div className="navbar-brand">
+        <div className="dots">
+          <div className="dot dot-red"></div>
+          <div className="dot dot-white"></div>
+          <div className="dot dot-blue"></div>
+        </div>
+        <span>Dinamic Cut</span>
+      </div>
+
+      <div className="navbar-menu">
+        <Link to="/login" className="nav-link">Log in</Link>
+        <Link to="/cadastro" className="nav-link">Registrar</Link>
+        <div className="search-wrapper">
+          <input type="text" placeholder="Find a style..." className="search-bar" />
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 function Navigation() {
   const navigate = useNavigate();
 
   return (
     <main className="hero">
+      <Navbar />
       <div className="hero-content">
-        <h1 className="hero-title reveal">Bem-vindo ao Rustic Cut</h1>
-        <p className="hero-lead reveal" data-revealdelay="80ms">Agende serviços, gerencie clientes e organize o dia a dia com velocidade e simplicidade.</p>
+        <h1 className="hero-title reveal">
+          Cortes dinamicos para o seu estilo.<br />
+          Escolha seu corte hoje.<br />
+          Defina seu estilo de amanhã.
+        </h1>
 
-        <div className="cta-group reveal" data-revealdelay="160ms">
-          <button className="btn btn-primary" onClick={() => navigate('/login')}>Entrar</button>
-          <button className="btn btn-primary" onClick={() => navigate('/cadastro')}>Criar conta</button>
-        </div>
+        <button className="hero-cta-button reveal" onClick={() => navigate('/cadastro')}>
+          Agende um corte ou se torne um parceiro
+        </button>
       </div>
     </main>
   );
