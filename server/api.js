@@ -187,24 +187,53 @@ export const api = {
     
     return response.json();
   },
-  async createAgenda(agendaData) {
-    const response = await fetch(`${API_BASE_URL}/agendamentos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(agendaData)
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao criar agendamento');
-    }
-    
-    return response.json();
-  },
-
+// ============= AGENDAMENTOS =============
   async getAgendamentos(usuarioId) {
     const response = await fetch(`${API_BASE_URL}/agendamentos?usuario_id=${usuarioId}`);
     if (!response.ok) throw new Error('Erro ao buscar agendamentos');
+    return response.json();
+  },
+
+  async getHorariosDisponiveis(estabelecimentoId, data) {
+    const response = await fetch(
+      `${API_BASE_URL}/agendamentos/horarios-disponiveis/${estabelecimentoId}?data=${data}`
+    );
+    if (!response.ok) throw new Error('Erro ao buscar horários disponíveis');
+    return response.json();
+  },
+
+  async cancelarAgendamento(agendamentoId) {
+    const usuarioId = localStorage.getItem('usuarioId');
+    const response = await fetch(`${API_BASE_URL}/agendamentos/${agendamentoId}/cancelar`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario_id: usuarioId })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao cancelar agendamento');
+    }
+
+    return response.json();
+  },
+
+  async reagendarAgendamento(agendamentoId, novaData) {
+    const usuarioId = localStorage.getItem('usuarioId');
+    const response = await fetch(`${API_BASE_URL}/agendamentos/${agendamentoId}/reagendar`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        usuario_id: usuarioId,
+        nova_data: novaData
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao reagendar agendamento');
+    }
+
     return response.json();
   },
   //============ Avaliações ============

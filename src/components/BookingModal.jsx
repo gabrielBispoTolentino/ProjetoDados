@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import TimeSlotSelector from './TimeSlotSelector';
 
 export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }) {
   const [formData, setFormData] = useState({
     estabelecimento_id: '',
     plano_id: '1',
+    selectedDate: '',
     proximo_pag: '',
     status: 'ativo'
   });
@@ -36,13 +38,14 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
         throw new Error('Estabelecimento não selecionado');
       }
       if (!formData.proximo_pag) {
-        throw new Error('Escolha uma data/hora');
+        throw new Error('Escolha uma data e horário');
       }
 
       await onSubmit(formData);
       setFormData({
         estabelecimento_id: '',
         plano_id: '1',
+        selectedDate: '',
         proximo_pag: '',
         status: 'ativo'
       });
@@ -144,15 +147,16 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
-            <label htmlFor="proximo_pag" style={{ display: 'block', marginBottom: '0.25rem', color: 'var(--muted)', fontSize: '0.9rem' }}>
-              Data e Hora
+            <label htmlFor="selectedDate" style={{ display: 'block', marginBottom: '0.25rem', color: 'var(--muted)', fontSize: '0.9rem' }}>
+              Selecione uma Data
             </label>
             <input
-              id="proximo_pag"
-              type="datetime-local"
-              name="proximo_pag"
-              value={formData.proximo_pag}
+              id="selectedDate"
+              type="date"
+              name="selectedDate"
+              value={formData.selectedDate}
               onChange={handleChange}
+              min={new Date().toISOString().split('T')[0]}
               style={{
                 width: '100%',
                 padding: '0.6rem',
@@ -164,6 +168,17 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
                 boxSizing: 'border-box'
               }}
               required
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <TimeSlotSelector
+              estabelecimentoId={formData.estabelecimento_id}
+              selectedDate={formData.selectedDate}
+              value={formData.proximo_pag}
+              onSelectDateTime={(dateTime) => {
+                setFormData(prev => ({ ...prev, proximo_pag: dateTime }));
+              }}
             />
           </div>
 
@@ -214,12 +229,14 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !formData.proximo_pag}
               className="btn btn-primary"
               style={{
                 padding: '0.6rem 1.2rem',
                 fontSize: '1rem',
-                fontWeight: '600'
+                fontWeight: '600',
+                opacity: (!formData.proximo_pag || loading) ? 0.5 : 1,
+                cursor: (!formData.proximo_pag || loading) ? 'not-allowed' : 'pointer'
               }}
             >
               {loading ? 'Agendando...' : 'Confirmar Agendamento'}
