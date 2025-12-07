@@ -1,21 +1,21 @@
-const API_BASE_URL = import.meta.env.PROD 
+const API_BASE_URL = import.meta.env.PROD
   ? 'http://localhost:3000'
   : '/api';
 
 export const api = {
   // ============= USUÁRIOS =============
-  
+
   async createUserWithPhoto(formData) {
     const response = await fetch(`${API_BASE_URL}/usuarios`, {
       method: 'POST',
       body: formData
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao criar usuário');
     }
-    
+
     return response.json();
   },
 
@@ -25,12 +25,12 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData)
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao criar usuário');
     }
-    
+
     return response.json();
   },
 
@@ -52,12 +52,12 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials)
     });
-    
+
     if (!response.ok) {
       const text = await response.text().catch(() => null);
       throw new Error(text || 'Erro ao efetuar login');
     }
-    
+
     return response.json();
   },
 
@@ -66,12 +66,12 @@ export const api = {
       method: 'PUT',
       body: formData
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao atualizar usuário');
     }
-    
+
     return response.json();
   },
 
@@ -81,12 +81,12 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(userData)
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao atualizar usuário');
     }
-    
+
     return response.json();
   },
 
@@ -94,12 +94,12 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
       method: 'DELETE'
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao deletar usuário');
     }
-    
+
     return response.json();
   },
 
@@ -122,12 +122,12 @@ export const api = {
       method: 'POST',
       body: formData
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao criar estabelecimento');
     }
-    
+
     return response.json();
   },
 
@@ -137,12 +137,12 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(establishmentData)
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao criar estabelecimento');
     }
-    
+
     return response.json();
   },
 
@@ -151,12 +151,12 @@ export const api = {
       method: 'PUT',
       body: formData
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao atualizar estabelecimento');
     }
-    
+
     return response.json();
   },
 
@@ -166,12 +166,12 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(establishmentData)
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao atualizar estabelecimento');
     }
-    
+
     return response.json();
   },
 
@@ -179,15 +179,15 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/establishments/${id}`, {
       method: 'DELETE'
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.erro || 'Erro ao deletar estabelecimento');
     }
-    
+
     return response.json();
   },
-// ============= AGENDAMENTOS =============
+  // ============= AGENDAMENTOS =============
   async getAgendamentos(usuarioId) {
     const response = await fetch(`${API_BASE_URL}/agendamentos?usuario_id=${usuarioId}`);
     if (!response.ok) throw new Error('Erro ao buscar agendamentos');
@@ -223,7 +223,7 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/agendamentos/${agendamentoId}/reagendar`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         usuario_id: usuarioId,
         nova_data: novaData
       })
@@ -236,14 +236,27 @@ export const api = {
 
     return response.json();
   },
+
+  async pagarAgendamento(agendamentoId) {
+    const response = await fetch(`${API_BASE_URL}/agendamentos/${agendamentoId}/pagar`, {
+      method: 'PATCH'
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao confirmar pagamento');
+    }
+
+    return response.json();
+  },
   async getAgendamentosMinhaBarbearia(usuarioId) {
-  const response = await fetch(`${API_BASE_URL}/agendamentos/minha-barbearia?usuario_id=${usuarioId}`);
-  if (!response.ok) {
-    const err = await response.json().catch(() => ({}));
-    throw new Error(err.erro || 'Erro ao buscar agendamentos da minha barbearia');
-  }
-  return response.json(); // retorna array
-},  
+    const response = await fetch(`${API_BASE_URL}/agendamentos/minha-barbearia?usuario_id=${usuarioId}`);
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.erro || 'Erro ao buscar agendamentos da minha barbearia');
+    }
+    return response.json(); // retorna array
+  },
   //============ Avaliações ============
   async createReview(reviewData) {
     const response = await fetch(`${API_BASE_URL}/avaliacoes`, {
@@ -260,7 +273,7 @@ export const api = {
     return response.json();
   },
   // ============= HELPERS =============
-  
+
   getPhotoUrl(photoPath) {
     if (!photoPath) return null;
     if (photoPath.startsWith('http')) return photoPath;

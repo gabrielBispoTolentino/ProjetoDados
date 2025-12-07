@@ -33,7 +33,7 @@ export default function UserAppointments({ isOpen, onClose }) {
       let data;
       try {
         data = await api.getAgendamentos(usuarioId);
-      } catch {}
+      } catch { }
 
       if (!data) {
         const cached = sessionStorage.getItem("agendamentos");
@@ -155,11 +155,12 @@ export default function UserAppointments({ isOpen, onClose }) {
               const agora = new Date();
               const dataAgendamento = new Date(ag.proximo_pag);
               const isPast = dataAgendamento < agora;
-              const podeEditar = !isPast && ag.status !== 'cancelado';
+              const podeEditar = !isPast && ag.status !== 'cancelado' && ag.pagamento_status !== 'completo';
+              const pagamentoPendente = ag.pagamento_status !== 'completo' && ag.status !== 'cancelado';
 
               return (
-                <div 
-                  key={ag.id} 
+                <div
+                  key={ag.id}
                   className={`appointment-card ${ag.status === 'cancelado' ? 'canceled' : ''}`}
                 >
                   <p><strong>Estabelecimento:</strong> {ag.nome}</p>
@@ -169,34 +170,66 @@ export default function UserAppointments({ isOpen, onClose }) {
                     {new Date(ag.proximo_pag).toLocaleString("pt-BR")}
                   </p>
                   <p>
+                    <strong>Valor:</strong> R$ {Number(ag.valor || 0).toFixed(2)}
+                  </p>
+                  <p>
+                    <strong>Pagamento:</strong>{" "}
+                    <span style={{
+                      color: ag.pagamento_status === 'completo' ? '#4ade80' : '#fbbf24',
+                      fontWeight: 'bold'
+                    }}>
+                      {ag.pagamento_status === 'completo' ? 'Pago' : 'Pendente'}
+                    </span>
+                  </p>
+                  <p>
                     <strong>Status:</strong>{" "}
-                    <span className={`appointment-status ${
-                      ag.status === 'ativo' ? 'active' :
+                    <span className={`appointment-status ${ag.status === 'ativo' ? 'active' :
                       ag.status === 'cancelado' ? 'canceled' :
-                      ag.status === 'atrasado' ? 'late' :
-                      'default'
-                    }`}>
+                        ag.status === 'atrasado' ? 'late' :
+                          'default'
+                      }`}>
                       {ag.status}
                     </span>
                   </p>
 
-                  {podeEditar && (
-                    <div className="appointment-actions">
+                  <div className="appointment-actions">
+                    {pagamentoPendente && (
+                      <button
+                        onClick={async () => {
+                          try {
+                            if (!window.confirm(`Confirma o pagamento de R$ ${Number(ag.valor || 0).toFixed(2)}?`)) return;
+                            await api.pagarAgendamento(ag.id);
+                            alert('Pagamento confirmado!');
+                            await loadAgendamentosDoUsuario();
+                          } catch (err) {
+                            alert(err.message);
+                          }
+                        }}
+                        className="appointment-btn-pay"
+                        style={{ backgroundColor: '#22c55e', color: 'white', marginRight: '0.5rem' }}
+                      >
+                        Pagar
+                      </button>
+                    )}
+
+                    {podeEditar && (
                       <button
                         onClick={() => abrirReagendamento(ag)}
                         className="appointment-btn-reschedule"
                       >
                         Reagendar
                       </button>
-                      
+                    )}
+
+                    {podeEditar && (
                       <button
                         onClick={() => handleCancelar(ag.id)}
                         className="appointment-btn-cancel"
                       >
                         Cancelar
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   {isPast && ag.status !== 'cancelado' && (
                     <p className="appointment-past-notice">
@@ -215,7 +248,7 @@ export default function UserAppointments({ isOpen, onClose }) {
         <div className="appointments-overlay">
           <div className="appointments-modal">
             <button className="appointments-close-button" onClick={fecharReagendamento}>×</button>
-            
+
             <h3 className="appointments-title">Reagendar Horário</h3>
 
             <div className="reschedule-form-group">
@@ -255,7 +288,7 @@ export default function UserAppointments({ isOpen, onClose }) {
               >
                 Confirmar
               </button>
-              
+
               <button
                 onClick={fecharReagendamento}
                 className="reschedule-btn-cancel"
