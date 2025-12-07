@@ -31,6 +31,53 @@
   transform: translateY(-2px);
 }
 
+/* Tabs */
+.plan-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.plan-tab {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-tab:hover {
+  color: #e0e0e0;
+}
+
+.plan-tab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+.tab-count {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.plan-tab.active .tab-count {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+
 .plan-form {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -158,6 +205,40 @@
   color: #ef4444;
 }
 
+/* Badges */
+.plan-badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.plan-badge-criador {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.plan-badge-parceiro {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.plan-card.parceria {
+  border-left: 3px solid #3b82f6;
+}
+
+
 .plan-description {
   color: #b0b0b0;
   font-size: 14px;
@@ -207,10 +288,27 @@
   color: white;
 }
 
-.btn-edit:hover,
 .btn-delete:hover {
   opacity: 0.8;
 }
+
+.btn-secondary {
+  flex: 1;
+  padding: 8px 16px;
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.7);
+}
+
 
 .no-plans {
   text-align: center;

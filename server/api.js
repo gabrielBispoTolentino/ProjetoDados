@@ -295,6 +295,55 @@ export const api = {
     return response.json();
   },
 
+  // Novos métodos para sistema de parcerias
+  async getMyPlanos(estabelecimentoId) {
+    const response = await fetch(`${API_BASE_URL}/planos/meus/${estabelecimentoId}`);
+    if (!response.ok) throw new Error('Erro ao buscar meus planos');
+    return response.json();
+  },
+
+  async getMarketplacePlanos(estabelecimentoId) {
+    const response = await fetch(`${API_BASE_URL}/planos/marketplace?estabelecimento_id=${estabelecimentoId}`);
+    if (!response.ok) throw new Error('Erro ao buscar planos do marketplace');
+    return response.json();
+  },
+
+  async participarPlano(planoId, estabelecimentoId) {
+    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/participar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estabelecimento_id: estabelecimentoId })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao participar do plano');
+    }
+
+    return response.json();
+  },
+
+  async sairPlano(planoId, estabelecimentoId) {
+    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/sair`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estabelecimento_id: estabelecimentoId })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao sair do plano');
+    }
+
+    return response.json();
+  },
+
+  async getPlanoParceiros(planoId) {
+    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/parceiros`);
+    if (!response.ok) throw new Error('Erro ao buscar parceiros do plano');
+    return response.json();
+  },
+
   async getPlanosDisponiveis() {
     const response = await fetch(`${API_BASE_URL}/planos/disponiveis`);
     if (!response.ok) throw new Error('Erro ao buscar planos disponíveis');
@@ -316,9 +365,11 @@ export const api = {
     return response.json();
   },
 
-  async deletePlano(planoId) {
+  async deletePlano(planoId, estabelecimentoId) {
     const response = await fetch(`${API_BASE_URL}/planos/${planoId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ estabelecimento_id: estabelecimentoId })
     });
 
     if (!response.ok) {

@@ -22,7 +22,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-/src/temp/
-/src/temp/servidor.js
-/src/temp/planos_routes.js
-src/temp/servidor.js
+/src/temp
