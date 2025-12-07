@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import UserBar from '../components/UserBar';
 import { api } from '../../server/api';
 import './css/PainelAdmin.css';
-
+import PlanManager from '../components/PlanManager';
 function PainelAdmin() {
   const navigate = useNavigate();
   const [barbearias, setBarbearias] = useState([]);
@@ -14,7 +14,8 @@ function PainelAdmin() {
   const [barbeariaAtual, setBarbeariaAtual] = useState(null);
   const [foto, setFoto] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  
+  const [planModalOpen, setPlanModalOpen] = useState(false);
+const [selectedBarbeariaForPlans, setSelectedBarbeariaForPlans] = useState(null);
   useEffect(() => {
     const usuarioStr = localStorage.getItem('usuario');
     if (!usuarioStr) {
@@ -282,6 +283,15 @@ function PainelAdmin() {
                 
                 <div className="admin-shop-actions">
                   <button 
+                    className="btn btn-secondary"
+                    onClick={() => {
+                      setSelectedBarbeariaForPlans(barbearia.id);
+                      setPlanModalOpen(true);
+                    }}
+                  >
+                    Planos
+                  </button>
+                  <button 
                     className="btn btn-primary admin-btn-edit"
                     onClick={() => abrirModalEdicao(barbearia)}
                   >
@@ -465,6 +475,32 @@ function PainelAdmin() {
             </div>
           </div>
         )}
+        {/* Plan Management Modal */}
+{planModalOpen && selectedBarbeariaForPlans && (
+  <div className="admin-modal-backdrop" onClick={() => setPlanModalOpen(false)}>
+    <div className="card admin-modal-container" style={{ maxWidth: '1200px' }} onClick={(e) => e.stopPropagation()}>
+      <button 
+        onClick={() => setPlanModalOpen(false)}
+        style={{
+          position: 'absolute',
+          top: '16px',
+          right: '16px',
+          background: 'rgba(255,255,255,0.1)',
+          border: 'none',
+          color: '#e0e0e0',
+          fontSize: '24px',
+          width: '32px',
+          height: '32px',
+          borderRadius: '50%',
+          cursor: 'pointer'
+        }}
+      >
+        ×
+      </button>
+      <PlanManager estabelecimentoId={selectedBarbeariaForPlans} />
+    </div>
+  </div>
+)}
       </main>
     </>
   );

@@ -56,24 +56,12 @@ export default function UserAppointments({ isOpen, onClose }) {
         return;
       }
 
-      const agendamentosComNome = await Promise.all(
-        data.map(async (ag) => {
-          try {
-            const estab = await api.getEstablishmentById(ag.estabelecimento_id);
-            return {
-              ...ag,
-              nome: estab?.nome || estab?.name || "Estabelecimento",
-              plano_nome: getNomePlano(ag.plano_id)
-            };
-          } catch {
-            return {
-              ...ag,
-              nome: "Estabelecimento",
-              plano_nome: getNomePlano(ag.plano_id)
-            };
-          }
-        })
-      );
+      // Backend já retorna estabelecimento_nome, apenas adicionar plano_nome
+      const agendamentosComNome = data.map((ag) => ({
+        ...ag,
+        nome: ag.estabelecimento_nome || "Estabelecimento",
+        plano_nome: getNomePlano(ag.plano_id)
+      }));
 
       setAgendamentos(agendamentosComNome);
       sessionStorage.setItem("agendamentos", JSON.stringify(agendamentosComNome));

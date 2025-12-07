@@ -272,6 +272,100 @@ export const api = {
 
     return response.json();
   },
+
+  //============ Planos ============
+  async createPlano(planoData) {
+    const response = await fetch(`${API_BASE_URL}/planos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(planoData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao criar plano');
+    }
+
+    return response.json();
+  },
+
+  async getPlanosByEstabelecimento(estabelecimentoId) {
+    const response = await fetch(`${API_BASE_URL}/planos/estabelecimento/${estabelecimentoId}`);
+    if (!response.ok) throw new Error('Erro ao buscar planos');
+    return response.json();
+  },
+
+  async getPlanosDisponiveis() {
+    const response = await fetch(`${API_BASE_URL}/planos/disponiveis`);
+    if (!response.ok) throw new Error('Erro ao buscar planos disponíveis');
+    return response.json();
+  },
+
+  async updatePlano(planoId, planoData) {
+    const response = await fetch(`${API_BASE_URL}/planos/${planoId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(planoData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao atualizar plano');
+    }
+
+    return response.json();
+  },
+
+  async deletePlano(planoId) {
+    const response = await fetch(`${API_BASE_URL}/planos/${planoId}`, {
+      method: 'DELETE'
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao deletar plano');
+    }
+
+    return response.json();
+  },
+
+  //============ Inscrições ============
+  async subscribeToPlan(inscricaoData) {
+    const response = await fetch(`${API_BASE_URL}/inscricoes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(inscricaoData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao criar inscrição');
+    }
+
+    return response.json();
+  },
+
+  async getUserSubscriptions(usuarioId) {
+    const response = await fetch(`${API_BASE_URL}/inscricoes/usuario/${usuarioId}`);
+    if (!response.ok) throw new Error('Erro ao buscar inscrições');
+    return response.json();
+  },
+
+  async cancelSubscription(inscricaoId, motivo) {
+    const response = await fetch(`${API_BASE_URL}/inscricoes/${inscricaoId}/cancelar`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ motivo })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.erro || 'Erro ao cancelar inscrição');
+    }
+
+    return response.json();
+  },
+
   // ============= HELPERS =============
 
   getPhotoUrl(photoPath) {

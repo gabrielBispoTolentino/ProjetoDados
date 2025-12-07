@@ -21,7 +21,7 @@ function ShopsList({
   const [error, setError] = useState(null);
   const sentinelRef = useRef(null);
   const loadingRef = useRef(false);
-
+ 
   // Modal State
   const [detailsShop, setDetailsShop] = useState(null);
 

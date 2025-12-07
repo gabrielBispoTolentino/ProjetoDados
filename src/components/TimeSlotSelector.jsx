@@ -7,11 +7,11 @@ const HORARIOS_TRABALHO = [
   '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00'
 ];
 
-export default function TimeSlotSelector({ 
-  estabelecimentoId, 
-  selectedDate, 
+export default function TimeSlotSelector({
+  estabelecimentoId,
+  selectedDate,
   onSelectDateTime,
-  value 
+  value
 }) {
   const [horariosOcupados, setHorariosOcupados] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ export default function TimeSlotSelector({
     const [hora, minuto] = horario.split(':');
     const dataCompleta = new Date(selectedDate);
     dataCompleta.setHours(parseInt(hora), parseInt(minuto), 0, 0);
-    
+
     return horariosOcupados.some(ocupado => {
       const dataOcupada = new Date(ocupado);
       return dataCompleta.getTime() === dataOcupada.getTime();
@@ -54,25 +54,33 @@ export default function TimeSlotSelector({
     const [hora, minuto] = horario.split(':');
     const dataCompleta = new Date(selectedDate);
     dataCompleta.setHours(parseInt(hora), parseInt(minuto), 0, 0);
-    
+
     return dataCompleta < new Date();
   };
 
   const handleSelectHorario = (horario) => {
     const [hora, minuto] = horario.split(':');
-    const dataCompleta = new Date(selectedDate);
-    dataCompleta.setHours(parseInt(hora), parseInt(minuto), 0, 0);
-    
-    const isoString = dataCompleta.toISOString().slice(0, 16);
-    onSelectDateTime(isoString);
+
+    // Create datetime string in local time format (YYYY-MM-DDTHH:MM)
+    const datePart = selectedDate.split('T')[0]; // Get YYYY-MM-DD
+    const timePart = `${hora.padStart(2, '0')}:${minuto.padStart(2, '0')}`;
+    const localDateTime = `${datePart}T${timePart}`;
+
+    onSelectDateTime(localDateTime);
   };
 
   const getCurrentTimeSlot = () => {
     if (!value) return null;
-    const date = new Date(value);
-    const hora = String(date.getHours()).padStart(2, '0');
-    const minuto = String(date.getMinutes()).padStart(2, '0');
-    return `${hora}:${minuto}`;
+
+    // Extrair tempo de  datetime string (YYYY-MM-DDTHH:MM format)
+    if (typeof value === 'string' && value.includes('T')) {
+      const timePart = value.split('T')[1];
+      if (timePart) {
+        return timePart.substring(0, 5); // Get HH:MM
+      }
+    }
+
+    return null;
   };
 
   if (!selectedDate) {
@@ -138,12 +146,12 @@ export default function TimeSlotSelector({
           <div className="timeslot-legend-box available" />
           <span>Disponível</span>
         </div>
-        
+
         <div className="timeslot-legend-item">
           <div className="timeslot-legend-box selected" />
           <span>Selecionado</span>
         </div>
-        
+
         <div className="timeslot-legend-item">
           <div className="timeslot-legend-box occupied" />
           <span>Ocupado</span>

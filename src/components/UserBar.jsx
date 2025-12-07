@@ -5,11 +5,13 @@ import { api } from '../../server/api';
 import BookingModal from './BookingModal';
 import UserAppointments from './UserApointment';
 import BookedModal from './BookedModal';
+import UserSubscriptions from './UserSubscriptions';
 function UserBar() {
   const navigate = useNavigate();
   const [aberto, setAberto] = useState(false);
   // Recupera os dados do usuário do localStorage
   const usuarioStr = localStorage.getItem('usuario');
+  const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
   const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
   const IS_CLIENT = usuario && usuario.role === 'Cliente';
   const IS_ADMIN = usuario && usuario.role === 'ADM_Estabelecimento';
@@ -64,9 +66,16 @@ function UserBar() {
             >
               Meus Agendamentos
             </button>
+            <button onClick={() => setSubscriptionsOpen(true)}>
+              Minhas Assinaturas
+            </button>
             <UserAppointments
               isOpen={aberto}
               onClose={() => setAberto(false)}
+            />
+            <UserSubscriptions 
+              isOpen={subscriptionsOpen} 
+              onClose={() => setSubscriptionsOpen(false)} 
             />
           </>
         )
