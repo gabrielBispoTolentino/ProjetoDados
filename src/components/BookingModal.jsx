@@ -8,10 +8,17 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
     plano_id: '1',
     selectedDate: '',
     proximo_pag: '',
-    status: 'ativo'
+    status: 'ativo',
+    metodo_pagamento: '1'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const PLAN_PRICES = {
+    1: 25.00,
+    2: 40.00,
+    3: 60.00
+  };
 
   useEffect(() => {
     if (isOpen && selectedShop) {
@@ -48,7 +55,8 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
         plano_id: '1',
         selectedDate: '',
         proximo_pag: '',
-        status: 'ativo'
+        status: 'ativo',
+        metodo_pagamento: '1'
       });
       onClose();
     } catch (err) {
@@ -99,9 +107,30 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
               onChange={handleChange}
               className="booking-form-select"
             >
-              <option value="1">Corte Simples</option>
-              <option value="2">Corte + Barba</option>
-              <option value="3">Pacote Premium</option>
+              <option value="1">Corte Simples - R$ {PLAN_PRICES[1].toFixed(2)}</option>
+              <option value="2">Corte + Barba - R$ {PLAN_PRICES[2].toFixed(2)}</option>
+              <option value="3">Pacote Premium - R$ {PLAN_PRICES[3].toFixed(2)}</option>
+            </select>
+            <p style={{ marginTop: '0.5rem', color: '#4ade80', fontWeight: 'bold' }}>
+              Total: R$ {PLAN_PRICES[formData.plano_id]?.toFixed(2) || '0.00'}
+            </p>
+          </div>
+
+          <div className="booking-form-group">
+            <label htmlFor="metodo_pagamento" className="booking-form-label">
+              Método de Pagamento
+            </label>
+            <select
+              id="metodo_pagamento"
+              name="metodo_pagamento"
+              value={formData.metodo_pagamento}
+              onChange={handleChange}
+              className="booking-form-select"
+            >
+              <option value="1">Dinheiro</option>
+              <option value="2">Cartão de Crédito</option>
+              <option value="3">Cartão de Débito</option>
+              <option value="4">Pix</option>
             </select>
           </div>
 

@@ -267,7 +267,8 @@ function PainelCliente() {
         estabelecimento_id: estabId,
         plano_id: parseInt(formData.plano_id),
         proximo_pag: formData.proximo_pag,
-        status: formData.status
+        status: formData.status,
+        metodo_pagamento: parseInt(formData.metodo_pagamento)
       };
 
       const response = await fetch('/api/agendamentos', {
