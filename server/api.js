@@ -416,6 +416,34 @@ export const api = {
 
     return response.json();
   },
+   async getPlanoBeneficios(planoId) {
+    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/beneficios`);
+    if (!response.ok) throw new Error('Erro ao buscar benefícios');
+    return response.json();
+},
+
+  async addPlanoBeneficio(planoId, beneficioData) {
+    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/beneficios`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(beneficioData)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.erro || 'Erro ao adicionar benefício');
+    }
+
+    return response.json();
+},
+
+  //============ Serviços ============
+  async getServicos() {
+    const response = await fetch(`${API_BASE_URL}/servicos`);
+    if (!response.ok) throw new Error('Erro ao buscar serviços');
+    return response.json();
+},
+
 
   // ============= HELPERS =============
 

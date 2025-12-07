@@ -19,23 +19,36 @@ function ShopsList({
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
+  const [userSubscriptions, setUserSubscriptions] = useState([]);
+  const [subscriptionsLoaded, setSubscriptionsLoaded] = useState(false);
   const sentinelRef = useRef(null);
   const loadingRef = useRef(false);
- 
+
   // Modal State
   const [detailsShop, setDetailsShop] = useState(null);
 
   const visibleShops = useMemo(() => {
     const q = (searchQuery || '').trim().toLowerCase();
     let filtered = shops;
+
+    // Filtro de busca por nome
     if (q.length > 0) {
       filtered = shops.filter((s) =>
         (s.name || '').toLowerCase().includes(q)
       );
     }
 
+    // Filtro de assinaturas
+    if (sortOption === 'my-subscriptions' && subscriptionsLoaded) {
+      filtered = filtered.filter((s) => userSubscriptions.includes(s.id));
+    }
+
+    // Ordenação
     const sorted = [...filtered];
     switch (sortOption) {
+      case 'my-subscriptions':
+        // Já filtrado, manter ordem de relevância
+        break;
       case 'alpha-asc':
         sorted.sort((a, b) =>
           (a.name || '').localeCompare(b.name || '', 'pt-BR')
@@ -72,11 +85,32 @@ function ShopsList({
         break;
     }
     return sorted;
-  }, [shops, searchQuery, sortOption]);
+  }, [shops, searchQuery, sortOption, userSubscriptions, subscriptionsLoaded]);
 
   useEffect(() => {
     loadPage(1);
+    loadUserSubscriptions();
   }, []);
+
+  const loadUserSubscriptions = async () => {
+    try {
+      const usuarioId = localStorage.getItem('usuarioId');
+      if (!usuarioId) return;
+
+      const subscriptions = await api.getUserSubscriptions(usuarioId);
+      // Extrair IDs únicos de estabelecimentos das assinaturas ativas
+      const estabelecimentoIds = subscriptions
+        .filter(sub => ['ativo', 'free trial'].includes(sub.status))
+        .map(sub => sub.estabelecimento_id || sub.id_estabelecimento)
+        .filter(id => id); // Remove nulls/undefined
+
+      setUserSubscriptions(estabelecimentoIds);
+      setSubscriptionsLoaded(true);
+    } catch (err) {
+      console.error('Erro ao carregar assinaturas:', err);
+      setSubscriptionsLoaded(true);
+    }
+  };
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -198,7 +232,14 @@ function ShopsList({
               </div>
 
               <div className="shop-info">
-                <h4 className="shop-name">{s.name}</h4>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h4 className="shop-name">{s.name}</h4>
+                  {userSubscriptions.includes(s.id) && (
+                    <span className="subscription-badge" title="Você tem assinatura ativa nesta barbearia">
+                      ⭐
+                    </span>
+                  )}
+                </div>
                 <p className="shop-address">{s.address}</p>
                 <div className="shop-rating">
                   ⭐ {Number(s.rating).toFixed(1)} <span style={{ color: '#6b7280', fontWeight: '400' }}>({s.ratingCount})</span>
@@ -265,9 +306,8 @@ function PainelCliente() {
       const payload = {
         usuario_id: parseInt(usuarioId),
         estabelecimento_id: estabId,
-        plano_id: parseInt(formData.plano_id),
+        servico_id: parseInt(formData.servico_id), // Mudado de plano_id para servico_id
         proximo_pag: formData.proximo_pag,
-        status: formData.status,
         metodo_pagamento: parseInt(formData.metodo_pagamento)
       };
 

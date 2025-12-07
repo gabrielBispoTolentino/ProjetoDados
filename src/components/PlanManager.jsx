@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../../server/api';
 import PlanMarketplace from './PlanMarketplace';
 import PartnerListModal from './PartnerListModal';
+import BenefitManager from './BenefitManager';
 import './css/PlanManager.css';
 
 export default function PlanManager({ estabelecimentoId }) {
@@ -12,6 +13,8 @@ export default function PlanManager({ estabelecimentoId }) {
     const [showForm, setShowForm] = useState(false);
     const [partnerModalOpen, setPartnerModalOpen] = useState(false);
     const [selectedPlanoForPartners, setSelectedPlanoForPartners] = useState(null);
+    const [benefitModalOpen, setBenefitModalOpen] = useState(false);
+    const [selectedPlanoForBenefits, setSelectedPlanoForBenefits] = useState(null);
 
     const [formData, setFormData] = useState({
         nome: '',
@@ -319,6 +322,15 @@ export default function PlanManager({ estabelecimentoId }) {
                                                 Ver Parceiros
                                             </button>
                                             <button
+                                                className="btn-secondary"
+                                                onClick={() => {
+                                                    setSelectedPlanoForBenefits(plano);
+                                                    setBenefitModalOpen(true);
+                                                }}
+                                            >
+                                                Gerenciar Benefícios
+                                            </button>
+                                            <button
                                                 className="btn-edit"
                                                 onClick={() => handleEdit(plano)}
                                             >
@@ -408,6 +420,22 @@ export default function PlanManager({ estabelecimentoId }) {
                     setSelectedPlanoForPartners(null);
                 }}
             />
+
+            {/* Benefit Manager Modal */}
+            {benefitModalOpen && (
+                <div className="modal-overlay" onClick={() => setBenefitModalOpen(false)}>
+                    <div className="modal-content-large" onClick={(e) => e.stopPropagation()}>
+                        <BenefitManager
+                            planoId={selectedPlanoForBenefits?.id}
+                            planoNome={selectedPlanoForBenefits?.nome}
+                            onClose={() => {
+                                setBenefitModalOpen(false);
+                                setSelectedPlanoForBenefits(null);
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

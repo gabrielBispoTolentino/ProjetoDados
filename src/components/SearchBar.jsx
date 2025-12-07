@@ -20,6 +20,7 @@ export default function SearchBar({ value, onChange, sort, onSortChange, placeho
         aria-label="Ordenar lista"
       >
         <option value="relevance">Relevância</option>
+        <option value="my-subscriptions">🌟 Minhas Assinaturas</option>
         <option value="alpha-asc">Ordem alfabética (A → Z)</option>
         <option value="alpha-desc">Ordem alfabética (Z → A)</option>
         <option value="rating-desc">Avaliação (maior primeiro)</option>
@@ -27,6 +28,7 @@ export default function SearchBar({ value, onChange, sort, onSortChange, placeho
         <option value="reviews-desc">Quantidade de avaliações (maior primeiro)</option>
         <option value="reviews-asc">Quantidade de avaliações (menor primeiro)</option>
       </select>
+
     </div>
   );
 }

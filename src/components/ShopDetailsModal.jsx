@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from '../../server/api';
 import AvaliaçõesBar from './AvaliaçõesBar';
+import PlanSubscriptionModal from './PlanSubscriptionModal';
 import './css/ShopDetailsModal.css';
 
 export default function ShopDetailsModal({
@@ -10,6 +11,7 @@ export default function ShopDetailsModal({
     onClose,
     onSchedule
 }) {
+    const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
     useEffect(() => {
         document.body.style.overflow = isOpen ? 'hidden' : 'auto';
         return () => { document.body.style.overflow = 'auto'; };
@@ -85,6 +87,12 @@ export default function ShopDetailsModal({
                         >
                             Agendar Horário
                         </button>
+                        <button
+                            className="shop-details-subscribe-btn"
+                            onClick={() => setShowSubscriptionModal(true)}
+                        >
+                            Assinar Plano
+                        </button>
                     </div>
 
                     <div className="shop-details-section">
@@ -119,6 +127,13 @@ export default function ShopDetailsModal({
                         />
                     </div>
                 </div>
+
+                {/* Plan Subscription Modal */}
+                <PlanSubscriptionModal
+                    isOpen={showSubscriptionModal}
+                    onClose={() => setShowSubscriptionModal(false)}
+                    shop={shop}
+                />
             </div>
         </div>,
         document.body

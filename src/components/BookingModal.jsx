@@ -5,7 +5,7 @@ import './css/BookingModal.css';
 export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }) {
   const [formData, setFormData] = useState({
     estabelecimento_id: '',
-    plano_id: '1',
+    servico_id: '1', // Mudado de plano_id para servico_id
     selectedDate: '',
     proximo_pag: '',
     status: 'ativo',
@@ -14,10 +14,10 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const PLAN_PRICES = {
-    1: 25.00,
-    2: 40.00,
-    3: 60.00
+  const SERVICO_PRICES = { // Mudado de PLAN_PRICES para SERVICO_PRICES
+    1: 40.00, // Corte de Cabelo
+    2: 30.00, // Barba
+    3: 60.00  // Combo Completo
   };
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
       await onSubmit(formData);
       setFormData({
         estabelecimento_id: '',
-        plano_id: '1',
+        servico_id: '1',
         selectedDate: '',
         proximo_pag: '',
         status: 'ativo',
@@ -97,22 +97,22 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
           </div>
 
           <div className="booking-form-group">
-            <label htmlFor="plano_id" className="booking-form-label">
-              Plano
+            <label htmlFor="servico_id" className="booking-form-label">
+              Serviço
             </label>
             <select
-              id="plano_id"
-              name="plano_id"
-              value={formData.plano_id}
+              id="servico_id"
+              name="servico_id"
+              value={formData.servico_id}
               onChange={handleChange}
               className="booking-form-select"
             >
-              <option value="1">Corte Simples - R$ {PLAN_PRICES[1].toFixed(2)}</option>
-              <option value="2">Corte + Barba - R$ {PLAN_PRICES[2].toFixed(2)}</option>
-              <option value="3">Pacote Premium - R$ {PLAN_PRICES[3].toFixed(2)}</option>
+              <option value="1">Corte de Cabelo - R$ {SERVICO_PRICES[1].toFixed(2)}</option>
+              <option value="2">Barba - R$ {SERVICO_PRICES[2].toFixed(2)}</option>
+              <option value="3">Combo Completo - R$ {SERVICO_PRICES[3].toFixed(2)}</option>
             </select>
             <p style={{ marginTop: '0.5rem', color: '#4ade80', fontWeight: 'bold' }}>
-              Total: R$ {PLAN_PRICES[formData.plano_id]?.toFixed(2) || '0.00'}
+              Total: R$ {SERVICO_PRICES[formData.servico_id]?.toFixed(2) || '0.00'}
             </p>
           </div>
 
