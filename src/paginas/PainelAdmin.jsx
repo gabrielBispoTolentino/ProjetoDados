@@ -4,6 +4,7 @@ import UserBar from '../components/UserBar';
 import { api } from '../../server/api';
 import './css/PainelAdmin.css';
 import PlanManager from '../components/PlanManager';
+import ReportLucro from '../components/ReportLucro';
 function PainelAdmin() {
   const navigate = useNavigate();
   const [barbearias, setBarbearias] = useState([]);
@@ -16,6 +17,8 @@ function PainelAdmin() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [planModalOpen, setPlanModalOpen] = useState(false);
 const [selectedBarbeariaForPlans, setSelectedBarbeariaForPlans] = useState(null);
+const [selectedBarbeariaId, setSelectedBarbeariaId] = useState(null);
+const [reportModalOpen, setReportModalOpen] = useState(false);
   useEffect(() => {
     const usuarioStr = localStorage.getItem('usuario');
     if (!usuarioStr) {
@@ -292,6 +295,16 @@ const [selectedBarbeariaForPlans, setSelectedBarbeariaForPlans] = useState(null)
                     Planos
                   </button>
                   <button 
+                      className="btn btn-secondary"
+                    onClick={() => {
+                      setSelectedBarbeariaId(barbearia.id);
+                      setReportModalOpen(true);
+                    }}
+                  >
+                    Relatórios
+                   </button>
+
+                  <button 
                     className="btn btn-primary admin-btn-edit"
                     onClick={() => abrirModalEdicao(barbearia)}
                   >
@@ -501,6 +514,22 @@ const [selectedBarbeariaForPlans, setSelectedBarbeariaForPlans] = useState(null)
     </div>
   </div>
 )}
+{reportModalOpen && selectedBarbeariaId && (
+          <div className="admin-modal-backdrop" onClick={() => setReportModalOpen(false)}>
+            <div className="card admin-modal-container" style={{ maxWidth: '1400px' }} 
+                 onClick={(e) => e.stopPropagation()}>
+              <button onClick={() => setReportModalOpen(false)} 
+                      style={{ position: 'absolute', top: '16px', right: '16px', 
+                              background: 'rgba(255,255,255,0.1)', border: 'none', 
+                              color: '#e0e0e0', fontSize: '24px', width: '32px', 
+                              height: '32px', borderRadius: '50%', cursor: 'pointer' }}>
+                ×
+              </button>
+              <ReportLucro estabelecimentoId={selectedBarbeariaId} />
+            </div>
+          </div>
+        )}
+
       </main>
     </>
   );
