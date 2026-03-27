@@ -5,26 +5,26 @@ import './css/BookingModal.css';
 export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }) {
   const [formData, setFormData] = useState({
     estabelecimento_id: '',
-    servico_id: '1', // Mudado de plano_id para servico_id
+    servico_id: '1',
     selectedDate: '',
     proximo_pag: '',
     status: 'ativo',
-    metodo_pagamento: '1'
+    metodo_pagamento: '3',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const SERVICO_PRICES = { // Mudado de PLAN_PRICES para SERVICO_PRICES
-    1: 40.00, // Corte de Cabelo
-    2: 30.00, // Barba
-    3: 60.00  // Combo Completo
+  const SERVICO_PRICES = {
+    1: 40.0,
+    2: 30.0,
+    3: 60.0,
   };
 
   useEffect(() => {
     if (isOpen && selectedShop) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        estabelecimento_id: String(selectedShop.id)
+        estabelecimento_id: String(selectedShop.id),
       }));
     }
   }, [isOpen, selectedShop]);
@@ -32,7 +32,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -43,10 +43,10 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
 
     try {
       if (!formData.estabelecimento_id) {
-        throw new Error('Estabelecimento não selecionado');
+        throw new Error('Estabelecimento nao selecionado');
       }
       if (!formData.proximo_pag) {
-        throw new Error('Escolha uma data e horário');
+        throw new Error('Escolha uma data e horario');
       }
 
       await onSubmit(formData);
@@ -56,7 +56,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
         selectedDate: '',
         proximo_pag: '',
         status: 'ativo',
-        metodo_pagamento: '1'
+        metodo_pagamento: '3',
       });
       onClose();
     } catch (err) {
@@ -66,7 +66,9 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="booking-modal-backdrop">
@@ -75,11 +77,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
           Agendar em {selectedShop?.name || 'Barbearia'}
         </h3>
 
-        {error && (
-          <div className="booking-modal-error">
-            {error}
-          </div>
-        )}
+        {error && <div className="booking-modal-error">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="booking-establishment-info">
@@ -91,14 +89,14 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
             </p>
             {selectedShop?.address && (
               <p className="booking-establishment-address">
-                📍 {selectedShop.address}
+                {selectedShop.address}
               </p>
             )}
           </div>
 
           <div className="booking-form-group">
             <label htmlFor="servico_id" className="booking-form-label">
-              Serviço
+              Servico
             </label>
             <select
               id="servico_id"
@@ -118,7 +116,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
 
           <div className="booking-form-group">
             <label htmlFor="metodo_pagamento" className="booking-form-label">
-              Método de Pagamento
+              Metodo de Pagamento
             </label>
             <select
               id="metodo_pagamento"
@@ -127,10 +125,10 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
               onChange={handleChange}
               className="booking-form-select"
             >
-              <option value="1">Dinheiro</option>
-              <option value="2">Cartão de Crédito</option>
-              <option value="3">Cartão de Débito</option>
-              <option value="4">Pix</option>
+              <option value="3">Cartao de Credito</option>
+              <option value="4">Cartao de Debito</option>
+              <option value="2">Pix</option>
+              <option value="1">Boleto</option>
             </select>
           </div>
 
@@ -156,7 +154,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
               selectedDate={formData.selectedDate}
               value={formData.proximo_pag}
               onSelectDateTime={(dateTime) => {
-                setFormData(prev => ({ ...prev, proximo_pag: dateTime }));
+                setFormData((prev) => ({ ...prev, proximo_pag: dateTime }));
               }}
             />
           </div>

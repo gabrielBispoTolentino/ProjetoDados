@@ -1,455 +1,312 @@
-const API_BASE_URL = import.meta.env.PROD
-  ? 'http://localhost:3000'
-  : '/api';
+const configuredApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+const API_BASE_URL = configuredApiUrl || '/api';
+
+function buildUrl(path) {
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  return `${API_BASE_URL}${normalizedPath}`;
+}
+
+async function parseError(response, fallbackMessage) {
+  try {
+    const errorData = await response.json();
+    return new Error(errorData.erro || errorData.message || fallbackMessage);
+  } catch {
+    const text = await response.text().catch(() => null);
+    return new Error(text || fallbackMessage);
+  }
+}
+
+async function request(path, options = {}, fallbackMessage = 'Erro ao processar requisicao') {
+  const response = await fetch(buildUrl(path), options);
+
+  if (!response.ok) {
+    throw await parseError(response, fallbackMessage);
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json().catch(() => null);
+}
 
 export const api = {
-  // ============= USUÁRIOS =============
-
-  async createUserWithPhoto(formData) {
-    const response = await fetch(`${API_BASE_URL}/usuarios`, {
+  createUserWithPhoto(formData) {
+    return request('/usuarios', {
       method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao criar usuário');
-    }
-
-    return response.json();
+      body: formData,
+    }, 'Erro ao criar usuario');
   },
 
-  async createUser(userData) {
-    const response = await fetch(`${API_BASE_URL}/usuarios`, {
+  createUser(userData) {
+    return request('/usuarios', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao criar usuário');
-    }
-
-    return response.json();
+      body: JSON.stringify(userData),
+    }, 'Erro ao criar usuario');
   },
 
-  async getUsers() {
-    const response = await fetch(`${API_BASE_URL}/usuarios`);
-    if (!response.ok) throw new Error('Erro ao buscar usuários');
-    return response.json();
+  getUsers() {
+    return request('/usuarios', {}, 'Erro ao buscar usuarios');
   },
 
-  async getUserById(id) {
-    const response = await fetch(`${API_BASE_URL}/usuarios/${id}`);
-    if (!response.ok) throw new Error('Erro ao buscar usuário');
-    return response.json();
+  getUserById(id) {
+    return request(`/usuarios/${id}`, {}, 'Erro ao buscar usuario');
   },
 
-  async login(credentials) {
-    const response = await fetch(`${API_BASE_URL}/login`, {
+  login(credentials) {
+    return request('/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credentials)
-    });
-
-    if (!response.ok) {
-      const text = await response.text().catch(() => null);
-      throw new Error(text || 'Erro ao efetuar login');
-    }
-
-    return response.json();
+      body: JSON.stringify(credentials),
+    }, 'Erro ao efetuar login');
   },
 
-  async updateUserWithPhoto(id, formData) {
-    const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
+  updateUserWithPhoto(id, formData) {
+    return request(`/usuarios/${id}`, {
       method: 'PUT',
-      body: formData
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao atualizar usuário');
-    }
-
-    return response.json();
+      body: formData,
+    }, 'Erro ao atualizar usuario');
   },
 
-  async updateUser(id, userData) {
-    const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
+  updateUser(id, userData) {
+    return request(`/usuarios/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao atualizar usuário');
-    }
-
-    return response.json();
+      body: JSON.stringify(userData),
+    }, 'Erro ao atualizar usuario');
   },
 
-  async deleteUser(id) {
-    const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
-      method: 'DELETE'
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao deletar usuário');
-    }
-
-    return response.json();
+  deleteUser(id) {
+    return request(`/usuarios/${id}`, {
+      method: 'DELETE',
+    }, 'Erro ao deletar usuario');
   },
 
-  // ============= ESTABELECIMENTOS =============
-
-  async getEstablishments(page = 1, limit = 5) {
-    const response = await fetch(`${API_BASE_URL}/establishments?page=${page}&limit=${limit}`);
-    if (!response.ok) throw new Error('Erro ao buscar estabelecimentos');
-    return response.json();
+  getEstablishments(page = 1, limit = 5) {
+    return request(`/establishments?page=${page}&limit=${limit}`, {}, 'Erro ao buscar estabelecimentos');
   },
 
-  async getEstablishmentById(id) {
-    const response = await fetch(`${API_BASE_URL}/establishments/${id}`);
-    if (!response.ok) throw new Error('Erro ao buscar estabelecimento');
-    return response.json();
+  getEstablishmentById(id) {
+    return request(`/establishments/${id}`, {}, 'Erro ao buscar estabelecimento');
   },
 
-  async createEstablishmentWithPhoto(formData) {
-    const response = await fetch(`${API_BASE_URL}/establishments`, {
+  createEstablishmentWithPhoto(formData) {
+    return request('/establishments', {
       method: 'POST',
-      body: formData
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao criar estabelecimento');
-    }
-
-    return response.json();
+      body: formData,
+    }, 'Erro ao criar estabelecimento');
   },
 
-  async createEstablishment(establishmentData) {
-    const response = await fetch(`${API_BASE_URL}/establishments`, {
+  createEstablishment(establishmentData) {
+    return request('/establishments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(establishmentData)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao criar estabelecimento');
-    }
-
-    return response.json();
+      body: JSON.stringify(establishmentData),
+    }, 'Erro ao criar estabelecimento');
   },
 
-  async updateEstablishmentWithPhoto(id, formData) {
-    const response = await fetch(`${API_BASE_URL}/establishments/${id}`, {
+  updateEstablishmentWithPhoto(id, formData) {
+    return request(`/establishments/${id}`, {
       method: 'PUT',
-      body: formData
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao atualizar estabelecimento');
-    }
-
-    return response.json();
+      body: formData,
+    }, 'Erro ao atualizar estabelecimento');
   },
 
-  async updateEstablishment(id, establishmentData) {
-    const response = await fetch(`${API_BASE_URL}/establishments/${id}`, {
+  updateEstablishment(id, establishmentData) {
+    return request(`/establishments/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(establishmentData)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao atualizar estabelecimento');
-    }
-
-    return response.json();
+      body: JSON.stringify(establishmentData),
+    }, 'Erro ao atualizar estabelecimento');
   },
 
-  async deleteEstablishment(id) {
-    const response = await fetch(`${API_BASE_URL}/establishments/${id}`, {
-      method: 'DELETE'
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao deletar estabelecimento');
-    }
-
-    return response.json();
-  },
-  // ============= AGENDAMENTOS =============
-  async getAgendamentos(usuarioId) {
-    const response = await fetch(`${API_BASE_URL}/agendamentos?usuario_id=${usuarioId}`);
-    if (!response.ok) throw new Error('Erro ao buscar agendamentos');
-    return response.json();
+  deleteEstablishment(id) {
+    return request(`/establishments/${id}`, {
+      method: 'DELETE',
+    }, 'Erro ao deletar estabelecimento');
   },
 
-  async getHorariosDisponiveis(estabelecimentoId, data) {
-    const response = await fetch(
-      `${API_BASE_URL}/agendamentos/horarios-disponiveis/${estabelecimentoId}?data=${data}`
+  getAgendamentos(usuarioId) {
+    return request(`/agendamentos?usuario_id=${usuarioId}`, {}, 'Erro ao buscar agendamentos');
+  },
+
+  createAgendamento(agendamentoData) {
+    return request('/agendamentos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(agendamentoData),
+    }, 'Erro ao criar agendamento');
+  },
+
+  getHorariosDisponiveis(estabelecimentoId, data) {
+    return request(
+      `/agendamentos/horarios-disponiveis/${estabelecimentoId}?data=${data}`,
+      {},
+      'Erro ao buscar horarios disponiveis',
     );
-    if (!response.ok) throw new Error('Erro ao buscar horários disponíveis');
-    return response.json();
   },
 
-  async cancelarAgendamento(agendamentoId) {
+  cancelarAgendamento(agendamentoId) {
     const usuarioId = localStorage.getItem('usuarioId');
-    const response = await fetch(`${API_BASE_URL}/agendamentos/${agendamentoId}/cancelar`, {
+    return request(`/agendamentos/${agendamentoId}/cancelar`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usuario_id: usuarioId })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao cancelar agendamento');
-    }
-
-    return response.json();
+      body: JSON.stringify({ usuario_id: usuarioId }),
+    }, 'Erro ao cancelar agendamento');
   },
 
-  async reagendarAgendamento(agendamentoId, novaData) {
+  reagendarAgendamento(agendamentoId, novaData) {
     const usuarioId = localStorage.getItem('usuarioId');
-    const response = await fetch(`${API_BASE_URL}/agendamentos/${agendamentoId}/reagendar`, {
+    return request(`/agendamentos/${agendamentoId}/reagendar`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         usuario_id: usuarioId,
-        nova_data: novaData
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao reagendar agendamento');
-    }
-
-    return response.json();
+        nova_data: novaData,
+      }),
+    }, 'Erro ao reagendar agendamento');
   },
 
-  async pagarAgendamento(agendamentoId) {
-    const response = await fetch(`${API_BASE_URL}/agendamentos/${agendamentoId}/pagar`, {
-      method: 'PATCH'
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao confirmar pagamento');
-    }
-
-    return response.json();
+  pagarAgendamento(agendamentoId) {
+    return request(`/agendamentos/${agendamentoId}/pagar`, {
+      method: 'PATCH',
+    }, 'Erro ao confirmar pagamento');
   },
-  async getAgendamentosMinhaBarbearia(usuarioId) {
-    const response = await fetch(`${API_BASE_URL}/agendamentos/minha-barbearia?usuario_id=${usuarioId}`);
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err.erro || 'Erro ao buscar agendamentos da minha barbearia');
-    }
-    return response.json(); // retorna array
+
+  getAgendamentosMinhaBarbearia(usuarioId) {
+    return request(`/agendamentos/minha-barbearia?usuario_id=${usuarioId}`, {}, 'Erro ao buscar agendamentos da minha barbearia');
   },
-  //============ Avaliações ============
-  async createReview(reviewData) {
-    const response = await fetch(`${API_BASE_URL}/avaliacoes`, {
+
+  createReview(reviewData) {
+    return request('/avaliacoes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(reviewData)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao criar avaliação');
-    }
-
-    return response.json();
+      body: JSON.stringify(reviewData),
+    }, 'Erro ao criar avaliacao');
   },
 
-  //============ Planos ============
-  async createPlano(planoData) {
-    const response = await fetch(`${API_BASE_URL}/planos`, {
+  createPlano(planoData) {
+    return request('/planos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(planoData)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao criar plano');
-    }
-
-    return response.json();
+      body: JSON.stringify(planoData),
+    }, 'Erro ao criar plano');
   },
 
-  async getPlanosByEstabelecimento(estabelecimentoId) {
-    const response = await fetch(`${API_BASE_URL}/planos/estabelecimento/${estabelecimentoId}`);
-    if (!response.ok) throw new Error('Erro ao buscar planos');
-    return response.json();
+  getPlanosByEstabelecimento(estabelecimentoId) {
+    return request(`/planos/estabelecimento/${estabelecimentoId}`, {}, 'Erro ao buscar planos');
   },
 
-  // Novos métodos para sistema de parcerias
-  async getMyPlanos(estabelecimentoId) {
-    const response = await fetch(`${API_BASE_URL}/planos/meus/${estabelecimentoId}`);
-    if (!response.ok) throw new Error('Erro ao buscar meus planos');
-    return response.json();
+  getPlanosDisponiveisByEstabelecimento(estabelecimentoId) {
+    return request(`/planos/estabelecimento/${estabelecimentoId}/disponiveis`, {}, 'Erro ao carregar planos');
   },
 
-  async getMarketplacePlanos(estabelecimentoId) {
-    const response = await fetch(`${API_BASE_URL}/planos/marketplace?estabelecimento_id=${estabelecimentoId}`);
-    if (!response.ok) throw new Error('Erro ao buscar planos do marketplace');
-    return response.json();
+  getMyPlanos(estabelecimentoId) {
+    return request(`/planos/meus/${estabelecimentoId}`, {}, 'Erro ao buscar meus planos');
   },
 
-  async participarPlano(planoId, estabelecimentoId) {
-    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/participar`, {
+  getMarketplacePlanos(estabelecimentoId) {
+    return request(`/planos/marketplace?estabelecimento_id=${estabelecimentoId}`, {}, 'Erro ao buscar planos do marketplace');
+  },
+
+  participarPlano(planoId, estabelecimentoId) {
+    return request(`/planos/${planoId}/participar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ estabelecimento_id: estabelecimentoId })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao participar do plano');
-    }
-
-    return response.json();
+      body: JSON.stringify({ estabelecimento_id: estabelecimentoId }),
+    }, 'Erro ao participar do plano');
   },
 
-  async sairPlano(planoId, estabelecimentoId) {
-    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/sair`, {
+  sairPlano(planoId, estabelecimentoId) {
+    return request(`/planos/${planoId}/sair`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ estabelecimento_id: estabelecimentoId })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao sair do plano');
-    }
-
-    return response.json();
+      body: JSON.stringify({ estabelecimento_id: estabelecimentoId }),
+    }, 'Erro ao sair do plano');
   },
 
-  async getPlanoParceiros(planoId) {
-    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/parceiros`);
-    if (!response.ok) throw new Error('Erro ao buscar parceiros do plano');
-    return response.json();
+  getPlanoParceiros(planoId) {
+    return request(`/planos/${planoId}/parceiros`, {}, 'Erro ao buscar parceiros do plano');
   },
 
-  async getPlanosDisponiveis() {
-    const response = await fetch(`${API_BASE_URL}/planos/disponiveis`);
-    if (!response.ok) throw new Error('Erro ao buscar planos disponíveis');
-    return response.json();
+  getPlanosDisponiveis() {
+    return request('/planos/disponiveis', {}, 'Erro ao buscar planos disponiveis');
   },
 
-  async updatePlano(planoId, planoData) {
-    const response = await fetch(`${API_BASE_URL}/planos/${planoId}`, {
+  updatePlano(planoId, planoData) {
+    return request(`/planos/${planoId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(planoData)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao atualizar plano');
-    }
-
-    return response.json();
+      body: JSON.stringify(planoData),
+    }, 'Erro ao atualizar plano');
   },
 
-  async deletePlano(planoId, estabelecimentoId) {
-    const response = await fetch(`${API_BASE_URL}/planos/${planoId}`, {
+  deletePlano(planoId, estabelecimentoId) {
+    return request(`/planos/${planoId}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ estabelecimento_id: estabelecimentoId })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao deletar plano');
-    }
-
-    return response.json();
+      body: JSON.stringify({ estabelecimento_id: estabelecimentoId }),
+    }, 'Erro ao deletar plano');
   },
 
-  //============ Inscrições ============
-  async subscribeToPlan(inscricaoData) {
-    const response = await fetch(`${API_BASE_URL}/inscricoes`, {
+  subscribeToPlan(inscricaoData) {
+    return request('/inscricoes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(inscricaoData)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao criar inscrição');
-    }
-
-    return response.json();
+      body: JSON.stringify(inscricaoData),
+    }, 'Erro ao criar inscricao');
   },
 
-  async getUserSubscriptions(usuarioId) {
-    const response = await fetch(`${API_BASE_URL}/inscricoes/usuario/${usuarioId}`);
-    if (!response.ok) throw new Error('Erro ao buscar inscrições');
-    return response.json();
+  getUserSubscriptions(usuarioId) {
+    return request(`/inscricoes/usuario/${usuarioId}`, {}, 'Erro ao buscar inscricoes');
   },
 
-  async cancelSubscription(inscricaoId, motivo) {
-    const response = await fetch(`${API_BASE_URL}/inscricoes/${inscricaoId}/cancelar`, {
+  cancelSubscription(inscricaoId, motivo) {
+    return request(`/inscricoes/${inscricaoId}/cancelar`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ motivo })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.erro || 'Erro ao cancelar inscrição');
-    }
-
-    return response.json();
+      body: JSON.stringify({ motivo }),
+    }, 'Erro ao cancelar inscricao');
   },
-   async getPlanoBeneficios(planoId) {
-    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/beneficios`);
-    if (!response.ok) throw new Error('Erro ao buscar benefícios');
-    return response.json();
-},
 
-  async addPlanoBeneficio(planoId, beneficioData) {
-    const response = await fetch(`${API_BASE_URL}/planos/${planoId}/beneficios`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(beneficioData)
-    });
+  getPlanoBeneficios(planoId) {
+    return request(`/planos/${planoId}/beneficios`, {}, 'Erro ao buscar beneficios');
+  },
 
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.erro || 'Erro ao adicionar benefício');
-    }
+  addPlanoBeneficio(planoId, beneficioData) {
+    return request(`/planos/${planoId}/beneficios`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(beneficioData),
+    }, 'Erro ao adicionar beneficio');
+  },
 
-    return response.json();
-},
+  getServicos() {
+    return request('/servicos', {}, 'Erro ao buscar servicos');
+  },
 
-  //============ Serviços ============
-  async getServicos() {
-    const response = await fetch(`${API_BASE_URL}/servicos`);
-    if (!response.ok) throw new Error('Erro ao buscar serviços');
-    return response.json();
-},
+  getReportLucro(estabelecimentoId) {
+    return request(`/report-lucro?estabelecimento_id=${estabelecimentoId}`, {}, 'Erro ao carregar relatorios');
+  },
 
-
-  // ============= HELPERS =============
+  generateReportLucro(payload) {
+    return request('/report-lucro/auto', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }, 'Erro ao gerar relatorio');
+  },
 
   getPhotoUrl(photoPath) {
-    if (!photoPath) return null;
-    if (photoPath.startsWith('http')) return photoPath;
-    return `${API_BASE_URL}${photoPath}`;
-  }
+    if (!photoPath) {
+      return null;
+    }
+
+    if (photoPath.startsWith('http')) {
+      return photoPath;
+    }
+
+    return buildUrl(photoPath);
+  },
 };

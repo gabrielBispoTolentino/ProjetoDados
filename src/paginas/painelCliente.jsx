@@ -311,18 +311,7 @@ function PainelCliente() {
         metodo_pagamento: parseInt(formData.metodo_pagamento)
       };
 
-      const response = await fetch('/api/agendamentos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.erro || 'Erro ao criar agendamento'
-        );
-      }
+      await api.createAgendamento(payload);
 
       alert('Agendamento criado com sucesso!');
     } catch (err) {
