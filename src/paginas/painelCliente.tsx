@@ -276,23 +276,26 @@ function ShopsList({
                   )}
                 </div>
                 <p className="shop-address">{shop.address}</p>
-                <div className="shop-rating">
-                  * {Number(shop.rating || 0).toFixed(1)}{' '}
-                  <span style={{ color: '#6b7280', fontWeight: '400' }}>
-                    ({shop.ratingCount || 0})
-                  </span>
+                <div className="shop-rating-row">
+                  <div className="shop-rating">
+                    * {Number(shop.rating || 0).toFixed(1)}{' '}
+                    <span style={{ color: '#6b7280', fontWeight: '400' }}>
+                      ({shop.ratingCount || 0})
+                    </span>
+                  </div>
+
+                  <button
+                    className="schedule-btn"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onSchedule(shop);
+                    }}
+                    aria-label={`Agendar em ${shop.name}`}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
-
-              <button
-                className="schedule-btn"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onSchedule(shop);
-                }}
-              >
-                +
-              </button>
             </div>
           </div>
         ))}
