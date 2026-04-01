@@ -22,13 +22,12 @@ export default function Login() {
     } as LoginCredentials));
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function authenticate(credentials: LoginCredentials) {
     setErro('');
     setCarregando(true);
 
     try {
-      const response = await api.login(formData);
+      const response = await api.login(credentials);
       const { usuario } = response;
 
       localStorage.setItem('usuarioId', String(usuario.id));
@@ -45,6 +44,11 @@ export default function Login() {
     } finally {
       setCarregando(false);
     }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await authenticate(formData);
   }
 
   return (
@@ -74,6 +78,35 @@ export default function Login() {
             {carregando ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
+
+        <div className="login-demo-panel">
+          <p className="login-demo-title">Acesso rapido para preview</p>
+          <div className="login-demo-actions">
+            <button
+              type="button"
+              className="login-demo-btn"
+              onClick={() => {
+                void authenticate({ usuario: 'cliente@demo.com', senha: '123456' });
+              }}
+              disabled={carregando}
+            >
+              Cliente Demo
+            </button>
+            <button
+              type="button"
+              className="login-demo-btn"
+              onClick={() => {
+                void authenticate({ usuario: 'admin@demo.com', senha: '123456' });
+              }}
+              disabled={carregando}
+            >
+              Admin Demo
+            </button>
+          </div>
+          <p className="login-demo-hint">
+            Credenciais: `cliente@demo.com` ou `admin@demo.com` com senha `123456`.
+          </p>
+        </div>
 
         <button className="login-back-btn" type="button" onClick={() => navigate('/')} disabled={carregando}>
           &larr; Voltar para Home
