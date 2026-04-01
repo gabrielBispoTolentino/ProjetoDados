@@ -1,48 +1,51 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../server/api';
-import './css/Login.css'; // Import the new CSS
+import type { LoginCredentials } from '../types/domain';
+import './css/Login.css';
 
-function Login() {
+export default function Login() {
   const navigate = useNavigate();
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<LoginCredentials>({
     usuario: '',
-    senha: ''
+    senha: '',
   });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    const { name, value } = event.target;
+    setFormData((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    } as LoginCredentials));
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setErro('');
     setCarregando(true);
 
     try {
       const response = await api.login(formData);
-
       const { usuario } = response;
 
-      localStorage.setItem('usuarioId', usuario.id);
+      localStorage.setItem('usuarioId', String(usuario.id));
       localStorage.setItem('usuario', JSON.stringify(usuario));
-      if (response.usuario.role === 'ADM_Estabelecimento') {
+
+      if (usuario.role === 'ADM_Estabelecimento') {
         navigate('/painel-admin');
       } else {
         navigate('/painel');
       }
-    } catch (error) {
-      setErro(error.message || 'Erro ao fazer login. Tente novamente.');
-      console.error(error);
+    } catch (caughtError) {
+      setErro(caughtError instanceof Error ? caughtError.message : 'Erro ao fazer login. Tente novamente.');
+      console.error(caughtError);
     } finally {
       setCarregando(false);
     }
-  };
+  }
 
   return (
     <div className="login-container">
@@ -79,5 +82,3 @@ function Login() {
     </div>
   );
 }
-
-export default Login;

@@ -1,43 +1,64 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import TimeSlotSelector from './TimeSlotSelector';
+import type {
+  BookingFormData,
+  ServiceOptionId,
+  ShopSummary,
+} from '../types/domain';
 import './css/BookingModal.css';
 
-export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }) {
-  const [formData, setFormData] = useState({
-    estabelecimento_id: '',
-    servico_id: '1',
-    selectedDate: '',
-    proximo_pag: '',
-    status: 'ativo',
-    metodo_pagamento: '3',
-  });
+type BookingModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (formData: BookingFormData) => Promise<void> | void;
+  selectedShop: ShopSummary | null;
+};
+
+const INITIAL_FORM_DATA: BookingFormData = {
+  estabelecimento_id: '',
+  servico_id: '1',
+  selectedDate: '',
+  proximo_pag: '',
+  status: 'ativo',
+  metodo_pagamento: '3',
+};
+
+const SERVICO_PRICES: Record<ServiceOptionId, number> = {
+  '1': 40,
+  '2': 30,
+  '3': 60,
+};
+
+export default function BookingModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  selectedShop,
+}: BookingModalProps) {
+  const [formData, setFormData] = useState<BookingFormData>(INITIAL_FORM_DATA);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const SERVICO_PRICES = {
-    1: 40.0,
-    2: 30.0,
-    3: 60.0,
-  };
-
   useEffect(() => {
     if (isOpen && selectedShop) {
-      setFormData((prev) => ({
-        ...prev,
+      setFormData((currentForm) => ({
+        ...currentForm,
         estabelecimento_id: String(selectedShop.id),
       }));
     }
   }, [isOpen, selectedShop]);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  function handleChange(event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+    const { name, value } = event.target;
+    setFormData((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    } as BookingFormData));
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError('');
     setLoading(true);
 
@@ -45,26 +66,20 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
       if (!formData.estabelecimento_id) {
         throw new Error('Estabelecimento nao selecionado');
       }
+
       if (!formData.proximo_pag) {
         throw new Error('Escolha uma data e horario');
       }
 
       await onSubmit(formData);
-      setFormData({
-        estabelecimento_id: '',
-        servico_id: '1',
-        selectedDate: '',
-        proximo_pag: '',
-        status: 'ativo',
-        metodo_pagamento: '3',
-      });
+      setFormData(INITIAL_FORM_DATA);
       onClose();
-    } catch (err) {
-      setError(err.message || 'Erro ao agendar');
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : 'Erro ao agendar');
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   if (!isOpen) {
     return null;
@@ -84,13 +99,9 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
             <p className="booking-establishment-label">
               <strong>Estabelecimento:</strong>
             </p>
-            <p className="booking-establishment-name">
-              {selectedShop?.name}
-            </p>
+            <p className="booking-establishment-name">{selectedShop?.name}</p>
             {selectedShop?.address && (
-              <p className="booking-establishment-address">
-                {selectedShop.address}
-              </p>
+              <p className="booking-establishment-address">{selectedShop.address}</p>
             )}
           </div>
 
@@ -105,12 +116,12 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
               onChange={handleChange}
               className="booking-form-select"
             >
-              <option value="1">Corte de Cabelo - R$ {SERVICO_PRICES[1].toFixed(2)}</option>
-              <option value="2">Barba - R$ {SERVICO_PRICES[2].toFixed(2)}</option>
-              <option value="3">Combo Completo - R$ {SERVICO_PRICES[3].toFixed(2)}</option>
+              <option value="1">Corte de Cabelo - R$ {SERVICO_PRICES['1'].toFixed(2)}</option>
+              <option value="2">Barba - R$ {SERVICO_PRICES['2'].toFixed(2)}</option>
+              <option value="3">Combo Completo - R$ {SERVICO_PRICES['3'].toFixed(2)}</option>
             </select>
             <p style={{ marginTop: '0.5rem', color: '#4ade80', fontWeight: 'bold' }}>
-              Total: R$ {SERVICO_PRICES[formData.servico_id]?.toFixed(2) || '0.00'}
+              Total: R$ {SERVICO_PRICES[formData.servico_id].toFixed(2)}
             </p>
           </div>
 
@@ -154,7 +165,7 @@ export default function BookingModal({ isOpen, onClose, onSubmit, selectedShop }
               selectedDate={formData.selectedDate}
               value={formData.proximo_pag}
               onSelectDateTime={(dateTime) => {
-                setFormData((prev) => ({ ...prev, proximo_pag: dateTime }));
+                setFormData((currentForm) => ({ ...currentForm, proximo_pag: dateTime }));
               }}
             />
           </div>
