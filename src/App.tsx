@@ -1,20 +1,26 @@
-import { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, Link } from 'react-router-dom'
-import './App.css'
-import Cadastro from './paginas/cadastro'
-import Login from './paginas/login'
-import PainelCliente from './paginas/painelCliente'
-import PainelAdmin from './paginas/PainelAdmin'
+import { useEffect } from 'react';
+import {
+  BrowserRouter as Router,
+  Link,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
+import './App.css';
+import Cadastro from './paginas/cadastro';
+import Login from './paginas/login';
+import PainelCliente from './paginas/painelCliente';
+import PainelAdmin from './paginas/PainelAdmin';
 
 function Navbar() {
-  const navigate = useNavigate();
   return (
     <nav className="navbar">
       <div className="navbar-brand">
         <div className="dots">
-          <div className="dot dot-red"></div>
-          <div className="dot dot-white"></div>
-          <div className="dot dot-blue"></div>
+          <div className="dot dot-red" />
+          <div className="dot dot-white" />
+          <div className="dot dot-blue" />
         </div>
         <span>Dinamic Cut</span>
       </div>
@@ -38,9 +44,11 @@ function Navigation() {
       <Navbar />
       <div className="hero-content">
         <h1 className="hero-title reveal">
-          Cortes dinamicos para o seu estilo.<br />
-          Escolha seu corte hoje.<br />
-          Defina seu estilo de amanhã.
+          Cortes dinamicos para o seu estilo.
+          <br />
+          Escolha seu corte hoje.
+          <br />
+          Defina seu estilo de amanha.
         </h1>
 
         <button className="hero-cta-button reveal" onClick={() => navigate('/cadastro')}>
@@ -57,25 +65,29 @@ function RevealObserver() {
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
-        const el = entry.target;
+        const element = entry.target as HTMLElement;
         if (entry.isIntersecting) {
-          const delay = el.getAttribute('data-revealdelay') || '0ms';
-          el.style.transitionDelay = delay;
-          el.classList.add('reveal--visible');
-          observer.unobserve(el);
+          const delay = element.getAttribute('data-revealdelay') || '0ms';
+          element.style.transitionDelay = delay;
+          element.classList.add('reveal--visible');
+          observer.unobserve(element);
         }
       }
     }, {
       threshold: 0.08,
     });
+
     const observeAll = () => {
-      document.querySelectorAll('.reveal:not(.reveal--visible)').forEach((el) => observer.observe(el));
+      document
+        .querySelectorAll<HTMLElement>('.reveal:not(.reveal--visible)')
+        .forEach((element) => observer.observe(element));
     };
+
     observeAll();
-    const t = setTimeout(observeAll, 60);
+    const timeoutId = window.setTimeout(observeAll, 60);
 
     return () => {
-      clearTimeout(t);
+      window.clearTimeout(timeoutId);
       observer.disconnect();
     };
   }, [location]);
@@ -83,7 +95,7 @@ function RevealObserver() {
   return null;
 }
 
-function App() {
+export default function App() {
   return (
     <Router>
       <RevealObserver />
@@ -97,5 +109,3 @@ function App() {
     </Router>
   );
 }
-
-export default App

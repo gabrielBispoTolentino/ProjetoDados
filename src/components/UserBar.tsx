@@ -1,35 +1,38 @@
-import React, { useState } from 'react';
-import './css/UserBar.css';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../server/api';
-import BookingModal from './BookingModal';
+import type { UserSummary } from '../types/domain';
 import UserAppointments from './UserApointment';
 import BookedModal from './BookedModal';
 import UserSubscriptions from './UserSubscriptions';
-function UserBar() {
+import './css/UserBar.css';
+
+function parseStoredUser(): UserSummary | null {
+  const usuarioStr = localStorage.getItem('usuario');
+  if (!usuarioStr) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(usuarioStr) as UserSummary;
+  } catch {
+    return null;
+  }
+}
+
+export default function UserBar() {
   const navigate = useNavigate();
   const [aberto, setAberto] = useState(false);
-  // Recupera os dados do usuário do localStorage
-  const usuarioStr = localStorage.getItem('usuario');
   const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
-  const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
-  const IS_CLIENT = usuario && usuario.role === 'Cliente';
-  const IS_ADMIN = usuario && usuario.role === 'ADM_Estabelecimento';
-  const handleLogout = () => {
-    if (window.confirm('Deseja realmente sair?')) {
-      localStorage.removeItem('usuario');
-      navigate('/login');
-    }
-  };
+  const usuario = parseStoredUser();
+  const isClient = usuario?.role === 'Cliente';
+  const isAdmin = usuario?.role === 'ADM_Estabelecimento';
 
   if (!usuario) {
     return null;
   }
 
-  // Pega a URL da foto ou usa um avatar padrão
-  const fotoUrl = usuario.fotoUrl
-    ? api.getPhotoUrl(usuario.fotoUrl)
-    : null;
+  const fotoUrl = usuario.fotoUrl ? api.getPhotoUrl(usuario.fotoUrl) : null;
 
   return (
     <div className="user-bar">
@@ -58,41 +61,29 @@ function UserBar() {
             <span className="user-email">{usuario.email}</span>
           </div>
         </div>
-        {IS_CLIENT && (
+
+        {isClient && (
           <>
-            <button
-              className="edit-profile-button"
-              onClick={() => setAberto(true)}
-            >
+            <button className="edit-profile-button" onClick={() => setAberto(true)}>
               Meus Agendamentos
             </button>
             <button onClick={() => setSubscriptionsOpen(true)}>
               Minhas Assinaturas
             </button>
-            <UserAppointments
-              isOpen={aberto}
-              onClose={() => setAberto(false)}
-            />
-            <UserSubscriptions 
-              isOpen={subscriptionsOpen} 
-              onClose={() => setSubscriptionsOpen(false)} 
-            />
-          </>
-        )
-
-        }
-        {IS_ADMIN && (
-          <>
-            <button onClick={() => setAberto(true)}>
-              Listar Agendamentos
-            </button>
-            <BookedModal
-              isOpen={aberto}
-              onClose={() => setAberto(false)} />
+            <UserAppointments isOpen={aberto} onClose={() => setAberto(false)} />
+            <UserSubscriptions isOpen={subscriptionsOpen} onClose={() => setSubscriptionsOpen(false)} />
           </>
         )}
 
-        <button onClick={() => navigate("/login")}
+        {isAdmin && (
+          <>
+            <button onClick={() => setAberto(true)}>Listar Agendamentos</button>
+            <BookedModal isOpen={aberto} onClose={() => setAberto(false)} />
+          </>
+        )}
+
+        <button
+          onClick={() => navigate('/login')}
           className="logout-button"
           title="Sair da conta"
         >
@@ -114,5 +105,3 @@ function UserBar() {
     </div>
   );
 }
-
-export default UserBar;

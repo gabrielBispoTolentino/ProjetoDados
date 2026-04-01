@@ -147,7 +147,10 @@ export interface TimeSlotsResponse {
 }
 
 export interface ReviewPayload {
-  [key: string]: unknown;
+  usuario_id: EntityId;
+  estabelecimento_id: EntityId;
+  rating: number;
+  comentario: string;
 }
 
 export interface PlanBase {
@@ -212,6 +215,7 @@ export interface UserSubscription {
   estabelecimento_nome?: string;
   ciclo_pagamento?: string;
   proxima_cobranca?: string;
+  data_incio?: string;
   [key: string]: unknown;
 }
 

@@ -136,9 +136,10 @@
 
 /* Schedule Button (Fab or inline) */
 .schedule-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  min-width: 54px;
+  height: 44px;
+  padding: 0 0.9rem;
+  border-radius: 999px;
   background-color: var(--accent, #00e054);
   color: #fff;
   border: none;
@@ -149,12 +150,14 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.2s, transform 0.2s;
+  box-shadow: 0 8px 18px rgba(0, 224, 84, 0.22);
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .schedule-btn:hover {
   background-color: #00b042;
   transform: scale(1.1);
+  box-shadow: 0 10px 22px rgba(0, 176, 66, 0.28);
 }
 
 /* Loader */

@@ -1,65 +1,76 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../server/api';
+import type { CreateUserPayload } from '../types/domain';
 import './css/Cadastro.css';
 
-function Cadastro() {
+type CadastroFormData = CreateUserPayload;
+
+const INITIAL_FORM_DATA: CadastroFormData = {
+  nome: '',
+  email: '',
+  senha: '',
+  cpf: '',
+  telefone: '',
+  role: 'cliente',
+};
+
+export default function Cadastro() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    senha: '',
-    cpf: '',
-    telefone: '',
-    role: 'cliente'
-  });
-  const [foto, setFoto] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [formData, setFormData] = useState<CadastroFormData>(INITIAL_FORM_DATA);
+  const [foto, setFoto] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  function handleChange(event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
+    const { name, value } = event.target;
+    setFormData((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    } as CadastroFormData));
+  }
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-      if (!allowedTypes.includes(file.type)) {
-        setErro('Por favor, selecione uma imagem válida (JPEG, PNG, GIF ou WebP)');
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        setErro('A imagem deve ter no máximo 5MB');
-        return;
-      }
-
-      setErro('');
-      setFoto(file);
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
+  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
     }
-  };
 
-  const removePhoto = () => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setErro('Por favor, selecione uma imagem valida (JPEG, PNG, GIF ou WebP)');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErro('A imagem deve ter no maximo 5MB');
+      return;
+    }
+
+    setErro('');
+    setFoto(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = reader.result;
+      setPreviewUrl(typeof result === 'string' ? result : null);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removePhoto() {
     setFoto(null);
     setPreviewUrl(null);
     const fileInput = document.getElementById('foto-input');
-    if (fileInput) fileInput.value = '';
-  };
+    if (fileInput instanceof HTMLInputElement) {
+      fileInput.value = '';
+    }
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setErro('');
     setCarregando(true);
 
@@ -77,15 +88,14 @@ function Cadastro() {
       }
 
       await api.createUserWithPhoto(formDataToSend);
-      // alert('Cadastro realizado com sucesso!');
       navigate('/login');
-    } catch (error) {
-      setErro(error.message || 'Erro ao cadastrar. Tente novamente.');
-      console.error(error);
+    } catch (caughtError) {
+      setErro(caughtError instanceof Error ? caughtError.message : 'Erro ao cadastrar. Tente novamente.');
+      console.error(caughtError);
     } finally {
       setCarregando(false);
     }
-  };
+  }
 
   return (
     <div className="cadastro-container">
@@ -97,11 +107,7 @@ function Cadastro() {
           <div className="cadastro-photo-preview">
             <div className="cadastro-photo-container">
               {previewUrl ? (
-                <img
-                  src={previewUrl}
-                  alt="Preview"
-                  className="cadastro-photo-img"
-                />
+                <img src={previewUrl} alt="Preview" className="cadastro-photo-img" />
               ) : (
                 <svg
                   width="60"
@@ -119,10 +125,7 @@ function Cadastro() {
             </div>
 
             <div className="cadastro-photo-actions">
-              <label
-                htmlFor="foto-input"
-                className="cadastro-photo-label"
-              >
+              <label htmlFor="foto-input" className="cadastro-photo-label">
                 {previewUrl ? 'Trocar foto' : 'Adicionar foto'}
               </label>
               <input
@@ -146,7 +149,7 @@ function Cadastro() {
             </div>
 
             <p className="cadastro-photo-hint">
-              Formatos aceitos: JPEG, PNG, GIF, WebP (máx. 5MB)
+              Formatos aceitos: JPEG, PNG, GIF, WebP (max. 5MB)
             </p>
           </div>
 
@@ -190,10 +193,7 @@ function Cadastro() {
             required
           />
 
-          <label
-            htmlFor="role"
-            className="cadastro-role-label"
-          >
+          <label htmlFor="role" className="cadastro-role-label">
             Tipo de conta
           </label>
           <select
@@ -211,7 +211,7 @@ function Cadastro() {
           <input
             type="tel"
             name="telefone"
-            placeholder="Número de telefone"
+            placeholder="Numero de telefone"
             value={formData.telefone}
             onChange={handleChange}
             disabled={carregando}
@@ -235,5 +235,3 @@ function Cadastro() {
     </div>
   );
 }
-
-export default Cadastro;
