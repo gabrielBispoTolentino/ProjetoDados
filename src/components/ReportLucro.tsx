@@ -1,40 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import type { ChangeEvent } from 'react';
 import { api } from '../../server/api';
+import type { ReportLucroEntry } from '../types/domain';
 import './css/ReportLucro.css';
 
-export default function ReportLucro({ estabelecimentoId }) {
+type ReportLucroProps = {
+  estabelecimentoId: number | string;
+};
+
+type ReportFormData = {
+  periodo_comeco: string;
+  periodo_final: string;
+};
+
+const INITIAL_FORM_DATA: ReportFormData = {
+  periodo_comeco: '',
+  periodo_final: '',
+};
+
+export default function ReportLucro({ estabelecimentoId }: ReportLucroProps) {
   const [loading, setLoading] = useState(false);
-  const [relatorios, setRelatorios] = useState([]);
+  const [relatorios, setRelatorios] = useState<ReportLucroEntry[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [error, setError] = useState(null);
-  const [formData, setFormData] = useState({
-    periodo_comeco: '',
-    periodo_final: '',
-  });
-  const [filtroAno, setFiltroAno] = useState(new Date().getFullYear());
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<ReportFormData>(INITIAL_FORM_DATA);
+  const [filtroAno, setFiltroAno] = useState(String(new Date().getFullYear()));
   const [filtroMes, setFiltroMes] = useState('');
 
   useEffect(() => {
-    if (estabelecimentoId) {
-      carregarRelatorios();
+    if (!estabelecimentoId) {
+      return;
     }
+
+    void carregarRelatorios();
   }, [estabelecimentoId]);
 
-  const carregarRelatorios = async () => {
+  async function carregarRelatorios() {
     try {
       setLoading(true);
       setError(null);
       const data = await api.getReportLucro(estabelecimentoId);
       setRelatorios(data);
-    } catch (err) {
-      setError(err.message);
-      console.error('Erro ao carregar relatorios:', err);
+    } catch (caughtError) {
+      const message = caughtError instanceof Error ? caughtError.message : 'Erro ao carregar relatorios';
+      setError(message);
+      console.error('Erro ao carregar relatorios:', caughtError);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const gerarRelatorioAutomatico = async () => {
+  async function gerarRelatorioAutomatico() {
     if (!formData.periodo_comeco || !formData.periodo_final) {
       alert('Por favor, preencha as datas de inicio e fim do periodo');
       return;
@@ -45,56 +61,63 @@ export default function ReportLucro({ estabelecimentoId }) {
       setError(null);
 
       await api.generateReportLucro({
-        estabelecimento_id: estabelecimentoId,
+        estabelecimento_id: Number(estabelecimentoId),
         periodo_comeco: formData.periodo_comeco,
         periodo_final: formData.periodo_final,
       });
 
       alert('Relatorio gerado com sucesso!');
       setShowForm(false);
-      setFormData({ periodo_comeco: '', periodo_final: '' });
-      carregarRelatorios();
-    } catch (err) {
-      setError(err.message);
-      console.error('Erro ao gerar relatorio:', err);
+      setFormData(INITIAL_FORM_DATA);
+      await carregarRelatorios();
+    } catch (caughtError) {
+      const message = caughtError instanceof Error ? caughtError.message : 'Erro ao gerar relatorio';
+      setError(message);
+      console.error('Erro ao gerar relatorio:', caughtError);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const relatoriosFiltrados = relatorios.filter((rel) => {
-    const dataInicio = new Date(rel.periodo_comeco);
+  const relatoriosFiltrados = relatorios.filter((relatorio) => {
+    const dataInicio = new Date(relatorio.periodo_comeco);
     const ano = dataInicio.getFullYear();
     const mes = dataInicio.getMonth() + 1;
 
-    if (filtroAno && ano !== parseInt(filtroAno, 10)) return false;
-    if (filtroMes && mes !== parseInt(filtroMes, 10)) return false;
+    if (filtroAno && ano !== Number.parseInt(filtroAno, 10)) {
+      return false;
+    }
+
+    if (filtroMes && mes !== Number.parseInt(filtroMes, 10)) {
+      return false;
+    }
 
     return true;
   });
 
   const totalLucro = relatoriosFiltrados.reduce(
-    (acc, rel) => acc + parseFloat(rel.lucro_total || 0),
+    (acumulado, relatorio) => acumulado + Number(relatorio.lucro_total || 0),
     0,
   );
   const totalReembolso = relatoriosFiltrados.reduce(
-    (acc, rel) => acc + parseFloat(rel.reembolso_total || 0),
+    (acumulado, relatorio) => acumulado + Number(relatorio.reembolso_total || 0),
     0,
   );
   const lucroLiquido = totalLucro - totalReembolso;
 
-  const gerarPeriodoMesAtual = () => {
+  function gerarPeriodoMesAtual() {
     const hoje = new Date();
     const ano = hoje.getFullYear();
     const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+    const ultimoDiaDoMes = new Date(ano, hoje.getMonth() + 1, 0).getDate();
 
     setFormData({
       periodo_comeco: `${ano}-${mes}-01`,
-      periodo_final: `${ano}-${mes}-${new Date(ano, hoje.getMonth() + 1, 0).getDate()}`,
+      periodo_final: `${ano}-${mes}-${String(ultimoDiaDoMes).padStart(2, '0')}`,
     });
-  };
+  }
 
-  const gerarPeriodoMesPassado = () => {
+  function gerarPeriodoMesPassado() {
     const hoje = new Date();
     const mesPassado = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
     const ano = mesPassado.getFullYear();
@@ -103,16 +126,22 @@ export default function ReportLucro({ estabelecimentoId }) {
 
     setFormData({
       periodo_comeco: `${ano}-${mes}-01`,
-      periodo_final: `${ano}-${mes}-${ultimoDia}`,
+      periodo_final: `${ano}-${mes}-${String(ultimoDia).padStart(2, '0')}`,
     });
-  };
+  }
 
-  const formatarMoeda = (valor) => new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(valor);
+  function formatarMoeda(valor: number | string): string {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(Number(valor || 0));
+  }
 
-  const formatarData = (data) => new Date(data).toLocaleDateString('pt-BR');
+  function formatarData(data: string): string {
+    return new Date(data).toLocaleDateString('pt-BR');
+  }
+
+  const anosDisponiveis = [...new Set(relatorios.map((relatorio) => new Date(relatorio.periodo_comeco).getFullYear()))];
 
   return (
     <div className="report-lucro">
@@ -120,7 +149,7 @@ export default function ReportLucro({ estabelecimentoId }) {
         <h2>Relatorios de Lucro</h2>
         <button
           className="btn-new-report"
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => setShowForm((currentValue) => !currentValue)}
           disabled={loading}
         >
           {showForm ? 'Cancelar' : '+ Novo Relatorio'}
@@ -134,18 +163,10 @@ export default function ReportLucro({ estabelecimentoId }) {
           <h3>Gerar Relatorio Automatico</h3>
 
           <div className="quick-periods">
-            <button
-              type="button"
-              className="btn-quick-period"
-              onClick={gerarPeriodoMesAtual}
-            >
+            <button type="button" className="btn-quick-period" onClick={gerarPeriodoMesAtual}>
               Mes Atual
             </button>
-            <button
-              type="button"
-              className="btn-quick-period"
-              onClick={gerarPeriodoMesPassado}
-            >
+            <button type="button" className="btn-quick-period" onClick={gerarPeriodoMesPassado}>
               Mes Passado
             </button>
           </div>
@@ -156,7 +177,10 @@ export default function ReportLucro({ estabelecimentoId }) {
               <input
                 type="date"
                 value={formData.periodo_comeco}
-                onChange={(e) => setFormData({ ...formData, periodo_comeco: e.target.value })}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => setFormData((currentForm) => ({
+                  ...currentForm,
+                  periodo_comeco: event.target.value,
+                }))}
                 required
               />
             </div>
@@ -166,18 +190,17 @@ export default function ReportLucro({ estabelecimentoId }) {
               <input
                 type="date"
                 value={formData.periodo_final}
-                onChange={(e) => setFormData({ ...formData, periodo_final: e.target.value })}
+                onChange={(event: ChangeEvent<HTMLInputElement>) => setFormData((currentForm) => ({
+                  ...currentForm,
+                  periodo_final: event.target.value,
+                }))}
                 required
               />
             </div>
           </div>
 
           <div className="form-actions">
-            <button
-              className="btn-submit"
-              onClick={gerarRelatorioAutomatico}
-              disabled={loading}
-            >
+            <button className="btn-submit" onClick={() => void gerarRelatorioAutomatico()} disabled={loading}>
               {loading ? 'Gerando...' : 'Gerar Relatorio'}
             </button>
           </div>
@@ -189,10 +212,10 @@ export default function ReportLucro({ estabelecimentoId }) {
           <label>Ano:</label>
           <select
             value={filtroAno}
-            onChange={(e) => setFiltroAno(e.target.value)}
+            onChange={(event: ChangeEvent<HTMLSelectElement>) => setFiltroAno(event.target.value)}
           >
             <option value="">Todos</option>
-            {[...new Set(relatorios.map((r) => new Date(r.periodo_comeco).getFullYear()))].map((ano) => (
+            {anosDisponiveis.map((ano) => (
               <option key={ano} value={ano}>{ano}</option>
             ))}
           </select>
@@ -202,7 +225,7 @@ export default function ReportLucro({ estabelecimentoId }) {
           <label>Mes:</label>
           <select
             value={filtroMes}
-            onChange={(e) => setFiltroMes(e.target.value)}
+            onChange={(event: ChangeEvent<HTMLSelectElement>) => setFiltroMes(event.target.value)}
           >
             <option value="">Todos</option>
             <option value="1">Janeiro</option>
@@ -266,25 +289,21 @@ export default function ReportLucro({ estabelecimentoId }) {
               </tr>
             </thead>
             <tbody>
-              {relatoriosFiltrados.map((rel) => {
-                const liquido = parseFloat(rel.lucro_total) - parseFloat(rel.reembolso_total);
+              {relatoriosFiltrados.map((relatorio) => {
+                const liquido = Number(relatorio.lucro_total) - Number(relatorio.reembolso_total);
 
                 return (
-                  <tr key={rel.id}>
+                  <tr key={relatorio.id}>
                     <td>
-                      {formatarData(rel.periodo_comeco)} - {formatarData(rel.periodo_final)}
+                      {formatarData(relatorio.periodo_comeco)} - {formatarData(relatorio.periodo_final)}
                     </td>
-                    <td className="value-positive">
-                      {formatarMoeda(rel.lucro_total)}
-                    </td>
-                    <td className="value-negative">
-                      {formatarMoeda(rel.reembolso_total)}
-                    </td>
+                    <td className="value-positive">{formatarMoeda(relatorio.lucro_total)}</td>
+                    <td className="value-negative">{formatarMoeda(relatorio.reembolso_total)}</td>
                     <td className={liquido >= 0 ? 'value-positive' : 'value-negative'}>
                       <strong>{formatarMoeda(liquido)}</strong>
                     </td>
                     <td className="text-muted">
-                      {new Date(rel.generado_em).toLocaleString('pt-BR')}
+                      {new Date(relatorio.generado_em).toLocaleString('pt-BR')}
                     </td>
                   </tr>
                 );
