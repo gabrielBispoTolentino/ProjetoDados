@@ -51,6 +51,17 @@ function normalizeShop(shop: Establishment): NormalizedShop {
     rating: shop.rating ?? shop.rating_avg ?? 0,
     ratingCount: shop.ratingCount ?? shop.rating_count ?? 0,
     imageUrl: shop.imageUrl ?? shop.imagem_url ?? shop.img ?? null,
+    latitude: shop.latitude ?? null,
+    longitude: shop.longitude ?? null,
+    googleMapsUrl:
+      (typeof shop.googleMapsUrl === 'string' && shop.googleMapsUrl) ||
+      (typeof shop.google_maps_url === 'string' && shop.google_maps_url) ||
+      null,
+    googleMapsEmbedUrl:
+      (typeof shop.googleMapsEmbedUrl === 'string' && shop.googleMapsEmbedUrl) ||
+      (typeof shop.google_maps_embed_url === 'string' && shop.google_maps_embed_url) ||
+      null,
+    locationVerified: shop.locationVerified ?? shop.location_verified ?? null,
     description: typeof shop.description === 'string' ? shop.description : null,
     phone: typeof shop.phone === 'string' ? shop.phone : null,
     fullAddress: {
@@ -278,7 +289,7 @@ function ShopsList({
                 <p className="shop-address">{shop.address}</p>
                 <div className="shop-rating-row">
                   <div className="shop-rating">
-                    * {Number(shop.rating || 0).toFixed(1)}{' '}
+                    {Number(shop.rating || 0).toFixed(1)}{' '}
                     <span style={{ color: '#6b7280', fontWeight: '400' }}>
                       ({shop.ratingCount || 0})
                     </span>

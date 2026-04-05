@@ -68,6 +68,14 @@ export interface Establishment {
   stado?: string | null;
   rua?: string | null;
   cep?: string | null;
+  latitude?: NumericValue | null;
+  longitude?: NumericValue | null;
+  google_maps_url?: string | null;
+  google_maps_embed_url?: string | null;
+  googleMapsUrl?: string | null;
+  googleMapsEmbedUrl?: string | null;
+  location_verified?: boolean | number | null;
+  locationVerified?: boolean | number | null;
   imagem_url?: string | null;
   img?: string | null;
   imageUrl?: string | null;
@@ -86,6 +94,11 @@ export interface ShopSummary {
   imageUrl?: string | null;
   rating?: NumericValue | null;
   ratingCount?: NumericValue | null;
+  latitude?: NumericValue | null;
+  longitude?: NumericValue | null;
+  googleMapsUrl?: string | null;
+  googleMapsEmbedUrl?: string | null;
+  locationVerified?: boolean | number | null;
   fullAddress?: {
     rua: string;
     cidade: string;

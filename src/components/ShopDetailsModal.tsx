@@ -32,6 +32,30 @@ export default function ShopDetailsModal({
 }: ShopDetailsModalProps) {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
 
+  function getText(value: unknown): string | null {
+    if (typeof value !== 'string') {
+      return null;
+    }
+
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  function buildAddressQuery(currentShop: DetailedShop) {
+    const parts = [
+      getText(currentShop.fullAddress?.rua),
+      getText(currentShop.fullAddress?.cidade),
+      getText(currentShop.fullAddress?.estado),
+      getText(currentShop.fullAddress?.cep),
+    ].filter(Boolean);
+
+    if (parts.length > 0) {
+      return parts.join(', ');
+    }
+
+    return getText(currentShop.address);
+  }
+
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
     return () => {
@@ -43,7 +67,23 @@ export default function ShopDetailsModal({
     return null;
   }
 
+  const currentShop = shop;
   const imageUrl = shop.imageUrl ? api.getPhotoUrl(shop.imageUrl) : null;
+  const mapsUrl = getText(currentShop.googleMapsUrl);
+  const mapsEmbedUrl = getText(currentShop.googleMapsEmbedUrl);
+  const addressQuery = buildAddressQuery(currentShop);
+
+  const embedSrc =
+    mapsEmbedUrl ||
+    (addressQuery
+      ? `https://www.google.com/maps?q=${encodeURIComponent(addressQuery)}&z=15&output=embed`
+      : null);
+
+  const externalMapsUrl =
+    mapsUrl ||
+    (addressQuery
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`
+      : null);
 
   return createPortal(
     <div className="shop-details-overlay" onClick={onClose}>
@@ -144,6 +184,40 @@ export default function ShopDetailsModal({
               </div>
             </div>
           </div>
+
+          {(embedSrc || externalMapsUrl) && (
+            <div className="shop-details-section">
+              <div className="shop-details-map-header">
+                <h3 className="shop-details-subtitle">Localizacao</h3>
+                {externalMapsUrl && (
+                  <a
+                    className="shop-details-map-link"
+                    href={externalMapsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Abrir no Google Maps
+                  </a>
+                )}
+              </div>
+
+              {embedSrc ? (
+                <div className="shop-details-map-frame">
+                  <iframe
+                    src={embedSrc}
+                    title={`Mapa da ${shop.name}`}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <p className="shop-details-map-empty">
+                  A localizacao desta barbearia ainda nao foi configurada.
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="shop-details-section">
             <h3 className="shop-details-subtitle">Avaliacoes</h3>
