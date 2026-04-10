@@ -48,6 +48,7 @@ const INITIAL_BARBER_SHOP_FORM: BarberShopForm = {
   phone: '',
   mei: '',
   imagemUrl: null,
+  mapsUrl: null,
 };
 
 function parseStoredUser(): UserSummary | null {
@@ -131,6 +132,10 @@ export default function PainelAdmin() {
       phone: barbearia.phone || '',
       mei: barbearia.mei || '',
       imagemUrl: barbearia.imagem_url || null,
+      mapsUrl:
+        (typeof barbearia.googleMapsUrl === 'string' && barbearia.googleMapsUrl) ||
+        (typeof barbearia.google_maps_url === 'string' && barbearia.google_maps_url) ||
+        null,
     });
     setFoto(null);
     setPreviewUrl(barbearia.imagem_url ? api.getPhotoUrl(barbearia.imagem_url) : null);
@@ -231,12 +236,23 @@ export default function PainelAdmin() {
         formDataToSend.append('foto', foto);
       }
 
+      let establishmentId = barbeariaAtual.id ?? null;
+
       if (modoEdicao && barbeariaAtual.id) {
         await api.updateEstablishmentWithPhoto(barbeariaAtual.id, formDataToSend);
         alert('Barbearia atualizada com sucesso!');
       } else {
-        await api.createEstablishmentWithPhoto(formDataToSend);
+        const createdEstablishment = await api.createEstablishmentWithPhoto(formDataToSend);
+        establishmentId =
+          typeof createdEstablishment.id === 'number' ? createdEstablishment.id : null;
         alert('Barbearia criada com sucesso!');
+      }
+
+      const mapsUrl = barbeariaAtual.mapsUrl?.trim() || null;
+      if (establishmentId && (modoEdicao || mapsUrl !== null)) {
+        await api.updateEstablishmentLocation(establishmentId, {
+          google_maps_url: mapsUrl,
+        });
       }
 
       fecharModal();

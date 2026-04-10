@@ -31,6 +31,7 @@ export default function ShopDetailsModal({
   onSchedule,
 }: ShopDetailsModalProps) {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [resolvedEmbedSrc, setResolvedEmbedSrc] = useState<string | null>(null);
 
   function getText(value: unknown): string | null {
     if (typeof value !== 'string') {
@@ -40,7 +41,11 @@ export default function ShopDetailsModal({
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : null;
   }
-  // MUDAR PARA QUE O LINK DO GOOGLE RENDERIZE DIREITO
+
+  function buildEmbedUrl(query: string) {
+    return `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=15&output=embed`;
+  }
+
   function buildAddressQuery(currentShop: DetailedShop) {
     const parts = [
       getText(currentShop.fullAddress?.rua),
@@ -56,6 +61,64 @@ export default function ShopDetailsModal({
     return getText(currentShop.address);
   }
 
+  function extractEmbedQueryFromMapsUrl(value: string): string | null {
+    const directValue = getText(value);
+    if (!directValue) {
+      return null;
+    }
+
+    if (directValue.includes('output=embed')) {
+      return directValue;
+    }
+
+    try {
+      const url = new URL(directValue);
+      const queryParams = ['q', 'query', 'destination', 'll', 'center'];
+
+      for (const key of queryParams) {
+        const paramValue = getText(url.searchParams.get(key));
+        if (paramValue) {
+          return buildEmbedUrl(paramValue);
+        }
+      }
+
+      const placeMatch = url.pathname.match(/\/place\/([^/]+)/i);
+      if (placeMatch?.[1]) {
+        return buildEmbedUrl(decodeURIComponent(placeMatch[1]).replace(/\+/g, ' '));
+      }
+
+      const atMatch = directValue.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      if (atMatch) {
+        return buildEmbedUrl(`${atMatch[1]},${atMatch[2]}`);
+      }
+
+      const dataMatch = directValue.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+      if (dataMatch) {
+        return buildEmbedUrl(`${dataMatch[1]},${dataMatch[2]}`);
+      }
+    } catch {
+      const atMatch = directValue.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+      if (atMatch) {
+        return buildEmbedUrl(`${atMatch[1]},${atMatch[2]}`);
+      }
+    }
+
+    return null;
+  }
+
+  function isResolvableGoogleMapsShortLink(value: string | null) {
+    if (!value) {
+      return false;
+    }
+
+    try {
+      const url = new URL(value);
+      return /(^|\.)maps\.app\.goo\.gl$/i.test(url.hostname);
+    } catch {
+      return false;
+    }
+  }
+
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
     return () => {
@@ -63,27 +126,55 @@ export default function ShopDetailsModal({
     };
   }, [isOpen]);
 
+  const currentShop = shop;
+  const imageUrl = currentShop?.imageUrl ? api.getPhotoUrl(currentShop.imageUrl) : null;
+  const mapsUrl = getText(currentShop?.googleMapsUrl);
+  const mapsEmbedUrl = getText(currentShop?.googleMapsEmbedUrl);
+  const addressQuery =
+    currentShop && (!mapsUrl || !mapsEmbedUrl) ? buildAddressQuery(currentShop) : null;
+  const derivedEmbedSrc = mapsUrl && !mapsEmbedUrl ? extractEmbedQueryFromMapsUrl(mapsUrl) : null;
+  const fallbackEmbedSrc = addressQuery
+    ? buildEmbedUrl(addressQuery)
+    : null;
+  const fallbackMapsUrl = addressQuery
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`
+    : null;
+
+  const embedSrc = mapsEmbedUrl || derivedEmbedSrc || resolvedEmbedSrc || fallbackEmbedSrc;
+
+  const externalMapsUrl = mapsUrl || fallbackMapsUrl;
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!mapsUrl || mapsEmbedUrl || derivedEmbedSrc || !isResolvableGoogleMapsShortLink(mapsUrl)) {
+      setResolvedEmbedSrc(null);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    void api.resolveGoogleMapsEmbedUrl(mapsUrl)
+      .then((result) => {
+        if (!cancelled) {
+          setResolvedEmbedSrc(getText(result.embedUrl));
+        }
+      })
+      .catch((error) => {
+        console.error('Erro ao resolver link curto do Google Maps:', error);
+        if (!cancelled) {
+          setResolvedEmbedSrc(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [derivedEmbedSrc, mapsEmbedUrl, mapsUrl]);
+
   if (!isOpen || !shop) {
     return null;
   }
-
-  const currentShop = shop;
-  const imageUrl = shop.imageUrl ? api.getPhotoUrl(shop.imageUrl) : null;
-  const mapsUrl = getText(currentShop.googleMapsUrl);
-  const mapsEmbedUrl = getText(currentShop.googleMapsEmbedUrl);
-  const addressQuery = buildAddressQuery(currentShop);
-
-  const embedSrc =
-    mapsEmbedUrl ||
-    (addressQuery
-      ? `https://www.google.com/maps?q=${encodeURIComponent(addressQuery)}&z=15&output=embed`
-      : null);
-
-  const externalMapsUrl =
-    mapsUrl ||
-    (addressQuery
-      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`
-      : null);
 
   return createPortal(
     <div className="shop-details-overlay" onClick={onClose}>

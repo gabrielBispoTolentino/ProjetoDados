@@ -173,12 +173,27 @@ export const api = {
       body: JSON.stringify(establishmentData),
     }, 'Erro ao atualizar estabelecimento');
   },
-  updateEstablishmentLocation(id: ApiId, locationData: { mapsUrl : string }) {
+  updateEstablishmentLocation(
+    id: ApiId,
+    locationData: {
+      latitude?: number | string | null;
+      longitude?: number | string | null;
+      google_maps_url?: string | null;
+    },
+  ) {
     return request<ApiMessageResponse>(`/establishments/${id}/location`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(locationData),
     }, 'Erro ao atualizar localização do estabelecimento');
+  },
+  resolveGoogleMapsEmbedUrl(url: string) {
+    const query = encodeURIComponent(url);
+    return request<{ embedUrl: string | null; resolvedUrl?: string | null }>(
+      `/maps/embed-url?url=${query}`,
+      {},
+      'Erro ao resolver link do Google Maps',
+    );
   },
   deleteEstablishment(id: ApiId) {
     return request<ApiMessageResponse>(`/establishments/${id}`, {
