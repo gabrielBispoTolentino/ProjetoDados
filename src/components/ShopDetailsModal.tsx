@@ -40,7 +40,7 @@ export default function ShopDetailsModal({
     const trimmed = value.trim();
     return trimmed.length > 0 ? trimmed : null;
   }
-
+  // MUDAR PARA QUE O LINK DO GOOGLE RENDERIZE DIREITO
   function buildAddressQuery(currentShop: DetailedShop) {
     const parts = [
       getText(currentShop.fullAddress?.rua),

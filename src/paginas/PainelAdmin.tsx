@@ -34,6 +34,7 @@ type BarberShopForm = {
   phone: string;
   mei: string;
   imagemUrl?: string | null;
+  mapsUrl?: string | null;
 };
 
 const INITIAL_BARBER_SHOP_FORM: BarberShopForm = {
@@ -482,6 +483,14 @@ export default function PainelAdmin() {
                   value={barbeariaAtual?.mei || ''}
                   onChange={handleChange}
                   placeholder="Ex: 12.345.678/0001-90"
+                />
+                <label>URL do Google Maps</label>
+                <input
+                  type="text"
+                  name="mapsUrl"
+                  value={barbeariaAtual?.mapsUrl || ''}
+                  onChange={handleChange}
+                  placeholder="Ex: https://maps.google.com/?cid=1234567890"
                 />
 
                 <div className="admin-form-actions">

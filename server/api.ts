@@ -173,7 +173,13 @@ export const api = {
       body: JSON.stringify(establishmentData),
     }, 'Erro ao atualizar estabelecimento');
   },
-
+  updateEstablishmentLocation(id: ApiId, locationData: { mapsUrl : string }) {
+    return request<ApiMessageResponse>(`/establishments/${id}/location`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(locationData),
+    }, 'Erro ao atualizar localização do estabelecimento');
+  },
   deleteEstablishment(id: ApiId) {
     return request<ApiMessageResponse>(`/establishments/${id}`, {
       method: 'DELETE',
