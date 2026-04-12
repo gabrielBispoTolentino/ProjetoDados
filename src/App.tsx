@@ -31,9 +31,6 @@ function Navbar() {
         <Link to="/parceiros-login" className="nav-link">Parceiros</Link>
         <Link to="/login" className="nav-link">Log in</Link>
         <Link to="/cadastro" className="nav-link">Registrar</Link>
-        <div className="search-wrapper">
-          <input type="text" placeholder="Find a style..." className="search-bar" />
-        </div>
       </div>
     </nav>
   );
