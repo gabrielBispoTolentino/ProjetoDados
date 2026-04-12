@@ -167,8 +167,9 @@ export default function UserAppointments({
               const agora = new Date();
               const dataAgendamento = new Date(agendamento.proximo_pag || '');
               const isPast = dataAgendamento < agora;
-              const podeEditar = !isPast && agendamento.status !== 'cancelado' && agendamento.pagamento_status !== 'completo';
-              const pagamentoPendente = agendamento.pagamento_status !== 'completo' && agendamento.status !== 'cancelado';
+              const statusFinalizado = agendamento.status === 'cancelado' || agendamento.status === 'completo';
+              const podeEditar = !isPast && !statusFinalizado && agendamento.pagamento_status !== 'completo';
+              const pagamentoPendente = agendamento.pagamento_status !== 'completo' && !statusFinalizado;
 
               return (
                 <div
@@ -202,6 +203,8 @@ export default function UserAppointments({
                         ? 'active'
                         : agendamento.status === 'cancelado'
                           ? 'canceled'
+                          : agendamento.status === 'completo'
+                            ? 'active'
                           : agendamento.status === 'atrasado'
                             ? 'late'
                             : 'default'}`}
@@ -254,7 +257,7 @@ export default function UserAppointments({
                     )}
                   </div>
 
-                  {isPast && agendamento.status !== 'cancelado' && (
+                  {isPast && !statusFinalizado && (
                     <p className="appointment-past-notice">Este agendamento ja passou</p>
                   )}
                 </div>

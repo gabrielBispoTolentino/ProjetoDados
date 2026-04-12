@@ -33,7 +33,7 @@ export default function UserBar() {
     return null;
   }
 
-  const fotoUrl = usuario.fotoUrl ? api.getPhotoUrl(usuario.fotoUrl) : null;
+  const fotoUrl = api.getPhotoUrl(usuario.fotoUrl || usuario.foto_url || usuario.imagem_url) || null;
 
   return (
     <div className="user-bar">

@@ -292,6 +292,24 @@ export const api = {
     }, 'Erro ao reagendar agendamento');
   },
 
+  cancelarAgendamentoBarbeiro(agendamentoId: ApiId) {
+    const usuarioId = localStorage.getItem('usuarioId');
+    return request<ApiMessageResponse>(`/agendamentos/${agendamentoId}/barbeiro/cancelar`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario_id: usuarioId }),
+    }, 'Erro ao cancelar agendamento');
+  },
+
+  concluirAgendamentoBarbeiro(agendamentoId: ApiId) {
+    const usuarioId = localStorage.getItem('usuarioId');
+    return request<ApiMessageResponse>(`/agendamentos/${agendamentoId}/barbeiro/concluir`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario_id: usuarioId }),
+    }, 'Erro ao concluir agendamento');
+  },
+
   pagarAgendamento(agendamentoId: ApiId) {
     return request<ApiMessageResponse>(`/agendamentos/${agendamentoId}/pagar`, {
       method: 'PATCH',

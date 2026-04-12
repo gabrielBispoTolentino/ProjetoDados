@@ -10,6 +10,7 @@ export type AppointmentStatus =
   | 'ativo'
   | 'atrasado'
   | 'cancelado'
+  | 'completo'
   | 'free trial'
   | 'pausado'
   | 'pendente'

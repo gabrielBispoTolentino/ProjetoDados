@@ -182,3 +182,146 @@
     grid-template-columns: 1fr;
   }
 }
+
+.barber-appointment-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.barber-appointment-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.barber-appointment-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.barber-appointment-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.barber-appointment-btn-complete {
+  background: #22c55e;
+  color: #08110b;
+}
+
+.barber-appointment-btn-cancel {
+  background: #ef4444;
+  color: #fff;
+}
+
+.barber-profile-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(31, 37, 46, 0.96), rgba(20, 24, 28, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.barber-profile-card.is-highlighted {
+  border-color: rgba(34, 197, 94, 0.45);
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.18);
+}
+
+.barber-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.barber-profile-avatar {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #1b222b;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8fa1b3;
+}
+
+.barber-profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.barber-profile-copy h2 {
+  margin: 0 0 0.3rem;
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.barber-profile-copy p {
+  margin: 0;
+  color: #c8d2dc;
+  line-height: 1.45;
+}
+
+.barber-profile-hint {
+  display: inline-block;
+  margin-top: 0.45rem;
+  color: #8fa1b3;
+  font-size: 0.9rem;
+}
+
+.barber-profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.barber-photo-picker {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.barber-photo-picker:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.barber-profile-error {
+  width: 100%;
+  margin: 0.5rem 0 0;
+  color: #fda4af;
+}
+
+@media (max-width: 768px) {
+  .barber-profile-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .barber-profile-actions {
+    justify-content: flex-start;
+  }
+}
