@@ -8,8 +8,10 @@ import {
   useNavigate,
 } from 'react-router-dom';
 import './App.css';
+import BarberPainel from './paginas/barberPainel';
 import Cadastro from './paginas/cadastro';
 import Login from './paginas/login';
+import ParceirosLogin from './paginas/parceirosLogin';
 import PainelCliente from './paginas/painelCliente';
 import PainelAdmin from './paginas/PainelAdmin';
 
@@ -26,6 +28,7 @@ function Navbar() {
       </div>
 
       <div className="navbar-menu">
+        <Link to="/parceiros-login" className="nav-link">Parceiros</Link>
         <Link to="/login" className="nav-link">Log in</Link>
         <Link to="/cadastro" className="nav-link">Registrar</Link>
         <div className="search-wrapper">
@@ -102,9 +105,11 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigation />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/parceiros-login" element={<ParceirosLogin />} />
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/painel" element={<PainelCliente />} />
         <Route path="/painel-admin" element={<PainelAdmin />} />
+        <Route path="/barber-painel" element={<BarberPainel />} />
       </Routes>
     </Router>
   );

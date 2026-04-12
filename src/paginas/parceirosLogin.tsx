@@ -2,16 +2,17 @@ import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../server/api';
-import type { LoginCredentials } from '../types/domain';
+import type { PartnerLoginCredentials } from '../types/domain';
 import './css/Login.css';
 
-export default function Login() {
+export default function ParceirosLogin() {
   const navigate = useNavigate();
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
-  const [formData, setFormData] = useState<LoginCredentials>({
-    usuario: '',
+  const [formData, setFormData] = useState<PartnerLoginCredentials>({
+    email: '',
     senha: '',
+    verifycode: '',
   });
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
@@ -19,7 +20,7 @@ export default function Login() {
     setFormData((currentForm) => ({
       ...currentForm,
       [name]: value,
-    } as LoginCredentials));
+    }));
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -28,21 +29,19 @@ export default function Login() {
     setCarregando(true);
 
     try {
-      const response = await api.login(formData);
+      const response = await api.partnerLogin({
+        email: formData.email.trim(),
+        senha: formData.senha,
+        verifycode: formData.verifycode.trim(),
+      });
       const { usuario } = response;
 
       localStorage.setItem('usuarioId', String(usuario.id));
       localStorage.setItem('usuario', JSON.stringify(usuario));
 
-      if (usuario.userTable === 'usuarioBarber') {
-        navigate('/barber-painel');
-      } else if (usuario.role === 'ADM_Estabelecimento') {
-        navigate('/painel-admin');
-      } else {
-        navigate('/painel');
-      }
+      navigate('/barber-painel');
     } catch (caughtError) {
-      setErro(caughtError instanceof Error ? caughtError.message : 'Erro ao fazer login. Tente novamente.');
+      setErro(caughtError instanceof Error ? caughtError.message : 'Erro ao fazer login de parceiro.');
       console.error(caughtError);
     } finally {
       setCarregando(false);
@@ -52,17 +51,18 @@ export default function Login() {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>Entrar</h2>
+        <h2>Entrar como Parceiro</h2>
         {erro && <div className="login-error">{erro}</div>}
 
         <form onSubmit={handleSubmit} className="login-form">
           <input
-            type="text"
-            name="usuario"
-            placeholder="Email ou CPF"
-            value={formData.usuario}
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
             onChange={handleChange}
             disabled={carregando}
+            required
           />
           <input
             type="password"
@@ -71,6 +71,16 @@ export default function Login() {
             value={formData.senha}
             onChange={handleChange}
             disabled={carregando}
+            required
+          />
+          <input
+            type="text"
+            name="verifycode"
+            placeholder="Codigo de verificacao"
+            value={formData.verifycode}
+            onChange={handleChange}
+            disabled={carregando}
+            required
           />
           <button type="submit" className="login-btn" disabled={carregando}>
             {carregando ? 'Entrando...' : 'Entrar'}

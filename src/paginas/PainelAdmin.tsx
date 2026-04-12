@@ -368,13 +368,21 @@ export default function PainelAdmin() {
     setBarberError('');
 
     try {
-      await api.createEstablishmentBarber(selectedBarbershopForBarbers.id, {
+      const response = await api.createEstablishmentBarber(selectedBarbershopForBarbers.id, {
         admin_user_id: usuario.id,
         ...barberForm,
       });
       setBarberForm(INITIAL_BARBER_FORM);
       await carregarBarbeiros(selectedBarbershopForBarbers.id);
-      alert('Barbeiro criado com sucesso!');
+      const verifycode =
+        typeof response.usuario?.verifycode === 'string' && response.usuario.verifycode
+          ? response.usuario.verifycode
+          : null;
+      alert(
+        verifycode
+          ? `Barbeiro criado com sucesso! Codigo de verificacao: ${verifycode}`
+          : 'Barbeiro criado com sucesso!',
+      );
     } catch (caughtError) {
       console.error('Erro ao criar barbeiro:', caughtError);
       setBarberError(caughtError instanceof Error ? caughtError.message : 'Erro ao criar barbeiro');

@@ -109,6 +109,8 @@ export default function BarbersModal({
                       <strong>{barber.nome}</strong>
                       <span>{barber.email}</span>
                       <span>{barber.telefone || 'Sem telefone'}</span>
+                      <span>Codigo: {barber.verifycode || 'Nao gerado'}</span>
+                      <span>Status: {barber.verified ? 'Verificado' : 'Nao verificado'}</span>
                     </div>
                     <button
                       type="button"

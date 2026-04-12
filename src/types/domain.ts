@@ -39,12 +39,20 @@ export interface UserSummary {
   foto_url?: string | null;
   imagem_url?: string | null;
   idbarberworker?: EntityId | null;
+  verifycode?: string | null;
+  verified?: boolean;
   userTable?: string | null;
 }
 
 export interface LoginCredentials {
   usuario: string;
   senha: string;
+}
+
+export interface PartnerLoginCredentials {
+  email: string;
+  senha: string;
+  verifycode: string;
 }
 
 export interface LoginResponse {

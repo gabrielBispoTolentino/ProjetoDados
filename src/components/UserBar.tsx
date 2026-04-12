@@ -25,7 +25,8 @@ export default function UserBar() {
   const [aberto, setAberto] = useState(false);
   const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
   const usuario = parseStoredUser();
-  const isClient = usuario?.role === 'Cliente';
+  const isBarber = usuario?.userTable === 'usuarioBarber';
+  const isClient = usuario?.role === 'Cliente' && !isBarber;
   const isAdmin = usuario?.role === 'ADM_Estabelecimento';
 
   if (!usuario) {
@@ -80,6 +81,10 @@ export default function UserBar() {
             <button onClick={() => setAberto(true)}>Listar Agendamentos</button>
             <BookedModal isOpen={aberto} onClose={() => setAberto(false)} />
           </>
+        )}
+
+        {isBarber && (
+          <span className="user-email">Parceiro barbeiro</span>
         )}
 
         <button

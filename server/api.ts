@@ -12,6 +12,7 @@ import type {
   GenerateReportLucroPayload,
   LoginCredentials,
   LoginResponse,
+  PartnerLoginCredentials,
   MarketplacePlan,
   PlanBenefit,
   PlanBenefitPayload,
@@ -145,6 +146,14 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
     }, 'Erro ao efetuar login');
+  },
+
+  partnerLogin(credentials: PartnerLoginCredentials) {
+    return request<LoginResponse>('/login/parceiros', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials),
+    }, 'Erro ao efetuar login de parceiro');
   },
 
   updateUserWithPhoto(id: ApiId, formData: FormData) {
