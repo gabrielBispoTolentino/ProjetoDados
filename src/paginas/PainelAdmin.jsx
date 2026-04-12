@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import UserBar from './UserBar';
 import { api } from '../../server/api';
 
+
 function PainelAdmin() {
   const navigate = useNavigate();
   const [barbearias, setBarbearias] = useState([]);
@@ -13,7 +14,62 @@ function PainelAdmin() {
   const [barbeariaAtual, setBarbeariaAtual] = useState(null);
   const [foto, setFoto] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  
+
+
+
+const PainelAdmin = () => {
+  // Lista de agendamentos (Estado inicial)
+  const [agendamentos, setAgendamentos] = useState([
+    { id: 1, cliente: " ", servico: " ", horario: " ", status: "Pendente" },
+    { id: 2, cliente: " ", servico: " ", horario: "", status: "Concluído" },
+  ]);
+
+  // Estado para o valor do filtro
+  const [filtro, setFiltro] = useState('todos');
+
+  // Lógica de filtragem
+  const agendamentosFiltrados = agendamentos.filter(a =>
+    filtro === 'todos' ? true : a.status === filtro
+  );
+
+  return (
+    <div className="dashboard">
+      <h2>Painel de Gestão</h2>
+
+      {/* FILTRO */}
+      <div className="controles">
+        <label>Filtrar por Status: </label>
+        <select value={filtro} onChange={(e) => setFiltro(e.target.value)}>
+          <option value="todos">Todos</option>
+          <option value="Pendente">Pendentes</option>
+          <option value="Concluído">Concluídos</option>
+        </select>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Serviço</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {agendamentosFiltrados.map(item => (
+            <tr key={item.id}>
+              <td>{item.cliente}</td>
+              <td>{item.servico}</td>
+              <td>{item.status}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+
+
   // Verificar se o usuário é admin
   useEffect(() => {
     const usuarioStr = localStorage.getItem('usuario');
