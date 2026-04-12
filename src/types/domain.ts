@@ -52,11 +52,15 @@ export interface CreateUserPayload {
   nome: string;
   email: string;
   senha: string;
-  cpf: string;
   telefone: string;
   role: string;
 }
-
+export interface AdmFields{
+  cnpj: string;
+}
+export interface UserFields{
+  cpf: string;
+}
 export interface UpdateUserPayload extends Partial<CreateUserPayload> {}
 
 export interface Establishment {

@@ -2,10 +2,10 @@ import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../server/api';
-import type { CreateUserPayload } from '../types/domain';
+import type { AdmFields, CreateUserPayload, UserFields } from '../types/domain';
 import './css/Cadastro.css';
 
-type CadastroFormData = CreateUserPayload;
+type CadastroFormData = CreateUserPayload & Partial<AdmFields> & Partial<UserFields>;
 
 const INITIAL_FORM_DATA: CadastroFormData = {
   nome: '',
@@ -13,7 +13,8 @@ const INITIAL_FORM_DATA: CadastroFormData = {
   senha: '',
   cpf: '',
   telefone: '',
-  role: 'cliente',
+  role: '',
+  cnpj: '',
 };
 
 export default function Cadastro() {
@@ -85,6 +86,9 @@ export default function Cadastro() {
 
       if (foto) {
         formDataToSend.append('foto', foto);
+      }
+      if (formData.role === 'ADM_Estabelecimento' && formData.cnpj) {
+        formDataToSend.append('cnpj', formData.cnpj);
       }
 
       await api.createUserWithPhoto(formDataToSend);
@@ -192,7 +196,15 @@ export default function Cadastro() {
             disabled={carregando}
             required
           />
-
+          <input
+            type="tel"
+            name="telefone"
+            placeholder="Numero de telefone"
+            value={formData.telefone}
+            onChange={handleChange}
+            disabled={carregando}
+            required
+          />
           <label htmlFor="role" className="cadastro-role-label">
             Tipo de conta
           </label>
@@ -203,21 +215,25 @@ export default function Cadastro() {
             onChange={handleChange}
             disabled={carregando}
             required
+            
           >
-            <option value="cliente">Cliente</option>
+            <option value="" disabled>
+                         Selecione o tipo de conta
+            </option>
+            <option value="Cliente">Cliente</option>
             <option value="ADM_Estabelecimento">Administrador da Barbearia</option>
           </select>
-
-          <input
-            type="tel"
-            name="telefone"
-            placeholder="Numero de telefone"
-            value={formData.telefone}
-            onChange={handleChange}
-            disabled={carregando}
-            required
-          />
-
+          {formData.role === 'ADM_Estabelecimento' && (
+            <input
+              type="text"
+              name="cnpj"
+              placeholder="CNPJ da Barbearia"
+              value={formData.cnpj || ''}
+              onChange={handleChange}
+              disabled={carregando}
+              required
+            />
+          )}
           <button type="submit" className="cadastro-btn" disabled={carregando}>
             {carregando ? 'Cadastrando...' : 'Cadastrar'}
           </button>
