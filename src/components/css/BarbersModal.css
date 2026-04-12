@@ -1,0 +1,191 @@
+.admin-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #e5e7eb;
+  font-size: 1.25rem;
+  width: 36px;
+  height: 36px;
+  line-height: 1;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.admin-barber-modal {
+  max-width: 960px;
+  position: relative;
+}
+
+.admin-barber-subtitle {
+  margin: -1rem 0 1.5rem;
+  color: #99aabb;
+  text-align: center;
+}
+
+.admin-barber-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 1.5rem;
+}
+
+.admin-barber-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-barber-panel {
+  background: #1f252e;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.25rem;
+  min-width: 0;
+}
+
+.admin-barber-panel h3 {
+  margin-top: 0;
+  margin-bottom: 0;
+  color: #fff;
+}
+
+.admin-barber-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: #14181c;
+  color: #fff;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.admin-barber-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.admin-barber-list-panel {
+  height: 460px;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-barber-create-panel {
+  height: 460px;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-barber-form {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.admin-barber-list {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  gap: 0.75rem;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.admin-barber-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem;
+  background: #14181c;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.admin-barber-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #2c3440;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.admin-barber-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-barber-meta {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.admin-barber-meta strong {
+  color: #fff;
+}
+
+.admin-barber-meta span,
+.admin-barber-empty {
+  color: #99aabb;
+}
+
+.admin-barber-delete {
+  flex-shrink: 0;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 8px;
+  background: rgba(220, 38, 38, 0.12);
+  color: #fca5a5;
+  cursor: pointer;
+}
+
+.admin-barber-delete:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.2);
+  color: #fff;
+}
+
+.admin-barber-delete:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .admin-barber-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-barber-list-panel {
+    height: 360px;
+  }
+
+  .admin-barber-create-panel {
+    height: 360px;
+  }
+}

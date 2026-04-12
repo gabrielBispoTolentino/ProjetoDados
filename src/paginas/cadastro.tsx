@@ -87,8 +87,9 @@ export default function Cadastro() {
       if (foto) {
         formDataToSend.append('foto', foto);
       }
-      if (formData.role === 'ADM_Estabelecimento' && formData.cnpj) {
-        formDataToSend.append('cnpj', formData.cnpj);
+      const cnpj = formData.cnpj?.trim();
+      if (formData.role === 'ADM_Estabelecimento' && cnpj) {
+        formDataToSend.append('cnpj', cnpj);
       }
 
       await api.createUserWithPhoto(formDataToSend);

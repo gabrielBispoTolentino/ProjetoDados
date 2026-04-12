@@ -108,6 +108,7 @@
 .admin-shop-actions {
   display: flex;
   gap: 0.8rem;
+  flex-wrap: wrap;
   margin-top: 1rem;
 }
 
@@ -181,6 +182,8 @@
 }
 
 .admin-modal-container input[type="text"],
+.admin-modal-container input[type="email"],
+.admin-modal-container input[type="password"],
 .admin-modal-container input[type="tel"],
 .admin-modal-container textarea {
   width: 100%;

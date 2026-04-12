@@ -2,7 +2,9 @@ import type {
   ApiId,
   ApiMessageResponse,
   AppointmentCreateResponse,
+  BarberSummary,
   AvailablePlan,
+  CreateBarberPayload,
   CreateAgendamentoPayload,
   CreatePlanPayload,
   CreateUserPayload,
@@ -105,6 +107,36 @@ export const api = {
 
   getUserById(id: ApiId) {
     return request<UserSummary>(`/usuarios/${id}`, {}, 'Erro ao buscar usuario');
+  },
+
+  getEstablishmentBarbers(establishmentId: ApiId, adminUserId: ApiId) {
+    return request<BarberSummary[]>(
+      `/establishments/${establishmentId}/barbers?admin_user_id=${adminUserId}`,
+      {},
+      'Erro ao buscar barbeiros',
+    );
+  },
+
+  createEstablishmentBarber(establishmentId: ApiId, barberData: CreateBarberPayload) {
+    return request<ApiMessageResponse & { id: number | null; usuario?: BarberSummary | null }>(
+      `/establishments/${establishmentId}/barbers`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(barberData),
+      },
+      'Erro ao criar barbeiro',
+    );
+  },
+
+  deleteEstablishmentBarber(establishmentId: ApiId, barberId: ApiId, adminUserId: ApiId) {
+    return request<ApiMessageResponse>(
+      `/establishments/${establishmentId}/barbers/${barberId}?admin_user_id=${adminUserId}`,
+      {
+        method: 'DELETE',
+      },
+      'Erro ao deletar barbeiro',
+    );
   },
 
   login(credentials: LoginCredentials) {

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BarbersModal, { type BarberFormData } from '../components/BarbersModal';
 import UserBar from '../components/UserBar';
 import { api } from '../../server/api';
 import PlanManager from '../components/PlanManager';
 import ReportLucro from '../components/ReportLucro';
-import type { Establishment, UserSummary } from '../types/domain';
+import type { BarberSummary, Establishment, UserSummary } from '../types/domain';
 import './css/PainelAdmin.css';
 
 type AdminShop = Establishment & {
@@ -51,6 +52,14 @@ const INITIAL_BARBER_SHOP_FORM: BarberShopForm = {
   mapsUrl: null,
 };
 
+const INITIAL_BARBER_FORM: BarberFormData = {
+  nome: '',
+  email: '',
+  senha: '',
+  cpf: '',
+  telefone: '',
+};
+
 function parseStoredUser(): UserSummary | null {
   const usuarioStr = localStorage.getItem('usuario');
   if (!usuarioStr) {
@@ -78,6 +87,14 @@ export default function PainelAdmin() {
   const [selectedBarbeariaForPlans, setSelectedBarbeariaForPlans] = useState<number | null>(null);
   const [selectedBarbeariaId, setSelectedBarbeariaId] = useState<number | null>(null);
   const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [barberModalOpen, setBarberModalOpen] = useState(false);
+  const [selectedBarbershopForBarbers, setSelectedBarbershopForBarbers] = useState<AdminShop | null>(null);
+  const [barbers, setBarbers] = useState<BarberSummary[]>([]);
+  const [barberForm, setBarberForm] = useState<BarberFormData>(INITIAL_BARBER_FORM);
+  const [barberLoading, setBarberLoading] = useState(false);
+  const [barberSaving, setBarberSaving] = useState(false);
+  const [deletingBarberId, setDeletingBarberId] = useState<number | null>(null);
+  const [barberError, setBarberError] = useState('');
 
   useEffect(() => {
     const usuario = parseStoredUser();
@@ -283,6 +300,118 @@ export default function PainelAdmin() {
     }
   }
 
+  async function carregarBarbeiros(establishmentId: number) {
+    const usuario = parseStoredUser();
+    if (!usuario) {
+      navigate('/login');
+      return;
+    }
+
+    setBarberLoading(true);
+    setBarberError('');
+
+    try {
+      const barbeiros = await api.getEstablishmentBarbers(establishmentId, usuario.id);
+      setBarbers(barbeiros);
+    } catch (caughtError) {
+      console.error('Erro ao carregar barbeiros:', caughtError);
+      setBarberError(caughtError instanceof Error ? caughtError.message : 'Erro ao carregar barbeiros');
+    } finally {
+      setBarberLoading(false);
+    }
+  }
+
+  function abrirModalBarbeiros(barbearia: AdminShop) {
+    setSelectedBarbershopForBarbers(barbearia);
+    setBarbers([]);
+    setBarberForm(INITIAL_BARBER_FORM);
+    setBarberError('');
+    setBarberModalOpen(true);
+    void carregarBarbeiros(barbearia.id);
+  }
+
+  function fecharModalBarbeiros() {
+    setBarberModalOpen(false);
+    setSelectedBarbershopForBarbers(null);
+    setBarbers([]);
+    setBarberForm(INITIAL_BARBER_FORM);
+    setBarberError('');
+    setBarberLoading(false);
+    setBarberSaving(false);
+    setDeletingBarberId(null);
+  }
+
+  function handleBarberChange(
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
+    const { name, value } = event.target;
+    setBarberForm((currentForm) => ({
+      ...currentForm,
+      [name]: value,
+    }));
+  }
+
+  async function handleBarberSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!selectedBarbershopForBarbers) {
+      return;
+    }
+
+    const usuario = parseStoredUser();
+    if (!usuario) {
+      navigate('/login');
+      return;
+    }
+
+    setBarberSaving(true);
+    setBarberError('');
+
+    try {
+      await api.createEstablishmentBarber(selectedBarbershopForBarbers.id, {
+        admin_user_id: usuario.id,
+        ...barberForm,
+      });
+      setBarberForm(INITIAL_BARBER_FORM);
+      await carregarBarbeiros(selectedBarbershopForBarbers.id);
+      alert('Barbeiro criado com sucesso!');
+    } catch (caughtError) {
+      console.error('Erro ao criar barbeiro:', caughtError);
+      setBarberError(caughtError instanceof Error ? caughtError.message : 'Erro ao criar barbeiro');
+    } finally {
+      setBarberSaving(false);
+    }
+  }
+
+  async function handleDeleteBarber(barber: BarberSummary) {
+    if (!selectedBarbershopForBarbers) {
+      return;
+    }
+
+    const usuario = parseStoredUser();
+    if (!usuario) {
+      navigate('/login');
+      return;
+    }
+
+    if (!window.confirm(`Tem certeza que deseja excluir o barbeiro ${barber.nome}?`)) {
+      return;
+    }
+
+    setDeletingBarberId(barber.id);
+    setBarberError('');
+
+    try {
+      await api.deleteEstablishmentBarber(selectedBarbershopForBarbers.id, barber.id, usuario.id);
+      await carregarBarbeiros(selectedBarbershopForBarbers.id);
+    } catch (caughtError) {
+      console.error('Erro ao excluir barbeiro:', caughtError);
+      setBarberError(caughtError instanceof Error ? caughtError.message : 'Erro ao excluir barbeiro');
+    } finally {
+      setDeletingBarberId(null);
+    }
+  }
+
   return (
     <>
       <UserBar />
@@ -356,6 +485,9 @@ export default function PainelAdmin() {
                     }}
                   >
                     Relatorios
+                  </button>
+                  <button className="btn btn-secondary" onClick={() => abrirModalBarbeiros(barbearia)}>
+                    Barbeiros
                   </button>
 
                   <button className="btn btn-primary admin-btn-edit" onClick={() => abrirModalEdicao(barbearia)}>
@@ -521,6 +653,21 @@ export default function PainelAdmin() {
             </div>
           </div>
         )}
+
+        <BarbersModal
+          isOpen={barberModalOpen}
+          barbershop={selectedBarbershopForBarbers}
+          barbers={barbers}
+          barberForm={barberForm}
+          loading={barberLoading}
+          saving={barberSaving}
+          deletingBarberId={deletingBarberId}
+          error={barberError}
+          onClose={fecharModalBarbeiros}
+          onSubmit={handleBarberSubmit}
+          onChange={handleBarberChange}
+          onDelete={handleDeleteBarber}
+        />
 
         {planModalOpen && selectedBarbeariaForPlans && (
           <div className="admin-modal-backdrop" onClick={() => setPlanModalOpen(false)}>

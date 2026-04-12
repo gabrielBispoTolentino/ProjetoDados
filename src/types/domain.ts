@@ -33,9 +33,13 @@ export interface UserSummary {
   nome: string;
   email: string;
   role?: string;
+  telefone?: string;
+  cpf?: string;
   fotoUrl?: string | null;
   foto_url?: string | null;
   imagem_url?: string | null;
+  idbarberworker?: EntityId | null;
+  userTable?: string | null;
 }
 
 export interface LoginCredentials {
@@ -52,6 +56,7 @@ export interface CreateUserPayload {
   nome: string;
   email: string;
   senha: string;
+  cpf: string;
   telefone: string;
   role: string;
 }
@@ -62,6 +67,17 @@ export interface UserFields{
   cpf: string;
 }
 export interface UpdateUserPayload extends Partial<CreateUserPayload> {}
+
+export interface CreateBarberPayload {
+  admin_user_id: EntityId;
+  nome: string;
+  email: string;
+  senha: string;
+  cpf: string;
+  telefone: string;
+}
+
+export interface BarberSummary extends UserSummary {}
 
 export interface Establishment {
   id: EntityId;
