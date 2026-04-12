@@ -87,6 +87,13 @@ export interface CreateBarberPayload {
 
 export interface BarberSummary extends UserSummary {}
 
+export interface BookingBarberOption {
+  id: EntityId;
+  nome: string;
+  fotoUrl?: string | null;
+  imagem_url?: string | null;
+}
+
 export interface Establishment {
   id: EntityId;
   nome?: string;
@@ -137,6 +144,7 @@ export interface ShopSummary {
 
 export interface BookingFormData {
   estabelecimento_id: string;
+  barbeiro_id: string;
   servico_id: ServiceOptionId;
   selectedDate: string;
   proximo_pag: string;
@@ -147,6 +155,7 @@ export interface BookingFormData {
 export interface CreateAgendamentoPayload {
   usuario_id: EntityId;
   estabelecimento_id: EntityId;
+  barbeiro_id: EntityId;
   servico_id: number;
   proximo_pag: string;
   metodo_pagamento: PaymentMethodId;

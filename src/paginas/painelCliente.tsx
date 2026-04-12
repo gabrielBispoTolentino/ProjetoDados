@@ -354,6 +354,7 @@ export default function PainelCliente() {
     await api.createAgendamento({
       usuario_id: Number.parseInt(usuarioId, 10),
       estabelecimento_id: Number.parseInt(formData.estabelecimento_id, 10),
+      barbeiro_id: Number.parseInt(formData.barbeiro_id, 10),
       servico_id: Number.parseInt(formData.servico_id, 10),
       proximo_pag: formData.proximo_pag,
       metodo_pagamento: parsePaymentMethodId(formData.metodo_pagamento),

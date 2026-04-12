@@ -4,6 +4,7 @@ import type {
   AppointmentCreateResponse,
   BarberSummary,
   AvailablePlan,
+  BookingBarberOption,
   CreateBarberPayload,
   CreateAgendamentoPayload,
   CreatePlanPayload,
@@ -115,6 +116,14 @@ export const api = {
       `/establishments/${establishmentId}/barbers?admin_user_id=${adminUserId}`,
       {},
       'Erro ao buscar barbeiros',
+    );
+  },
+
+  getBookingBarbers(establishmentId: ApiId) {
+    return request<BookingBarberOption[]>(
+      `/establishments/${establishmentId}/barbers/public`,
+      {},
+      'Erro ao buscar barbeiros para agendamento',
     );
   },
 
@@ -254,9 +263,9 @@ export const api = {
     }, 'Erro ao criar agendamento');
   },
 
-  getHorariosDisponiveis(estabelecimentoId: ApiId, data: string) {
+  getHorariosDisponiveis(estabelecimentoId: ApiId, data: string, barbeiroId: ApiId) {
     return request<TimeSlotsResponse>(
-      `/agendamentos/horarios-disponiveis/${estabelecimentoId}?data=${data}`,
+      `/agendamentos/horarios-disponiveis/${estabelecimentoId}?data=${data}&barbeiro_id=${barbeiroId}`,
       {},
       'Erro ao buscar horarios disponiveis',
     );
@@ -294,6 +303,14 @@ export const api = {
       `/agendamentos/minha-barbearia?usuario_id=${usuarioId}`,
       {},
       'Erro ao buscar agendamentos da minha barbearia',
+    );
+  },
+
+  getAgendamentosBarbeiro(usuarioId: ApiId) {
+    return request<UserAppointment[]>(
+      `/agendamentos/barbeiro?usuario_id=${usuarioId}`,
+      {},
+      'Erro ao buscar agendamentos do barbeiro',
     );
   },
 

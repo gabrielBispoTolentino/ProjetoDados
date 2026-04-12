@@ -4,6 +4,7 @@ import './css/TimeSlot.css';
 
 type TimeSlotSelectorProps = {
   estabelecimentoId?: number | string | null;
+  barbeiroId?: number | string | null;
   selectedDate: string;
   onSelectDateTime: (dateTime: string) => void;
   value?: string | null;
@@ -16,6 +17,7 @@ const HORARIOS_TRABALHO = [
 
 export default function TimeSlotSelector({
   estabelecimentoId,
+  barbeiroId,
   selectedDate,
   onSelectDateTime,
   value,
@@ -25,16 +27,16 @@ export default function TimeSlotSelector({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!selectedDate || !estabelecimentoId) {
+    if (!selectedDate || !estabelecimentoId || !barbeiroId) {
       setHorariosOcupados([]);
       return;
     }
 
     void loadHorariosOcupados();
-  }, [selectedDate, estabelecimentoId]);
+  }, [selectedDate, estabelecimentoId, barbeiroId]);
 
   async function loadHorariosOcupados() {
-    if (!selectedDate || !estabelecimentoId) {
+    if (!selectedDate || !estabelecimentoId || !barbeiroId) {
       return;
     }
 
@@ -43,7 +45,7 @@ export default function TimeSlotSelector({
 
     try {
       const dataFormatada = selectedDate.split('T')[0];
-      const response = await api.getHorariosDisponiveis(estabelecimentoId, dataFormatada);
+      const response = await api.getHorariosDisponiveis(estabelecimentoId, dataFormatada, barbeiroId);
       setHorariosOcupados(response.horariosOcupados || []);
     } catch (caughtError) {
       setError('Erro ao carregar horarios disponiveis');
@@ -92,6 +94,10 @@ export default function TimeSlotSelector({
 
   if (!selectedDate) {
     return <div className="timeslot-no-date">Selecione uma data primeiro</div>;
+  }
+
+  if (!barbeiroId) {
+    return <div className="timeslot-no-date">Selecione um barbeiro primeiro</div>;
   }
 
   if (loading) {

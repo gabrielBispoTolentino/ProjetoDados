@@ -67,6 +67,50 @@
   margin-bottom: 1rem;
 }
 
+.booking-barbers-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.booking-barber-button {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: #f3f4f6;
+  cursor: pointer;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.booking-barber-button.selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.booking-barber-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.booking-barber-fallback {
+  color: #111827;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.booking-barber-name,
+.booking-barbers-loading {
+  margin: 0.6rem 0 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
 .booking-form-label {
   display: block;
   margin-bottom: 0.25rem;

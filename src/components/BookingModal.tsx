@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
+import { api } from '../../server/api';
 import TimeSlotSelector from './TimeSlotSelector';
 import type {
+  BookingBarberOption,
   BookingFormData,
   ServiceOptionId,
   ShopSummary,
@@ -17,6 +19,7 @@ type BookingModalProps = {
 
 const INITIAL_FORM_DATA: BookingFormData = {
   estabelecimento_id: '',
+  barbeiro_id: '',
   servico_id: '1',
   selectedDate: '',
   proximo_pag: '',
@@ -39,15 +42,47 @@ export default function BookingModal({
   const [formData, setFormData] = useState<BookingFormData>(INITIAL_FORM_DATA);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [barbers, setBarbers] = useState<BookingBarberOption[]>([]);
+  const [barbersLoading, setBarbersLoading] = useState(false);
+  const [barbersError, setBarbersError] = useState('');
 
   useEffect(() => {
     if (isOpen && selectedShop) {
       setFormData((currentForm) => ({
         ...currentForm,
         estabelecimento_id: String(selectedShop.id),
+        barbeiro_id: '',
+        selectedDate: '',
+        proximo_pag: '',
       }));
     }
   }, [isOpen, selectedShop]);
+
+  useEffect(() => {
+    if (!isOpen || !selectedShop) {
+      setBarbers([]);
+      setBarbersError('');
+      return;
+    }
+
+    void loadBarbers(selectedShop.id);
+  }, [isOpen, selectedShop]);
+
+  async function loadBarbers(establishmentId: number | string) {
+    setBarbersLoading(true);
+    setBarbersError('');
+
+    try {
+      const data = await api.getBookingBarbers(establishmentId);
+      setBarbers(data);
+    } catch (caughtError) {
+      console.error(caughtError);
+      setBarbers([]);
+      setBarbersError(caughtError instanceof Error ? caughtError.message : 'Erro ao carregar barbeiros');
+    } finally {
+      setBarbersLoading(false);
+    }
+  }
 
   function handleChange(event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = event.target;
@@ -65,6 +100,10 @@ export default function BookingModal({
     try {
       if (!formData.estabelecimento_id) {
         throw new Error('Estabelecimento nao selecionado');
+      }
+
+      if (!formData.barbeiro_id) {
+        throw new Error('Selecione um barbeiro');
       }
 
       if (!formData.proximo_pag) {
@@ -102,6 +141,53 @@ export default function BookingModal({
             <p className="booking-establishment-name">{selectedShop?.name}</p>
             {selectedShop?.address && (
               <p className="booking-establishment-address">{selectedShop.address}</p>
+            )}
+          </div>
+
+          <div className="booking-form-group">
+            <label className="booking-form-label">Selecione um barbeiro</label>
+            {barbersLoading ? (
+              <div className="booking-barbers-loading">Carregando barbeiros...</div>
+            ) : barbersError ? (
+              <div className="booking-modal-error">{barbersError}</div>
+            ) : barbers.length === 0 ? (
+              <div className="booking-barbers-loading">Nenhum barbeiro disponivel para esta barbearia.</div>
+            ) : (
+              <div className="booking-barbers-grid">
+                {barbers.map((barber) => {
+                  const isSelected = formData.barbeiro_id === String(barber.id);
+                  const barberPhoto = api.getPhotoUrl(barber.fotoUrl || barber.imagem_url);
+
+                  return (
+                    <button
+                      key={barber.id}
+                      type="button"
+                      className={`booking-barber-button ${isSelected ? 'selected' : ''}`}
+                      onClick={() => {
+                        setFormData((currentForm) => ({
+                          ...currentForm,
+                          barbeiro_id: String(barber.id),
+                          proximo_pag: '',
+                        }));
+                      }}
+                      title={barber.nome}
+                      aria-label={`Selecionar barbeiro ${barber.nome}`}
+                    >
+                      {barberPhoto ? (
+                        <img src={barberPhoto} alt={barber.nome} className="booking-barber-photo" />
+                      ) : (
+                        <span className="booking-barber-fallback">{barber.nome.slice(0, 1).toUpperCase()}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {formData.barbeiro_id && (
+              <p className="booking-barber-name">
+                Barbeiro selecionado:{' '}
+                {barbers.find((barber) => String(barber.id) === formData.barbeiro_id)?.nome || '-'}
+              </p>
             )}
           </div>
 
@@ -162,6 +248,7 @@ export default function BookingModal({
           <div className="booking-timeslot-group">
             <TimeSlotSelector
               estabelecimentoId={formData.estabelecimento_id}
+              barbeiroId={formData.barbeiro_id}
               selectedDate={formData.selectedDate}
               value={formData.proximo_pag}
               onSelectDateTime={(dateTime) => {
@@ -199,8 +286,8 @@ export default function BookingModal({
             </button>
             <button
               type="submit"
-              disabled={loading || !formData.proximo_pag}
-              className={`btn btn-primary booking-btn-submit ${(!formData.proximo_pag || loading) ? 'disabled' : ''}`}
+              disabled={loading || !formData.proximo_pag || !formData.barbeiro_id}
+              className={`btn btn-primary booking-btn-submit ${(!formData.proximo_pag || !formData.barbeiro_id || loading) ? 'disabled' : ''}`}
             >
               {loading ? 'Agendando...' : 'Confirmar Agendamento'}
             </button>
