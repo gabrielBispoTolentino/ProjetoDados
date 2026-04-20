@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { api } from '../../server/api';
+import { useFeedback } from './FeedbackProvider';
 import type { PlanBenefit, PlanBenefitPayload, Service } from '../types/domain';
 import './css/BenefitManager.css';
 
@@ -35,6 +36,7 @@ export default function BenefitManager({
   planoNome,
   onClose,
 }: BenefitManagerProps) {
+  const feedback = useFeedback();
   const [beneficios, setBeneficios] = useState<PlanBenefit[]>([]);
   const [servicos, setServicos] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,7 +66,7 @@ export default function BenefitManager({
       setServicos(servicosData);
     } catch (caughtError) {
       console.error(caughtError);
-      alert('Erro ao carregar dados');
+      feedback.error('Erro ao carregar dados');
     } finally {
       setLoading(false);
     }
@@ -93,12 +95,12 @@ export default function BenefitManager({
 
     try {
       await api.addPlanoBeneficio(planoId, payload);
-      alert('Beneficio adicionado com sucesso!');
+      feedback.success('Beneficio adicionado com sucesso!');
       resetForm();
       await loadData();
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao adicionar beneficio';
-      alert(message);
+      feedback.error(message);
     }
   }
 

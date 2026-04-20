@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { api } from '../../server/api';
+import { useFeedback } from './FeedbackProvider';
 import type { ReviewPayload } from '../types/domain';
 import './css/AvaliaçõesBar.css';
 
@@ -9,10 +10,11 @@ type AvaliacoesBarProps = {
   onSubmitted?: (payload: ReviewPayload) => void;
 };
 
-export default function AvaliaçõesBar({
+export default function AvaliacoesBar({
   estabelecimentoId,
   onSubmitted,
 }: AvaliacoesBarProps) {
+  const feedback = useFeedback();
   const [rating, setRating] = useState('5');
   const [comentario, setComentario] = useState('');
   const [loading, setLoading] = useState(false);
@@ -37,7 +39,7 @@ export default function AvaliaçõesBar({
       setComentario('');
       setRating('5');
       onSubmitted?.(payload);
-      alert('Avaliacao enviada com sucesso!');
+      feedback.success('Avaliacao enviada com sucesso!');
     } catch (caughtError) {
       console.error('Erro ao enviar avaliacao:', caughtError);
       setError(caughtError instanceof Error ? caughtError.message : 'Erro ao enviar avaliacao');

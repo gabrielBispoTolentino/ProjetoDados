@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserBar from '../components/UserBar';
+import { useFeedback } from '../components/FeedbackProvider';
 import { api } from '../../server/api';
 import type { UserAppointment, UserSummary } from '../types/domain';
 import './css/PainelCliente.css';
@@ -38,6 +39,7 @@ function isDefaultProfilePhoto(usuario: UserSummary | null) {
 
 export default function BarberPainel() {
   const navigate = useNavigate();
+  const feedback = useFeedback();
   const [usuario, setUsuario] = useState<UserSummary | null>(() => parseStoredUser());
   const [agendamentos, setAgendamentos] = useState<UserAppointment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,7 +89,15 @@ export default function BarberPainel() {
       concluir: 'Deseja marcar este agendamento como concluido?',
     } as const;
 
-    if (!window.confirm(mensagens[acao])) {
+    const confirmed = await feedback.confirm({
+      title: acao === 'cancelar' ? 'Cancelar agendamento' : 'Concluir agendamento',
+      message: mensagens[acao],
+      confirmLabel: acao === 'cancelar' ? 'Cancelar agendamento' : 'Concluir',
+      cancelLabel: 'Voltar',
+      tone: acao === 'cancelar' ? 'danger' : 'default',
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -96,10 +106,10 @@ export default function BarberPainel() {
     try {
       if (acao === 'cancelar') {
         await api.cancelarAgendamentoBarbeiro(agendamentoId);
-        alert('Agendamento cancelado com sucesso!');
+        feedback.success('Agendamento cancelado com sucesso!');
       } else {
         await api.concluirAgendamentoBarbeiro(agendamentoId);
-        alert('Agendamento concluido com sucesso!');
+        feedback.success('Agendamento concluido com sucesso!');
       }
 
       setAgendamentos((current) => current.map((agendamento) => (
@@ -109,7 +119,7 @@ export default function BarberPainel() {
       )));
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao atualizar agendamento';
-      alert(message);
+      feedback.error(message);
     } finally {
       setProcessingId(null);
     }
@@ -168,7 +178,7 @@ export default function BarberPainel() {
       setUsuario(usuarioAtualizado);
       setFoto(null);
       setPreviewUrl(null);
-      alert('Foto atualizada com sucesso!');
+      feedback.success('Foto atualizada com sucesso!');
     } catch (caughtError) {
       setPhotoError(caughtError instanceof Error ? caughtError.message : 'Erro ao atualizar foto');
     } finally {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { api } from '../../server/api';
+import { useFeedback } from './FeedbackProvider';
 import type { ReportLucroEntry } from '../types/domain';
 import './css/ReportLucro.css';
 
@@ -19,6 +20,7 @@ const INITIAL_FORM_DATA: ReportFormData = {
 };
 
 export default function ReportLucro({ estabelecimentoId }: ReportLucroProps) {
+  const feedback = useFeedback();
   const [loading, setLoading] = useState(false);
   const [relatorios, setRelatorios] = useState<ReportLucroEntry[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -52,7 +54,7 @@ export default function ReportLucro({ estabelecimentoId }: ReportLucroProps) {
 
   async function gerarRelatorioAutomatico() {
     if (!formData.periodo_comeco || !formData.periodo_final) {
-      alert('Por favor, preencha as datas de inicio e fim do periodo');
+      feedback.info('Por favor, preencha as datas de inicio e fim do periodo');
       return;
     }
 
@@ -66,7 +68,7 @@ export default function ReportLucro({ estabelecimentoId }: ReportLucroProps) {
         periodo_final: formData.periodo_final,
       });
 
-      alert('Relatorio gerado com sucesso!');
+      feedback.success('Relatorio gerado com sucesso!');
       setShowForm(false);
       setFormData(INITIAL_FORM_DATA);
       await carregarRelatorios();

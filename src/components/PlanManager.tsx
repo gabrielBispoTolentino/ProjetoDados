@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { api } from '../../server/api';
+import { useFeedback } from './FeedbackProvider';
 import PlanMarketplace from './PlanMarketplace';
 import PartnerListModal from './PartnerListModal';
 import BenefitManager from './BenefitManager';
@@ -38,6 +39,7 @@ function isActiveFlag(value: boolean | number | undefined): boolean {
 }
 
 export default function PlanManager({ estabelecimentoId }: PlanManagerProps) {
+  const feedback = useFeedback();
   const [activeTab, setActiveTab] = useState<PlanManagerTab>('meus');
   const [planos, setPlanos] = useState<AvailablePlan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,7 @@ export default function PlanManager({ estabelecimentoId }: PlanManagerProps) {
       setPlanos(data);
     } catch (caughtError) {
       console.error(caughtError);
-      alert('Erro ao carregar planos');
+      feedback.error('Erro ao carregar planos');
     } finally {
       setLoading(false);
     }
@@ -87,17 +89,17 @@ export default function PlanManager({ estabelecimentoId }: PlanManagerProps) {
     try {
       if (editingId) {
         await api.updatePlano(editingId, payload);
-        alert('Plano atualizado com sucesso!');
+        feedback.success('Plano atualizado com sucesso!');
       } else {
         await api.createPlano(payload as CreatePlanPayload);
-        alert('Plano criado com sucesso!');
+        feedback.success('Plano criado com sucesso!');
       }
 
       resetForm();
       await loadPlanos();
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao salvar plano';
-      alert(message);
+      feedback.error(message);
     }
   }
 
@@ -116,32 +118,48 @@ export default function PlanManager({ estabelecimentoId }: PlanManagerProps) {
   }
 
   async function handleDelete(id: number) {
-    if (!window.confirm('Tem certeza que deseja deletar este plano?')) {
+    const confirmed = await feedback.confirm({
+      title: 'Deletar plano',
+      message: 'Tem certeza que deseja deletar este plano?',
+      confirmLabel: 'Deletar',
+      cancelLabel: 'Cancelar',
+      tone: 'danger',
+    });
+
+    if (!confirmed) {
       return;
     }
 
     try {
       await api.deletePlano(id, estabelecimentoId);
-      alert('Plano deletado com sucesso!');
+      feedback.success('Plano deletado com sucesso!');
       await loadPlanos();
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao deletar plano';
-      alert(message);
+      feedback.error(message);
     }
   }
 
   async function handleSairParceria(planoId: number, planoNome: string) {
-    if (!window.confirm(`Tem certeza que deseja sair da parceria "${planoNome}"?`)) {
+    const confirmed = await feedback.confirm({
+      title: 'Sair da parceria',
+      message: `Tem certeza que deseja sair da parceria "${planoNome}"?`,
+      confirmLabel: 'Sair da parceria',
+      cancelLabel: 'Cancelar',
+      tone: 'danger',
+    });
+
+    if (!confirmed) {
       return;
     }
 
     try {
       await api.sairPlano(planoId, estabelecimentoId);
-      alert('Voce saiu da parceria com sucesso!');
+      feedback.success('Voce saiu da parceria com sucesso!');
       await loadPlanos();
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao sair da parceria';
-      alert(message);
+      feedback.error(message);
     }
   }
 

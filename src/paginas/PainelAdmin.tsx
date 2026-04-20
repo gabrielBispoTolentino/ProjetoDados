@@ -6,6 +6,7 @@ import UserBar from '../components/UserBar';
 import { api } from '../../server/api';
 import PlanManager from '../components/PlanManager';
 import ReportLucro from '../components/ReportLucro';
+import { useFeedback } from '../components/FeedbackProvider';
 import type { BarberSummary, Establishment, UserSummary } from '../types/domain';
 import './css/PainelAdmin.css';
 
@@ -75,6 +76,7 @@ function parseStoredUser(): UserSummary | null {
 
 export default function PainelAdmin() {
   const navigate = useNavigate();
+  const feedback = useFeedback();
   const [barbearias, setBarbearias] = useState<AdminShop[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
@@ -104,7 +106,7 @@ export default function PainelAdmin() {
     }
 
     if (usuario.role !== 'ADM_Estabelecimento') {
-      alert('Acesso negado! Apenas administradores podem acessar esta pagina.');
+      feedback.error('Acesso negado! Apenas administradores podem acessar esta pagina.');
       navigate('/painel');
       return;
     }
@@ -257,12 +259,12 @@ export default function PainelAdmin() {
 
       if (modoEdicao && barbeariaAtual.id) {
         await api.updateEstablishmentWithPhoto(barbeariaAtual.id, formDataToSend);
-        alert('Barbearia atualizada com sucesso!');
+        feedback.success('Barbearia atualizada com sucesso!');
       } else {
         const createdEstablishment = await api.createEstablishmentWithPhoto(formDataToSend);
         establishmentId =
           typeof createdEstablishment.id === 'number' ? createdEstablishment.id : null;
-        alert('Barbearia criada com sucesso!');
+        feedback.success('Barbearia criada com sucesso!');
       }
 
       const mapsUrl = barbeariaAtual.mapsUrl?.trim() || null;
@@ -281,13 +283,21 @@ export default function PainelAdmin() {
   }
 
   async function handleExcluir(id: number) {
-    if (!window.confirm('Tem certeza que deseja excluir esta barbearia?')) {
+    const confirmed = await feedback.confirm({
+      title: 'Excluir barbearia',
+      message: 'Tem certeza que deseja excluir esta barbearia?',
+      confirmLabel: 'Excluir',
+      cancelLabel: 'Cancelar',
+      tone: 'danger',
+    });
+
+    if (!confirmed) {
       return;
     }
 
     try {
       await api.deleteEstablishment(id);
-      alert('Barbearia excluida com sucesso!');
+      feedback.success('Barbearia excluida com sucesso!');
 
       const usuario = parseStoredUser();
       if (usuario) {
@@ -296,7 +306,7 @@ export default function PainelAdmin() {
     } catch (caughtError) {
       console.error('Erro ao excluir barbearia:', caughtError);
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao excluir barbearia';
-      alert(`Erro ao excluir barbearia: ${message}`);
+      feedback.error(`Erro ao excluir barbearia: ${message}`);
     }
   }
 
@@ -378,7 +388,7 @@ export default function PainelAdmin() {
         typeof response.usuario?.verifycode === 'string' && response.usuario.verifycode
           ? response.usuario.verifycode
           : null;
-      alert(
+      feedback.success(
         verifycode
           ? `Barbeiro criado com sucesso! Codigo de verificacao: ${verifycode}`
           : 'Barbeiro criado com sucesso!',
@@ -402,7 +412,15 @@ export default function PainelAdmin() {
       return;
     }
 
-    if (!window.confirm(`Tem certeza que deseja excluir o barbeiro ${barber.nome}?`)) {
+    const confirmed = await feedback.confirm({
+      title: 'Excluir barbeiro',
+      message: `Tem certeza que deseja excluir o barbeiro ${barber.nome}?`,
+      confirmLabel: 'Excluir',
+      cancelLabel: 'Cancelar',
+      tone: 'danger',
+    });
+
+    if (!confirmed) {
       return;
     }
 
@@ -412,6 +430,7 @@ export default function PainelAdmin() {
     try {
       await api.deleteEstablishmentBarber(selectedBarbershopForBarbers.id, barber.id, usuario.id);
       await carregarBarbeiros(selectedBarbershopForBarbers.id);
+      feedback.success('Barbeiro removido com sucesso!');
     } catch (caughtError) {
       console.error('Erro ao excluir barbeiro:', caughtError);
       setBarberError(caughtError instanceof Error ? caughtError.message : 'Erro ao excluir barbeiro');

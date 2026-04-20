@@ -11,6 +11,7 @@ import './App.css';
 import BarberPainel from './paginas/barberPainel';
 import Cadastro from './paginas/cadastro';
 import Login from './paginas/login';
+import NotFound from './paginas/NotFound';
 import ParceirosLogin from './paginas/parceirosLogin';
 import PainelCliente from './paginas/painelCliente';
 import PainelAdmin from './paginas/PainelAdmin';
@@ -107,6 +108,7 @@ export default function App() {
         <Route path="/painel" element={<PainelCliente />} />
         <Route path="/painel-admin" element={<PainelAdmin />} />
         <Route path="/barber-painel" element={<BarberPainel />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );

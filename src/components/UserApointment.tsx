@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from '../../server/api';
+import { useFeedback } from './FeedbackProvider';
 import TimeSlotSelector from './TimeSlotSelector';
 import type { UserAppointment } from '../types/domain';
 import './css/UserApointment.css';
@@ -41,6 +42,7 @@ export default function UserAppointments({
   isOpen,
   onClose,
 }: UserAppointmentsProps) {
+  const feedback = useFeedback();
   const [agendamentos, setAgendamentos] = useState<AppointmentViewModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [reagendandoId, setReagendandoId] = useState<number | null>(null);
@@ -100,17 +102,25 @@ export default function UserAppointments({
   }
 
   async function handleCancelar(id: number) {
-    if (!window.confirm('Deseja realmente cancelar este agendamento?')) {
+    const confirmed = await feedback.confirm({
+      title: 'Cancelar agendamento',
+      message: 'Deseja realmente cancelar este agendamento?',
+      confirmLabel: 'Cancelar agendamento',
+      cancelLabel: 'Voltar',
+      tone: 'danger',
+    });
+
+    if (!confirmed) {
       return;
     }
 
     try {
       await api.cancelarAgendamento(id);
-      alert('Agendamento cancelado com sucesso!');
+      feedback.success('Agendamento cancelado com sucesso!');
       await loadAgendamentosDoUsuario();
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao cancelar agendamento';
-      alert(message);
+      feedback.error(message);
     }
   }
 
@@ -129,18 +139,40 @@ export default function UserAppointments({
 
   async function handleReagendar() {
     if (!reagendandoId || !novoHorario) {
-      alert('Selecione um horario');
+      feedback.info('Selecione um horario');
       return;
     }
 
     try {
       await api.reagendarAgendamento(reagendandoId, novoHorario);
-      alert('Agendamento reagendado com sucesso!');
+      feedback.success('Agendamento reagendado com sucesso!');
       fecharReagendamento();
       await loadAgendamentosDoUsuario();
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao reagendar';
-      alert(message);
+      feedback.error(message);
+    }
+  }
+
+  async function handlePagar(agendamento: AppointmentViewModel) {
+    const confirmed = await feedback.confirm({
+      title: 'Confirmar pagamento',
+      message: `Confirma o pagamento de R$ ${Number(agendamento.valor || 0).toFixed(2)}?`,
+      confirmLabel: 'Confirmar pagamento',
+      cancelLabel: 'Voltar',
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await api.pagarAgendamento(agendamento.id);
+      feedback.success('Pagamento confirmado!');
+      await loadAgendamentosDoUsuario();
+    } catch (caughtError) {
+      const message = caughtError instanceof Error ? caughtError.message : 'Erro ao pagar agendamento';
+      feedback.error(message);
     }
   }
 
@@ -216,18 +248,8 @@ export default function UserAppointments({
                   <div className="appointment-actions">
                     {pagamentoPendente && (
                       <button
-                        onClick={async () => {
-                          try {
-                            if (!window.confirm(`Confirma o pagamento de R$ ${Number(agendamento.valor || 0).toFixed(2)}?`)) {
-                              return;
-                            }
-                            await api.pagarAgendamento(agendamento.id);
-                            alert('Pagamento confirmado!');
-                            await loadAgendamentosDoUsuario();
-                          } catch (caughtError) {
-                            const message = caughtError instanceof Error ? caughtError.message : 'Erro ao pagar agendamento';
-                            alert(message);
-                          }
+                        onClick={() => {
+                          void handlePagar(agendamento);
                         }}
                         className="appointment-btn-pay"
                         style={{ backgroundColor: '#22c55e', color: 'white', marginRight: '0.5rem' }}

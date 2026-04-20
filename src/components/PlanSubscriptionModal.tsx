@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
+import { useFeedback } from './FeedbackProvider';
 import type { AvailablePlan, PaymentMethodValue, ShopSummary } from '../types/domain';
 import './css/PlanSubscriptionModal.css';
 
@@ -14,6 +15,7 @@ export default function PlanSubscriptionModal({
   onClose,
   shop,
 }: PlanSubscriptionModalProps) {
+  const feedback = useFeedback();
   const [planos, setPlanos] = useState<AvailablePlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<AvailablePlan | null>(null);
@@ -42,7 +44,7 @@ export default function PlanSubscriptionModal({
       setPlanos(data);
     } catch (caughtError) {
       console.error(caughtError);
-      alert('Erro ao carregar planos disponiveis');
+      feedback.error('Erro ao carregar planos disponiveis');
     } finally {
       setLoading(false);
     }
@@ -50,7 +52,7 @@ export default function PlanSubscriptionModal({
 
   async function handleSubscribe() {
     if (!selectedPlan) {
-      alert('Por favor, selecione um plano');
+      feedback.info('Por favor, selecione um plano');
       return;
     }
 
@@ -58,7 +60,7 @@ export default function PlanSubscriptionModal({
       setSubmitting(true);
       const usuarioId = localStorage.getItem('usuarioId');
       if (!usuarioId) {
-        alert('Usuario nao autenticado');
+        feedback.error('Usuario nao autenticado');
         return;
       }
 
@@ -69,17 +71,17 @@ export default function PlanSubscriptionModal({
       });
 
       if (selectedPlan.dias_freetrial > 0 && response.proxima_cobranca) {
-        alert(
+        feedback.success(
           `Assinatura criada com sucesso!\n\nVoce tem ${selectedPlan.dias_freetrial} dias de teste gratis.\nPrimeira cobranca em: ${new Date(response.proxima_cobranca).toLocaleDateString('pt-BR')}`,
         );
       } else {
-        alert('Assinatura criada com sucesso!\n\nPagamento pendente. Voce tem 7 dias para efetuar o pagamento.');
+        feedback.success('Assinatura criada com sucesso!\n\nPagamento pendente. Voce tem 7 dias para efetuar o pagamento.');
       }
 
       onClose();
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao criar assinatura';
-      alert(message);
+      feedback.error(message);
     } finally {
       setSubmitting(false);
     }

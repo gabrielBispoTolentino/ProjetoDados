@@ -4,6 +4,7 @@ import UserBar from '../components/UserBar';
 import SearchBar from '../components/SearchBar';
 import BookingModal from '../components/BookingModal';
 import ShopDetailsModal from '../components/ShopDetailsModal';
+import { useFeedback } from '../components/FeedbackProvider';
 import type {
   BookingFormData,
   Establishment,
@@ -330,6 +331,7 @@ function ShopsList({
 }
 
 export default function PainelCliente() {
+  const feedback = useFeedback();
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedShop, setSelectedShop] = useState<NormalizedShop | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -347,7 +349,7 @@ export default function PainelCliente() {
   async function handleBookingSubmit(formData: BookingFormData) {
     const usuarioId = localStorage.getItem('usuarioId');
     if (!usuarioId) {
-      alert('Usuario nao autenticado.');
+      feedback.error('Usuario nao autenticado.');
       return;
     }
 
@@ -360,7 +362,7 @@ export default function PainelCliente() {
       metodo_pagamento: parsePaymentMethodId(formData.metodo_pagamento),
     });
 
-    alert('Agendamento criado com sucesso!');
+    feedback.success('Agendamento criado com sucesso!');
   }
 
   return (

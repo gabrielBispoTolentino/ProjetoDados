@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
+import { FeedbackProvider } from './components/FeedbackProvider';
 
 const rootElement = document.getElementById('root');
 
@@ -11,6 +12,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <FeedbackProvider>
+      <App />
+    </FeedbackProvider>
   </StrictMode>,
 );

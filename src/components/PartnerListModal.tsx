@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
+import { useFeedback } from './FeedbackProvider';
 import type { PlanPartner } from '../types/domain';
 import './css/PartnerListModal.css';
 
@@ -16,6 +17,7 @@ export default function PartnerListModal({
   isOpen,
   onClose,
 }: PartnerListModalProps) {
+  const feedback = useFeedback();
   const [parceiros, setParceiros] = useState<PlanPartner[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,7 +40,7 @@ export default function PartnerListModal({
       setParceiros(data);
     } catch (caughtError) {
       console.error(caughtError);
-      alert('Erro ao carregar parceiros');
+      feedback.error('Erro ao carregar parceiros');
     } finally {
       setLoading(false);
     }

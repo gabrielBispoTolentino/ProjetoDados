@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
+import { useFeedback } from './FeedbackProvider';
 import type { MarketplacePlan } from '../types/domain';
 import './css/PlanMarketplace.css';
 
@@ -12,6 +13,7 @@ export default function PlanMarketplace({
   estabelecimentoId,
   onClose,
 }: PlanMarketplaceProps) {
+  const feedback = useFeedback();
   const [planos, setPlanos] = useState<MarketplacePlan[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -36,16 +38,19 @@ export default function PlanMarketplace({
       setPlanos(data);
     } catch (caughtError) {
       console.error(caughtError);
-      alert('Erro ao carregar marketplace');
+      feedback.error('Erro ao carregar marketplace');
     } finally {
       setLoading(false);
     }
   }
 
   async function handleParticipar(plano: MarketplacePlan) {
-    const confirmed = window.confirm(
-      `Deseja participar da parceria "${plano.nome}"?\n\nCriado por: ${plano.criador_nome}\nPreco: R$ ${Number(plano.preco).toFixed(2)}`,
-    );
+    const confirmed = await feedback.confirm({
+      title: 'Participar da parceria',
+      message: `Deseja participar da parceria "${plano.nome}"?\n\nCriado por: ${plano.criador_nome}\nPreco: R$ ${Number(plano.preco).toFixed(2)}`,
+      confirmLabel: 'Participar',
+      cancelLabel: 'Cancelar',
+    });
 
     if (!confirmed || !estabelecimentoId) {
       return;
@@ -53,12 +58,12 @@ export default function PlanMarketplace({
 
     try {
       await api.participarPlano(plano.id, estabelecimentoId);
-      alert('Voce entrou na parceria com sucesso!');
+      feedback.success('Voce entrou na parceria com sucesso!');
       await loadMarketplace();
       onClose?.();
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao participar do plano';
-      alert(message);
+      feedback.error(message);
     }
   }
 

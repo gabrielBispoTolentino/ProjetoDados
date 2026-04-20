@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
+import { useFeedback } from './FeedbackProvider';
 import type { UserSubscription } from '../types/domain';
 import './css/UserSubscriptions.css';
 
@@ -17,6 +18,7 @@ export default function UserSubscriptions({
   isOpen,
   onClose,
 }: UserSubscriptionsProps) {
+  const feedback = useFeedback();
   const [subscriptions, setSubscriptions] = useState<UserSubscription[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,22 +43,33 @@ export default function UserSubscriptions({
       setSubscriptions(data);
     } catch (caughtError) {
       console.error(caughtError);
-      alert('Erro ao carregar assinaturas');
+      feedback.error('Erro ao carregar assinaturas');
     } finally {
       setLoading(false);
     }
   }
 
   async function handleCancel(id: number) {
-    const motivo = prompt('Motivo do cancelamento (opcional):');
+    const motivo = await feedback.prompt({
+      title: 'Cancelar assinatura',
+      message: 'Se quiser, informe o motivo do cancelamento. Esse campo e opcional.',
+      placeholder: 'Ex: nao estou usando no momento',
+      confirmLabel: 'Cancelar assinatura',
+      cancelLabel: 'Voltar',
+      tone: 'danger',
+    });
+
+    if (motivo === null) {
+      return;
+    }
 
     try {
       await api.cancelSubscription(id, motivo);
-      alert('Assinatura cancelada com sucesso!');
+      feedback.success('Assinatura cancelada com sucesso!');
       await loadSubscriptions();
     } catch (caughtError) {
       const message = caughtError instanceof Error ? caughtError.message : 'Erro ao cancelar assinatura';
-      alert(message);
+      feedback.error(message);
     }
   }
 
