@@ -36,6 +36,7 @@ export interface UserSummary {
   role?: string;
   telefone?: string;
   cpf?: string;
+  cnpj?: string | null;
   fotoUrl?: string | null;
   foto_url?: string | null;
   imagem_url?: string | null;
