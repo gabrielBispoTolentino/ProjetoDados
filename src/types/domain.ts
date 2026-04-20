@@ -205,6 +205,20 @@ export interface ReviewPayload {
   comentario: string;
 }
 
+export interface ReviewSummary {
+  id: EntityId;
+  rating: number;
+  comentario: string;
+  usuarioNome: string;
+  usuarioFotoUrl?: string | null;
+}
+
+export interface ReviewsResponse {
+  reviews: ReviewSummary[];
+  ratingAvg: number;
+  ratingCount: number;
+}
+
 export interface PlanBase {
   id: EntityId;
   nome: string;

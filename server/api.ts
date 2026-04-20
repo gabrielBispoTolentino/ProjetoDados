@@ -20,6 +20,8 @@ import type {
   PlanPartner,
   ReportLucroEntry,
   ReviewPayload,
+  ReviewsResponse,
+  ReviewSummary,
   Service,
   SubscribeToPlanPayload,
   SubscribeToPlanResponse,
@@ -333,11 +335,19 @@ export const api = {
   },
 
   createReview(reviewData: ReviewPayload) {
-    return request<ApiMessageResponse>('/avaliacoes', {
+    return request<ApiMessageResponse & { id?: number | null; ratingAvg?: number; ratingCount?: number }>(
+      '/avaliacoes',
+      {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(reviewData),
-    }, 'Erro ao criar avaliacao');
+      },
+      'Erro ao criar avaliacao',
+    );
+  },
+
+  getEstablishmentReviews(estabelecimentoId: ApiId) {
+    return request<ReviewsResponse>(`/avaliacoes/estabelecimento/${estabelecimentoId}`, {}, 'Erro ao buscar avaliacoes');
   },
 
   createPlano(planoData: CreatePlanPayload) {

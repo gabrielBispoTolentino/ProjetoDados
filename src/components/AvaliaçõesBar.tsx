@@ -7,7 +7,7 @@ import './css/AvaliaçõesBar.css';
 
 type AvaliacoesBarProps = {
   estabelecimentoId: number | string;
-  onSubmitted?: (payload: ReviewPayload) => void;
+  onSubmitted?: (payload: ReviewPayload, result?: { ratingAvg?: number; ratingCount?: number }) => void;
 };
 
 export default function AvaliacoesBar({
@@ -34,11 +34,14 @@ export default function AvaliacoesBar({
         comentario: comentario || '',
       };
 
-      await api.createReview(payload);
+      const result = await api.createReview(payload);
 
       setComentario('');
       setRating('5');
-      onSubmitted?.(payload);
+      onSubmitted?.(payload, {
+        ratingAvg: result.ratingAvg,
+        ratingCount: result.ratingCount,
+      });
       feedback.success('Avaliacao enviada com sucesso!');
     } catch (caughtError) {
       console.error('Erro ao enviar avaliacao:', caughtError);

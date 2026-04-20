@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from '../../server/api';
-import AvaliaçõesBar from './AvaliaçõesBar';
+import AvaliacoesBar from './AvaliaçõesBar';
 import PlanSubscriptionModal from './PlanSubscriptionModal';
-import type { ShopSummary } from '../types/domain';
+import type { ReviewSummary, ShopSummary } from '../types/domain';
 import './css/ShopDetailsModal.css';
 
 type DetailedShop = ShopSummary & {
@@ -24,6 +24,31 @@ type ShopDetailsModalProps = {
   onSchedule: (shop: DetailedShop) => void;
 };
 
+type StoredUser = {
+  nome?: string;
+  fotoUrl?: string | null;
+  foto_url?: string | null;
+  imagem_url?: string | null;
+};
+
+function getStoredUser(): StoredUser | null {
+  const rawUser = localStorage.getItem('usuario');
+  if (!rawUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(rawUser) as StoredUser;
+  } catch {
+    return null;
+  }
+}
+
+function renderStars(rating: number) {
+  const filledStars = Math.max(0, Math.min(5, Math.round(rating)));
+  return '★'.repeat(filledStars) + '☆'.repeat(5 - filledStars);
+}
+
 export default function ShopDetailsModal({
   shop,
   isOpen,
@@ -33,6 +58,10 @@ export default function ShopDetailsModal({
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
   const [resolvedEmbedSrc, setResolvedEmbedSrc] = useState<string | null>(null);
   const [embedResolutionFailed, setEmbedResolutionFailed] = useState(false);
+  const [reviews, setReviews] = useState<ReviewSummary[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState<string | null>(null);
+  const [ratingSummary, setRatingSummary] = useState<{ avg: number; count: number } | null>(null);
 
   function getText(value: unknown): string | null {
     if (typeof value !== 'string') {
@@ -69,6 +98,49 @@ export default function ShopDetailsModal({
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen || !shop) {
+      setReviews([]);
+      setReviewsError(null);
+      setRatingSummary(null);
+      return;
+    }
+
+    let cancelled = false;
+    setReviewsLoading(true);
+    setReviewsError(null);
+
+    void api.getEstablishmentReviews(shop.id)
+      .then((result) => {
+        if (cancelled) {
+          return;
+        }
+
+        setReviews(result.reviews);
+        setRatingSummary({
+          avg: Number(result.ratingAvg || 0),
+          count: Number(result.ratingCount || 0),
+        });
+      })
+      .catch((error) => {
+        if (cancelled) {
+          return;
+        }
+
+        setReviews([]);
+        setReviewsError(error instanceof Error ? error.message : 'Erro ao carregar avaliacoes');
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setReviewsLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, shop]);
+
   const currentShop = shop;
   const imageUrl = currentShop?.imageUrl ? api.getPhotoUrl(currentShop.imageUrl) : null;
   const mapsUrl = getText(currentShop?.googleMapsUrl);
@@ -88,6 +160,8 @@ export default function ShopDetailsModal({
     mapsEmbedUrl ||
     resolvedEmbedSrc ||
     (!shouldResolveMapsUrl || embedResolutionFailed ? fallbackEmbedSrc : null);
+  const displayedRating = ratingSummary?.avg ?? Number(shop?.rating || 0);
+  const displayedRatingCount = ratingSummary?.count ?? Number(shop?.ratingCount || 0);
 
   useEffect(() => {
     let cancelled = false;
@@ -185,9 +259,9 @@ export default function ShopDetailsModal({
 
           <div className="shop-details-meta">
             <div className="shop-details-rating">
-              * {Number(shop.rating || 0).toFixed(1)}
+              ★ {displayedRating.toFixed(1)}
               <span style={{ fontWeight: 400, color: '#99aabb' }}>
-                ({shop.ratingCount || 0} avaliacoes)
+                ({displayedRatingCount} avaliacoes)
               </span>
             </div>
             <span>{shop.address}</span>
@@ -272,7 +346,108 @@ export default function ShopDetailsModal({
 
           <div className="shop-details-section">
             <h3 className="shop-details-subtitle">Avaliacoes</h3>
-            <AvaliaçõesBar estabelecimentoId={shop.id} onSubmitted={() => {}} />
+
+            <div className="shop-details-reviews-summary">
+              <div className="shop-details-reviews-score">
+                <strong>{displayedRating.toFixed(1)}</strong>
+                <span>{renderStars(displayedRating)}</span>
+              </div>
+              <p>
+                Baseado em {displayedRatingCount} {displayedRatingCount === 1 ? 'avaliacao' : 'avaliacoes'}.
+              </p>
+            </div>
+
+            <AvaliacoesBar
+              estabelecimentoId={shop.id}
+              onSubmitted={(payload, result) => {
+                const storedUser = getStoredUser();
+
+                setReviews((currentReviews) => [
+                  {
+                    id: Date.now(),
+                    rating: payload.rating,
+                    comentario: payload.comentario,
+                    usuarioNome: storedUser?.nome || 'Voce',
+                    usuarioFotoUrl:
+                      storedUser?.fotoUrl ||
+                      storedUser?.foto_url ||
+                      storedUser?.imagem_url ||
+                      null,
+                  },
+                  ...currentReviews,
+                ]);
+
+                if (typeof result?.ratingAvg === 'number' && typeof result?.ratingCount === 'number') {
+                  setRatingSummary({
+                    avg: result.ratingAvg,
+                    count: result.ratingCount,
+                  });
+                }
+              }}
+            />
+
+            {reviewsError && <p className="shop-details-reviews-error">{reviewsError}</p>}
+
+            {reviewsLoading ? (
+              <div className="shop-details-reviews-list">
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="shop-details-review-card is-loading">
+                    <div className="shop-details-review-avatar skeleton-block" />
+                    <div className="shop-details-review-body">
+                      <div className="shop-details-review-line skeleton-block short" />
+                      <div className="shop-details-review-line skeleton-block medium" />
+                      <div className="shop-details-review-line skeleton-block long" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : reviews.length > 0 ? (
+              <div className="shop-details-reviews-list">
+                {reviews.map((review) => {
+                  const reviewPhotoUrl = api.getPhotoUrl(review.usuarioFotoUrl) || null;
+
+                  return (
+                    <article key={review.id} className="shop-details-review-card">
+                      <div className="shop-details-review-avatar">
+                        {reviewPhotoUrl ? (
+                          <img
+                            src={reviewPhotoUrl}
+                            alt={review.usuarioNome}
+                            onError={(event) => {
+                              const image = event.currentTarget;
+                              image.style.display = 'none';
+                              const fallback = image.nextElementSibling;
+                              if (fallback instanceof HTMLElement) {
+                                fallback.style.display = 'flex';
+                              }
+                            }}
+                          />
+                        ) : null}
+
+                        <div
+                          className="shop-details-review-avatar-fallback"
+                          style={{ display: reviewPhotoUrl ? 'none' : 'flex' }}
+                        >
+                          {review.usuarioNome.slice(0, 1).toUpperCase()}
+                        </div>
+                      </div>
+
+                      <div className="shop-details-review-body">
+                        <div className="shop-details-review-header">
+                          <strong>{review.usuarioNome}</strong>
+                          <span>{renderStars(review.rating)}</span>
+                        </div>
+                        <p>{review.comentario || 'Cliente avaliou sem comentario adicional.'}</p>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="shop-details-reviews-empty">
+                Ainda nao ha avaliacoes para esta barbearia. Seja o primeiro a avaliar.
+              </p>
+            )}
           </div>
         </div>
 
