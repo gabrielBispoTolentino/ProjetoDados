@@ -45,13 +45,16 @@ type ShopsListProps = {
 };
 
 function normalizeShop(shop: Establishment): NormalizedShop {
+  const ratingCount = Number(shop.ratingCount ?? shop.rating_count ?? 0);
+  const ratingValue = Number(shop.rating ?? shop.rating_avg ?? 0);
+
   return {
     ...shop,
     id: shop.id,
     name: shop.name ?? shop.nome ?? 'Sem nome',
     address: shop.address ?? shop.cidade ?? 'Sem endereco',
-    rating: shop.rating ?? shop.rating_avg ?? 0,
-    ratingCount: shop.ratingCount ?? shop.rating_count ?? 0,
+    rating: ratingCount > 0 ? ratingValue : 0,
+    ratingCount,
     imageUrl: shop.imageUrl ?? shop.imagem_url ?? shop.img ?? null,
     latitude: shop.latitude ?? null,
     longitude: shop.longitude ?? null,

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { api } from '../../server/api';
 import AvaliacoesBar from './AvaliaçõesBar';
 import PlanSubscriptionModal from './PlanSubscriptionModal';
+import RatingStars from './RatingStars';
 import type { ReviewSummary, ShopSummary } from '../types/domain';
 import './css/ShopDetailsModal.css';
 
@@ -42,11 +43,6 @@ function getStoredUser(): StoredUser | null {
   } catch {
     return null;
   }
-}
-
-function renderStars(rating: number) {
-  const filledStars = Math.max(0, Math.min(5, Math.round(rating)));
-  return '★'.repeat(filledStars) + '☆'.repeat(5 - filledStars);
 }
 
 export default function ShopDetailsModal({
@@ -259,7 +255,8 @@ export default function ShopDetailsModal({
 
           <div className="shop-details-meta">
             <div className="shop-details-rating">
-              ★ {displayedRating.toFixed(1)}
+              <span>{displayedRating.toFixed(1)}</span>
+              <RatingStars rating={displayedRating} size="sm" />
               <span style={{ fontWeight: 400, color: '#99aabb' }}>
                 ({displayedRatingCount} avaliacoes)
               </span>
@@ -350,7 +347,7 @@ export default function ShopDetailsModal({
             <div className="shop-details-reviews-summary">
               <div className="shop-details-reviews-score">
                 <strong>{displayedRating.toFixed(1)}</strong>
-                <span>{renderStars(displayedRating)}</span>
+                <RatingStars rating={displayedRating} size="md" />
               </div>
               <p>
                 Baseado em {displayedRatingCount} {displayedRatingCount === 1 ? 'avaliacao' : 'avaliacoes'}.
@@ -435,7 +432,7 @@ export default function ShopDetailsModal({
                       <div className="shop-details-review-body">
                         <div className="shop-details-review-header">
                           <strong>{review.usuarioNome}</strong>
-                          <span>{renderStars(review.rating)}</span>
+                          <RatingStars rating={review.rating} size="sm" />
                         </div>
                         <p>{review.comentario || 'Cliente avaliou sem comentario adicional.'}</p>
                       </div>
