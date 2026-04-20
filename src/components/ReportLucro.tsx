@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { api } from '../../server/api';
 import { useFeedback } from './FeedbackProvider';
+import { ReportSkeleton } from './Skeleton';
 import type { ReportLucroEntry } from '../types/domain';
 import './css/ReportLucro.css';
 
@@ -273,7 +274,7 @@ export default function ReportLucro({ estabelecimentoId }: ReportLucroProps) {
       </div>
 
       {loading ? (
-        <div className="report-loading">Carregando relatorios...</div>
+        <ReportSkeleton />
       ) : relatoriosFiltrados.length === 0 ? (
         <div className="report-empty">
           <p>Nenhum relatorio encontrado para os filtros selecionados.</p>

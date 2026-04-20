@@ -1,0 +1,179 @@
+.skeleton-block {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.skeleton-block::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  animation: skeleton-shimmer 1.45s ease-in-out infinite;
+}
+
+.skeleton-line {
+  height: 12px;
+}
+
+.skeleton-line-title {
+  width: 68%;
+  height: 18px;
+}
+
+.skeleton-line-lg {
+  width: 92%;
+}
+
+.skeleton-line-md {
+  width: 72%;
+}
+
+.skeleton-line-sm {
+  width: 54%;
+}
+
+.skeleton-line-xs {
+  width: 36%;
+}
+
+.skeleton-chip {
+  width: 82px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+.skeleton-chip-sm {
+  width: 52px;
+}
+
+.skeleton-circle {
+  border-radius: 999px;
+}
+
+.skeleton-circle-xs {
+  width: 14px;
+  height: 14px;
+}
+
+.skeleton-circle-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.skeleton-circle-md {
+  width: 46px;
+  height: 46px;
+}
+
+.skeleton-circle-lg {
+  width: 52px;
+  height: 52px;
+}
+
+.skeleton-circle-xl {
+  width: 64px;
+  height: 64px;
+}
+
+.skeleton-button {
+  height: 40px;
+  flex: 1;
+}
+
+.skeleton-button-danger {
+  max-width: none;
+}
+
+.skeleton-panel {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.skeleton-inline-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.65rem;
+}
+
+.skeleton-shop-card,
+.skeleton-admin-card,
+.skeleton-barber-card,
+.skeleton-plan-card,
+.skeleton-marketplace-card,
+.skeleton-subscription-plan-card,
+.skeleton-subscription-card,
+.skeleton-appointment-card,
+.skeleton-booked-item,
+.skeleton-benefit-card,
+.skeleton-partner-item,
+.skeleton-barber-list-card {
+  pointer-events: none;
+}
+
+.skeleton-shop-card .shop-info,
+.skeleton-admin-card .shop-info,
+.skeleton-barber-card .shop-info,
+.skeleton-subscription-card .subscription-details,
+.skeleton-benefit-card .benefit-details {
+  gap: 0.65rem;
+}
+
+.skeleton-admin-card .admin-shop-actions,
+.skeleton-plan-card .plan-actions,
+.skeleton-appointment-card .appointment-actions,
+.skeleton-barber-card .barber-appointment-actions {
+  align-items: stretch;
+}
+
+.skeleton-marketplace-card .marketplace-details,
+.skeleton-subscription-plan-card .plan-subscription-price {
+  gap: 0.65rem;
+}
+
+.skeleton-avatar-grid {
+  align-items: center;
+}
+
+.skeleton-timeslot-grid {
+  padding-top: 0.75rem;
+}
+
+.skeleton-timeslot-button {
+  height: 54px;
+  border-radius: 6px;
+}
+
+.skeleton-table-head,
+.skeleton-table-row {
+  display: grid;
+  grid-template-columns: 1.3fr repeat(4, 1fr);
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+}
+
+.skeleton-table-head {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.skeleton-table-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.skeleton-table-row:last-child {
+  border-bottom: none;
+}
+
+.skeleton-reports-table {
+  overflow: hidden;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}

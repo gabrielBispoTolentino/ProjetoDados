@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
 import { useFeedback } from './FeedbackProvider';
+import { MarketplacePlanCardSkeletons } from './Skeleton';
 import type { MarketplacePlan } from '../types/domain';
 import './css/PlanMarketplace.css';
 
@@ -68,7 +69,17 @@ export default function PlanMarketplace({
   }
 
   if (loading) {
-    return <div className="marketplace-loading">Carregando planos disponiveis...</div>;
+    return (
+      <div className="marketplace-container">
+        <div className="marketplace-header">
+          <h3>Marketplace de Planos</h3>
+          <p className="marketplace-subtitle">Participe de planos criados por outras barbearias</p>
+        </div>
+        <div className="marketplace-grid">
+          <MarketplacePlanCardSkeletons count={3} />
+        </div>
+      </div>
+    );
   }
 
   return (

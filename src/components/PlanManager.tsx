@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { api } from '../../server/api';
 import { useFeedback } from './FeedbackProvider';
+import { PlanCardSkeletons } from './Skeleton';
 import PlanMarketplace from './PlanMarketplace';
 import PartnerListModal from './PartnerListModal';
 import BenefitManager from './BenefitManager';
@@ -173,7 +174,21 @@ export default function PlanManager({ estabelecimentoId }: PlanManagerProps) {
   const parcerias = planos.filter((plano) => plano.tipo === 'parceiro');
 
   if (loading) {
-    return <div className="plan-manager-loading">Carregando planos...</div>;
+    return (
+      <div className="plan-manager">
+        <div className="plan-manager-header">
+          <h2>Gerenciar Planos</h2>
+        </div>
+        <div className="plan-tabs">
+          <button className="plan-tab active" type="button">Meus Planos</button>
+          <button className="plan-tab" type="button">Parcerias</button>
+          <button className="plan-tab" type="button">Marketplace</button>
+        </div>
+        <div className="plans-list">
+          <PlanCardSkeletons count={3} />
+        </div>
+      </div>
+    );
   }
 
   return (

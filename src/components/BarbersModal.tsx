@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { api } from '../../server/api';
+import { BarberListSkeletons } from './Skeleton';
 import type { BarberSummary, Establishment } from '../types/domain';
 import './css/BarbersModal.css';
 
@@ -88,7 +89,9 @@ export default function BarbersModal({
               </button>
             </div>
             {loading ? (
-              <div className="loader">Carregando barbeiros...</div>
+              <div className="admin-barber-list">
+                <BarberListSkeletons count={4} />
+              </div>
             ) : barbers.length === 0 ? (
               <p className="admin-barber-empty">Nenhum barbeiro cadastrado ainda.</p>
             ) : (

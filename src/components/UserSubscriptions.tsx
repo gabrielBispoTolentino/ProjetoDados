@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
 import { useFeedback } from './FeedbackProvider';
+import { SubscriptionCardSkeletons } from './Skeleton';
 import type { UserSubscription } from '../types/domain';
 import './css/UserSubscriptions.css';
 
@@ -85,7 +86,9 @@ export default function UserSubscriptions({
         <h2>Minhas Assinaturas</h2>
 
         {loading ? (
-          <div className="subscriptions-loading">Carregando...</div>
+          <div className="subscriptions-list">
+            <SubscriptionCardSkeletons count={3} />
+          </div>
         ) : subscriptions.length === 0 ? (
           <div className="no-subscriptions">
             <p>Voce ainda nao possui assinaturas ativas.</p>

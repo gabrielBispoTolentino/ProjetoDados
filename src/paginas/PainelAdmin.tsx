@@ -7,6 +7,7 @@ import { api } from '../../server/api';
 import PlanManager from '../components/PlanManager';
 import ReportLucro from '../components/ReportLucro';
 import { useFeedback } from '../components/FeedbackProvider';
+import { AdminShopCardSkeletons } from '../components/Skeleton';
 import type { BarberSummary, Establishment, UserSummary } from '../types/domain';
 import './css/PainelAdmin.css';
 
@@ -453,7 +454,9 @@ export default function PainelAdmin() {
         {erro && !modalAberto && <div className="admin-error">{erro}</div>}
 
         {loading ? (
-          <div className="loader">Carregando suas barbearias...</div>
+          <div className="admin-grid">
+            <AdminShopCardSkeletons count={4} />
+          </div>
         ) : barbearias.length === 0 ? (
           <div className="admin-empty-state">
             <p className="admin-empty-text">Voce ainda nao cadastrou nenhuma barbearia.</p>

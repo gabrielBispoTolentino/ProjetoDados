@@ -5,6 +5,7 @@ import SearchBar from '../components/SearchBar';
 import BookingModal from '../components/BookingModal';
 import ShopDetailsModal from '../components/ShopDetailsModal';
 import { useFeedback } from '../components/FeedbackProvider';
+import { ShopCardSkeletons } from '../components/Skeleton';
 import type {
   BookingFormData,
   Establishment,
@@ -239,6 +240,8 @@ function ShopsList({
       {error && <div className="loader error">{error}</div>}
 
       <div className="shops-list" role="list">
+        {loading && shops.length === 0 && !error && <ShopCardSkeletons count={6} />}
+
         {shops.length === 0 && !loading && !error && (
           <div className="loader">Nenhuma barbearia encontrada</div>
         )}
@@ -313,9 +316,9 @@ function ShopsList({
         ))}
 
         {hasMore && <div ref={sentinelRef} style={{ height: '1px' }} />}
-      </div>
 
-      {loading && <div className="loader">Carregando...</div>}
+        {loading && shops.length > 0 && <ShopCardSkeletons count={3} />}
+      </div>
 
       <ShopDetailsModal
         shop={detailsShop}

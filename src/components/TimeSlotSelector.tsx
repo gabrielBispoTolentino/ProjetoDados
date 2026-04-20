@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
+import { TimeSlotSkeleton } from './Skeleton';
 import './css/TimeSlot.css';
 
 type TimeSlotSelectorProps = {
@@ -101,7 +102,7 @@ export default function TimeSlotSelector({
   }
 
   if (loading) {
-    return <div className="timeslot-loading">Carregando horarios disponiveis...</div>;
+    return <TimeSlotSkeleton />;
   }
 
   if (error) {

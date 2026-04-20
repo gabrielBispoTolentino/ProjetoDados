@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { api } from '../../server/api';
 import { useFeedback } from './FeedbackProvider';
+import { AppointmentCardSkeletons } from './Skeleton';
 import TimeSlotSelector from './TimeSlotSelector';
 import type { UserAppointment } from '../types/domain';
 import './css/UserApointment.css';
@@ -190,7 +191,9 @@ export default function UserAppointments({
         <h3 className="appointments-title">Meus Agendamentos</h3>
 
         {loading ? (
-          <p>Carregando...</p>
+          <div className="appointments-grid">
+            <AppointmentCardSkeletons count={3} />
+          </div>
         ) : agendamentos.length === 0 ? (
           <p>Nenhum agendamento encontrado.</p>
         ) : (

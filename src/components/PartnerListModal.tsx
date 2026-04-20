@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
 import { useFeedback } from './FeedbackProvider';
+import { PartnerItemSkeletons } from './Skeleton';
 import type { PlanPartner } from '../types/domain';
 import './css/PartnerListModal.css';
 
@@ -61,7 +62,9 @@ export default function PartnerListModal({
         </div>
 
         {loading ? (
-          <div className="partner-loading">Carregando parceiros...</div>
+          <div className="partner-list">
+            <PartnerItemSkeletons count={4} />
+          </div>
         ) : parceiros.length === 0 ? (
           <div className="partner-empty">
             <p>Nenhum parceiro encontrado</p>

@@ -3,6 +3,7 @@ import type { ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserBar from '../components/UserBar';
 import { useFeedback } from '../components/FeedbackProvider';
+import { BarberAppointmentCardSkeletons } from '../components/Skeleton';
 import { api } from '../../server/api';
 import type { UserAppointment, UserSummary } from '../types/domain';
 import './css/PainelCliente.css';
@@ -254,7 +255,9 @@ export default function BarberPainel() {
         {error && <div className="loader error">{error}</div>}
 
         {loading ? (
-          <div className="loader">Carregando agendamentos...</div>
+          <div className="admin-grid">
+            <BarberAppointmentCardSkeletons count={4} />
+          </div>
         ) : agendamentos.length === 0 ? (
           <div className="loader">Nenhum corte agendado com voce no momento.</div>
         ) : (

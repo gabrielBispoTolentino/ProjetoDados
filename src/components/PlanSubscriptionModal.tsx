@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
 import { useFeedback } from './FeedbackProvider';
+import { SubscriptionPlanCardSkeletons } from './Skeleton';
 import type { AvailablePlan, PaymentMethodValue, ShopSummary } from '../types/domain';
 import './css/PlanSubscriptionModal.css';
 
@@ -103,7 +104,9 @@ export default function PlanSubscriptionModal({
         <p className="plan-subscription-subtitle">{shop?.name}</p>
 
         {loading ? (
-          <div className="plan-subscription-loading">Carregando planos...</div>
+          <div className="plan-subscription-plans">
+            <SubscriptionPlanCardSkeletons count={3} />
+          </div>
         ) : planos.length === 0 ? (
           <div className="plan-subscription-empty">
             <p>Esta barbearia ainda nao oferece planos de assinatura.</p>

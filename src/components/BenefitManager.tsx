@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { api } from '../../server/api';
 import { useFeedback } from './FeedbackProvider';
+import { BenefitCardSkeletons } from './Skeleton';
 import type { PlanBenefit, PlanBenefitPayload, Service } from '../types/domain';
 import './css/BenefitManager.css';
 
@@ -148,7 +149,20 @@ export default function BenefitManager({
   }
 
   if (loading) {
-    return <div className="benefit-loading">Carregando...</div>;
+    return (
+      <div className="benefit-manager">
+        <div className="benefit-header">
+          <div>
+            <h2>Gerenciar Beneficios</h2>
+            <p className="benefit-subtitle">Plano: {planoNome}</p>
+          </div>
+          <button className="btn-close-benefit" onClick={onClose}>x</button>
+        </div>
+        <div className="benefits-grid">
+          <BenefitCardSkeletons count={4} />
+        </div>
+      </div>
+    );
   }
 
   return (

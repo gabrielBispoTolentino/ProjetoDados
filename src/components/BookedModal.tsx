@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../server/api';
+import { BookedItemSkeletons } from './Skeleton';
 import type { UserAppointment } from '../types/domain';
 import './css/BookedModal.css';
 
@@ -58,7 +59,7 @@ export default function BookedModal({ isOpen, onClose }: BookedModalProps) {
           <button className="booked-close-btn" onClick={onClose}>x</button>
         </div>
 
-        {loading && <p>Carregando...</p>}
+        {loading && <BookedItemSkeletons count={3} />}
 
         {!loading && agendamentos.length === 0 && <p>Nenhum agendamento encontrado.</p>}
 

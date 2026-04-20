@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { api } from '../../server/api';
+import { BarberPickerSkeletons } from './Skeleton';
 import TimeSlotSelector from './TimeSlotSelector';
 import type {
   BookingBarberOption,
@@ -147,7 +148,7 @@ export default function BookingModal({
           <div className="booking-form-group">
             <label className="booking-form-label">Selecione um barbeiro</label>
             {barbersLoading ? (
-              <div className="booking-barbers-loading">Carregando barbeiros...</div>
+              <BarberPickerSkeletons count={6} />
             ) : barbersError ? (
               <div className="booking-modal-error">{barbersError}</div>
             ) : barbers.length === 0 ? (
