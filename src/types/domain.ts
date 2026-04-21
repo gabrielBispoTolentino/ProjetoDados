@@ -115,9 +115,11 @@ export interface Establishment {
   locationVerified?: boolean | number | null;
   imagem_url?: string | null;
   imagem_urls?: string[] | null;
+  imagem_paths?: string[] | null;
   img?: string | null;
   imageUrl?: string | null;
   imageUrls?: string[] | null;
+  imagePaths?: string[] | null;
   rating?: NumericValue | null;
   rating_avg?: NumericValue | null;
   ratingCount?: NumericValue | null;
@@ -132,8 +134,10 @@ export interface ShopSummary {
   address?: string | null;
   imageUrl?: string | null;
   imageUrls?: string[] | null;
+  imagePaths?: string[] | null;
   imagem_url?: string | null;
   imagem_urls?: string[] | null;
+  imagem_paths?: string[] | null;
   img?: string | null;
   rating?: NumericValue | null;
   ratingCount?: NumericValue | null;

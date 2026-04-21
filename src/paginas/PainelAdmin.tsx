@@ -9,7 +9,11 @@ import ReportLucro from '../components/ReportLucro';
 import { useFeedback } from '../components/FeedbackProvider';
 import { AdminShopCardSkeletons } from '../components/Skeleton';
 import type { BarberSummary, Establishment, UserSummary } from '../types/domain';
-import { getEstablishmentImageUrls, getPrimaryEstablishmentImageUrl } from '../utils/establishmentImages';
+import {
+  getEstablishmentImagePaths,
+  getEstablishmentImageUrls,
+  getPrimaryEstablishmentImageUrl,
+} from '../utils/establishmentImages';
 import './css/PainelAdmin.css';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -163,12 +167,12 @@ export default function PainelAdmin() {
     setGalleryImages([]);
   }
 
-  function buildExistingGalleryImages(imageUrls: string[]) {
+  function buildExistingGalleryImages(imageUrls: string[], imagePaths: string[]) {
     return imageUrls.map((imageUrl, index) => ({
-      id: `existing-${index}-${imageUrl}`,
+      id: `existing-${index}-${imagePaths[index] || imageUrl}`,
       kind: 'existing' as const,
-      url: api.getPhotoUrl(imageUrl) || imageUrl,
-      sourceUrl: imageUrl,
+      url: imageUrl,
+      sourceUrl: imagePaths[index] || imageUrl,
     }));
   }
 
@@ -181,6 +185,7 @@ export default function PainelAdmin() {
 
   function abrirModalEdicao(barbearia: AdminShop) {
     const imageUrls = getEstablishmentImageUrls(barbearia);
+    const imagePaths = getEstablishmentImagePaths(barbearia);
 
     setBarbeariaAtual({
       id: barbearia.id,
@@ -199,7 +204,7 @@ export default function PainelAdmin() {
         null,
     });
     clearGalleryImages();
-    setGalleryImages(buildExistingGalleryImages(imageUrls));
+    setGalleryImages(buildExistingGalleryImages(imageUrls, imagePaths));
     setModoEdicao(true);
     setModalAberto(true);
   }
