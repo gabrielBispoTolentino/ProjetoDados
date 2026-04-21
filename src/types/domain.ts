@@ -113,10 +113,6 @@ export interface Establishment {
   googleMapsEmbedUrl?: string | null;
   location_verified?: boolean | number | null;
   locationVerified?: boolean | number | null;
-  imagem_url?: string | null;
-  imagem_urls?: string[] | null;
-  imagem_paths?: string[] | null;
-  img?: string | null;
   imageUrl?: string | null;
   imageUrls?: string[] | null;
   imagePaths?: string[] | null;
@@ -135,10 +131,6 @@ export interface ShopSummary {
   imageUrl?: string | null;
   imageUrls?: string[] | null;
   imagePaths?: string[] | null;
-  imagem_url?: string | null;
-  imagem_urls?: string[] | null;
-  imagem_paths?: string[] | null;
-  img?: string | null;
   rating?: NumericValue | null;
   ratingCount?: NumericValue | null;
   latitude?: NumericValue | null;

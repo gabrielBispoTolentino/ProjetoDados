@@ -315,7 +315,7 @@ export default function PainelAdmin() {
       formDataToSend.append('phone', barbeariaAtual.phone || '');
       formDataToSend.append('mei', barbeariaAtual.mei || '');
       formDataToSend.append(
-        'existing_imagem_urls',
+        'existing_image_paths',
         JSON.stringify(
           galleryImages
             .filter((image) => image.kind === 'existing')
@@ -543,72 +543,76 @@ export default function PainelAdmin() {
           </div>
         ) : (
           <div className="admin-grid">
-            {barbearias.map((barbearia) => (
-              <div key={barbearia.id} className="shop-card admin-shop-card">
-                <div className="shop-image admin-shop-image">
-                  {getPrimaryEstablishmentImageUrl(barbearia) ? (
-                    <img
-                      src={api.getPhotoUrl(getPrimaryEstablishmentImageUrl(barbearia)) || undefined}
-                      alt={barbearia.name || barbearia.nome || 'Barbearia'}
-                      onError={(event) => {
-                        const image = event.currentTarget;
-                        image.style.display = 'none';
-                        const placeholder = image.nextElementSibling;
-                        if (placeholder instanceof HTMLElement) {
-                          placeholder.style.display = 'flex';
-                        }
+            {barbearias.map((barbearia) => {
+              const primaryImageUrl = getPrimaryEstablishmentImageUrl(barbearia);
+
+              return (
+                <div key={barbearia.id} className="shop-card admin-shop-card">
+                  <div className="shop-image admin-shop-image">
+                    {primaryImageUrl ? (
+                      <img
+                        src={api.getPhotoUrl(primaryImageUrl) || undefined}
+                        alt={barbearia.name || barbearia.nome || 'Barbearia'}
+                        onError={(event) => {
+                          const image = event.currentTarget;
+                          image.style.display = 'none';
+                          const placeholder = image.nextElementSibling;
+                          if (placeholder instanceof HTMLElement) {
+                            placeholder.style.display = 'flex';
+                          }
+                        }}
+                      />
+                    ) : null}
+                    <div
+                      className="shop-image-placeholder"
+                      style={{ display: primaryImageUrl ? 'none' : 'flex' }}
+                    >
+                      <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="shop-info">
+                    <h4 className="shop-name">{barbearia.name || barbearia.nome}</h4>
+                    <p className="shop-address">{barbearia.address || barbearia.cidade}</p>
+                    {barbearia.phone && <p className="admin-shop-phone">Telefone: {barbearia.phone}</p>}
+                  </div>
+
+                  <div className="admin-shop-actions">
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setSelectedBarbeariaForPlans(barbearia.id);
+                        setPlanModalOpen(true);
                       }}
-                    />
-                  ) : null}
-                  <div
-                    className="shop-image-placeholder"
-                    style={{ display: getPrimaryEstablishmentImageUrl(barbearia) ? 'none' : 'flex' }}
-                  >
-                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                      <polyline points="9 22 9 12 15 12 15 22" />
-                    </svg>
+                    >
+                      Planos
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => {
+                        setSelectedBarbeariaId(barbearia.id);
+                        setReportModalOpen(true);
+                      }}
+                    >
+                      Relatorios
+                    </button>
+                    <button className="btn btn-secondary" onClick={() => abrirModalBarbeiros(barbearia)}>
+                      Barbeiros
+                    </button>
+
+                    <button className="btn btn-primary admin-btn-edit" onClick={() => abrirModalEdicao(barbearia)}>
+                      Editar
+                    </button>
+                    <button className="btn admin-btn-delete" onClick={() => void handleExcluir(barbearia.id)}>
+                      Excluir
+                    </button>
                   </div>
                 </div>
-
-                <div className="shop-info">
-                  <h4 className="shop-name">{barbearia.name || barbearia.nome}</h4>
-                  <p className="shop-address">{barbearia.address || barbearia.cidade}</p>
-                  {barbearia.phone && <p className="admin-shop-phone">Telefone: {barbearia.phone}</p>}
-                </div>
-
-                <div className="admin-shop-actions">
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      setSelectedBarbeariaForPlans(barbearia.id);
-                      setPlanModalOpen(true);
-                    }}
-                  >
-                    Planos
-                  </button>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => {
-                      setSelectedBarbeariaId(barbearia.id);
-                      setReportModalOpen(true);
-                    }}
-                  >
-                    Relatorios
-                  </button>
-                  <button className="btn btn-secondary" onClick={() => abrirModalBarbeiros(barbearia)}>
-                    Barbeiros
-                  </button>
-
-                  <button className="btn btn-primary admin-btn-edit" onClick={() => abrirModalEdicao(barbearia)}>
-                    Editar
-                  </button>
-                  <button className="btn admin-btn-delete" onClick={() => void handleExcluir(barbearia.id)}>
-                    Excluir
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

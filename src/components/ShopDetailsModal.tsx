@@ -227,6 +227,28 @@ export default function ShopDetailsModal({
   }, [currentShop?.id, isOpen]);
 
   useEffect(() => {
+    if (!isOpen || imageUrls.length <= 1) {
+      return;
+    }
+
+    const preloaders = imageUrls
+      .map((imagePath) => api.getPhotoUrl(imagePath))
+      .filter((imageUrl): imageUrl is string => typeof imageUrl === 'string' && Boolean(imageUrl))
+      .map((imageUrl) => {
+        const image = new Image();
+        image.decoding = 'async';
+        image.src = imageUrl;
+        return image;
+      });
+
+    return () => {
+      preloaders.forEach((image) => {
+        image.src = '';
+      });
+    };
+  }, [imageUrls, isOpen]);
+
+  useEffect(() => {
     if (currentImageIndex > 0 && currentImageIndex >= imageUrls.length) {
       setCurrentImageIndex(0);
     }

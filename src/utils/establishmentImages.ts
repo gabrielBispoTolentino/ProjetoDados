@@ -1,10 +1,6 @@
 type EstablishmentImageLike = {
-  imagem_url?: string | null;
-  img?: string | null;
   imageUrl?: string | null;
-  imagem_urls?: string[] | null;
   imageUrls?: string[] | null;
-  imagem_paths?: string[] | null;
   imagePaths?: string[] | null;
 };
 
@@ -26,10 +22,7 @@ export function getEstablishmentImageUrls(establishment: EstablishmentImageLike 
 
   return sanitizeUrls([
     ...(Array.isArray(establishment.imageUrls) ? establishment.imageUrls : []),
-    ...(Array.isArray(establishment.imagem_urls) ? establishment.imagem_urls : []),
     establishment.imageUrl,
-    establishment.imagem_url,
-    establishment.img,
   ]);
 }
 
@@ -46,6 +39,5 @@ export function getEstablishmentImagePaths(establishment: EstablishmentImageLike
 
   return sanitizeUrls([
     ...(Array.isArray(establishment.imagePaths) ? establishment.imagePaths : []),
-    ...(Array.isArray(establishment.imagem_paths) ? establishment.imagem_paths : []),
   ]);
 }

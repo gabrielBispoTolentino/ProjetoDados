@@ -252,74 +252,78 @@ function ShopsList({
           <div className="loader">Nenhuma barbearia encontrada</div>
         )}
 
-        {visibleShops.map((shop) => (
-          <div
-            key={shop.id}
-            className="shop-card"
-            role="listitem"
-            onClick={() => setDetailsShop(shop)}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="shop-content-wrapper">
-              <div className="shop-image">
-                {getPrimaryEstablishmentImageUrl(shop) ? (
-                  <img
-                    src={api.getPhotoUrl(getPrimaryEstablishmentImageUrl(shop)) || undefined}
-                    alt={shop.name}
-                    onError={(event) => {
-                      const image = event.currentTarget;
-                      image.style.display = 'none';
-                      const placeholder = image.nextElementSibling;
-                      if (placeholder instanceof HTMLElement) {
-                        placeholder.style.display = 'flex';
-                      }
-                    }}
-                  />
-                ) : null}
+        {visibleShops.map((shop) => {
+          const primaryImageUrl = getPrimaryEstablishmentImageUrl(shop);
 
-                <div
-                  className="shop-image-placeholder"
-                  style={{ display: getPrimaryEstablishmentImageUrl(shop) ? 'none' : 'flex' }}
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  </svg>
-                </div>
-              </div>
+          return (
+            <div
+              key={shop.id}
+              className="shop-card"
+              role="listitem"
+              onClick={() => setDetailsShop(shop)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="shop-content-wrapper">
+                <div className="shop-image">
+                  {primaryImageUrl ? (
+                    <img
+                      src={api.getPhotoUrl(primaryImageUrl) || undefined}
+                      alt={shop.name}
+                      onError={(event) => {
+                        const image = event.currentTarget;
+                        image.style.display = 'none';
+                        const placeholder = image.nextElementSibling;
+                        if (placeholder instanceof HTMLElement) {
+                          placeholder.style.display = 'flex';
+                        }
+                      }}
+                    />
+                  ) : null}
 
-              <div className="shop-info">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <h4 className="shop-name">{shop.name}</h4>
-                  {userSubscriptions.includes(shop.id) && (
-                    <span className="subscription-badge" title="Voce tem assinatura ativa nesta barbearia">
-                      *
-                    </span>
-                  )}
-                </div>
-                <p className="shop-address">{shop.address}</p>
-                <div className="shop-rating-row">
-                  <div className="shop-rating">
-                    {Number(shop.rating || 0).toFixed(1)}{' '}
-                    <span style={{ color: '#6b7280', fontWeight: '400' }}>
-                      ({shop.ratingCount || 0})
-                    </span>
-                  </div>
-
-                  <button
-                    className="schedule-btn"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onSchedule(shop);
-                    }}
-                    aria-label={`Agendar em ${shop.name}`}
+                  <div
+                    className="shop-image-placeholder"
+                    style={{ display: primaryImageUrl ? 'none' : 'flex' }}
                   >
-                    +
-                  </button>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="shop-info">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h4 className="shop-name">{shop.name}</h4>
+                    {userSubscriptions.includes(shop.id) && (
+                      <span className="subscription-badge" title="Voce tem assinatura ativa nesta barbearia">
+                        *
+                      </span>
+                    )}
+                  </div>
+                  <p className="shop-address">{shop.address}</p>
+                  <div className="shop-rating-row">
+                    <div className="shop-rating">
+                      {Number(shop.rating || 0).toFixed(1)}{' '}
+                      <span style={{ color: '#6b7280', fontWeight: '400' }}>
+                        ({shop.ratingCount || 0})
+                      </span>
+                    </div>
+
+                    <button
+                      className="schedule-btn"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onSchedule(shop);
+                      }}
+                      aria-label={`Agendar em ${shop.name}`}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {hasMore && <div ref={sentinelRef} style={{ height: '1px' }} />}
 
@@ -345,10 +349,6 @@ export default function PainelCliente() {
   const [selectedShop, setSelectedShop] = useState<NormalizedShop | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOption, setSortOption] = useState<SortOption>('relevance');
-
-  useEffect(() => {
-    console.log('ID salvo no localStorage:', localStorage.getItem('usuarioId'));
-  }, []);
 
   function handleScheduleClick(shop: NormalizedShop) {
     setSelectedShop(shop);
