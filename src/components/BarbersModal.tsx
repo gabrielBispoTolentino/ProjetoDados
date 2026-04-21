@@ -15,7 +15,7 @@ export type BarberFormData = {
 
 type Props = {
   isOpen: boolean;
-  barbershop: (Establishment & { nome?: string; name?: string }) | null;
+  barbershop: Establishment | null;
   barbers: BarberSummary[];
   barberForm: BarberFormData;
   loading: boolean;
@@ -69,7 +69,7 @@ export default function BarbersModal({
         </button>
         <h2>Barbeiros</h2>
         <p className="admin-barber-subtitle">
-          {barbershop.name || barbershop.nome}
+          {barbershop.name}
         </p>
 
         {error && <div className="admin-error">{error}</div>}

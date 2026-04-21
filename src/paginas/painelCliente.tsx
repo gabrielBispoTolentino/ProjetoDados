@@ -46,37 +46,31 @@ type ShopsListProps = {
 };
 
 function normalizeShop(shop: Establishment): NormalizedShop {
-  const ratingCount = Number(shop.ratingCount ?? shop.rating_count ?? 0);
-  const ratingValue = Number(shop.rating ?? shop.rating_avg ?? 0);
+  const ratingCount = Number(shop.ratingCount ?? 0);
+  const ratingValue = Number(shop.rating ?? 0);
   const imageUrls = getEstablishmentImageUrls(shop);
 
   return {
     ...shop,
     id: shop.id,
-    name: shop.name ?? shop.nome ?? 'Sem nome',
-    address: shop.address ?? shop.cidade ?? 'Sem endereco',
+    name: shop.name || 'Sem nome',
+    address: shop.address ?? 'Sem endereco',
     rating: ratingCount > 0 ? ratingValue : 0,
     ratingCount,
     imageUrl: imageUrls[0] ?? null,
     imageUrls,
     latitude: shop.latitude ?? null,
     longitude: shop.longitude ?? null,
-    googleMapsUrl:
-      (typeof shop.googleMapsUrl === 'string' && shop.googleMapsUrl) ||
-      (typeof shop.google_maps_url === 'string' && shop.google_maps_url) ||
-      null,
-    googleMapsEmbedUrl:
-      (typeof shop.googleMapsEmbedUrl === 'string' && shop.googleMapsEmbedUrl) ||
-      (typeof shop.google_maps_embed_url === 'string' && shop.google_maps_embed_url) ||
-      null,
-    locationVerified: shop.locationVerified ?? shop.location_verified ?? null,
+    googleMapsUrl: shop.googleMapsUrl || null,
+    googleMapsEmbedUrl: null,
+    locationVerified: shop.locationVerified ?? null,
     description: typeof shop.description === 'string' ? shop.description : null,
     phone: typeof shop.phone === 'string' ? shop.phone : null,
     fullAddress: {
-      rua: shop.rua ?? '',
-      cidade: shop.cidade ?? '',
-      estado: shop.stado ?? '',
-      cep: shop.cep ?? '',
+      rua: shop.fullAddress?.rua ?? '',
+      cidade: shop.fullAddress?.cidade ?? '',
+      estado: shop.fullAddress?.estado ?? '',
+      cep: shop.fullAddress?.cep ?? '',
     },
   };
 }

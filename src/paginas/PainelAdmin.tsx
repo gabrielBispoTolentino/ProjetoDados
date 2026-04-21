@@ -21,10 +21,6 @@ const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_ESTABLISHMENT_IMAGES = 10;
 
 type AdminShop = Establishment & {
-  description?: string | null;
-  phone?: string | null;
-  pais?: string | null;
-  mei?: string | null;
   fullAddress?: {
     rua?: string;
     cidade?: string;
@@ -189,19 +185,16 @@ export default function PainelAdmin() {
 
     setBarbeariaAtual({
       id: barbearia.id,
-      nome: barbearia.name || barbearia.nome || '',
+      nome: barbearia.name,
       description: barbearia.description || '',
-      rua: barbearia.fullAddress?.rua || barbearia.rua || '',
-      cidade: barbearia.fullAddress?.cidade || barbearia.cidade || '',
-      stado: barbearia.fullAddress?.estado || barbearia.stado || '',
-      pais: barbearia.fullAddress?.pais || barbearia.pais || 'Brasil',
-      cep: barbearia.fullAddress?.cep || barbearia.cep || '',
+      rua: barbearia.fullAddress?.rua || '',
+      cidade: barbearia.fullAddress?.cidade || '',
+      stado: barbearia.fullAddress?.estado || '',
+      pais: barbearia.fullAddress?.pais || 'Brasil',
+      cep: barbearia.fullAddress?.cep || '',
       phone: barbearia.phone || '',
-      mei: barbearia.mei || '',
-      mapsUrl:
-        (typeof barbearia.googleMapsUrl === 'string' && barbearia.googleMapsUrl) ||
-        (typeof barbearia.google_maps_url === 'string' && barbearia.google_maps_url) ||
-        null,
+      mei: barbearia.mei ? String(barbearia.mei) : '',
+      mapsUrl: barbearia.googleMapsUrl || null,
     });
     clearGalleryImages();
     setGalleryImages(buildExistingGalleryImages(imageUrls, imagePaths));
@@ -552,7 +545,7 @@ export default function PainelAdmin() {
                     {primaryImageUrl ? (
                       <img
                         src={api.getPhotoUrl(primaryImageUrl) || undefined}
-                        alt={barbearia.name || barbearia.nome || 'Barbearia'}
+                        alt={barbearia.name || 'Barbearia'}
                         onError={(event) => {
                           const image = event.currentTarget;
                           image.style.display = 'none';
@@ -575,8 +568,8 @@ export default function PainelAdmin() {
                   </div>
 
                   <div className="shop-info">
-                    <h4 className="shop-name">{barbearia.name || barbearia.nome}</h4>
-                    <p className="shop-address">{barbearia.address || barbearia.cidade}</p>
+                    <h4 className="shop-name">{barbearia.name}</h4>
+                    <p className="shop-address">{barbearia.address || barbearia.fullAddress?.cidade || ''}</p>
                     {barbearia.phone && <p className="admin-shop-phone">Telefone: {barbearia.phone}</p>}
                   </div>
 

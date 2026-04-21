@@ -98,35 +98,33 @@ export interface BookingBarberOption {
 
 export interface Establishment {
   id: EntityId;
-  nome?: string;
-  name?: string;
+  name: string;
   address?: string | null;
-  cidade?: string | null;
-  stado?: string | null;
-  rua?: string | null;
-  cep?: string | null;
+  description?: string | null;
+  phone?: string | null;
+  mei?: NumericValue | null;
   latitude?: NumericValue | null;
   longitude?: NumericValue | null;
-  google_maps_url?: string | null;
-  google_maps_embed_url?: string | null;
   googleMapsUrl?: string | null;
-  googleMapsEmbedUrl?: string | null;
-  location_verified?: boolean | number | null;
   locationVerified?: boolean | number | null;
   imageUrl?: string | null;
   imageUrls?: string[] | null;
   imagePaths?: string[] | null;
   rating?: NumericValue | null;
-  rating_avg?: NumericValue | null;
   ratingCount?: NumericValue | null;
-  rating_count?: NumericValue | null;
   dono_id?: EntityId;
-  [key: string]: unknown;
+  fullAddress?: {
+    rua: string;
+    cidade: string;
+    estado: string;
+    pais?: string;
+    cep: string;
+  };
 }
 
 export interface ShopSummary {
   id: EntityId;
-  name?: string;
+  name: string;
   address?: string | null;
   imageUrl?: string | null;
   imageUrls?: string[] | null;
@@ -142,6 +140,7 @@ export interface ShopSummary {
     rua: string;
     cidade: string;
     estado: string;
+    pais?: string;
     cep: string;
   };
 }
