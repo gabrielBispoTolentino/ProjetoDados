@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BarbersModal, { type BarberFormData } from '../components/BarbersModal';
@@ -9,7 +9,12 @@ import ReportLucro from '../components/ReportLucro';
 import { useFeedback } from '../components/FeedbackProvider';
 import { AdminShopCardSkeletons } from '../components/Skeleton';
 import type { BarberSummary, Establishment, UserSummary } from '../types/domain';
+import { getEstablishmentImageUrls, getPrimaryEstablishmentImageUrl } from '../utils/establishmentImages';
 import './css/PainelAdmin.css';
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_ESTABLISHMENT_IMAGES = 10;
 
 type AdminShop = Establishment & {
   description?: string | null;
@@ -36,8 +41,15 @@ type BarberShopForm = {
   cep: string;
   phone: string;
   mei: string;
-  imagemUrl?: string | null;
   mapsUrl?: string | null;
+};
+
+type GalleryImage = {
+  id: string;
+  kind: 'existing' | 'new';
+  url: string;
+  sourceUrl: string;
+  file?: File;
 };
 
 const INITIAL_BARBER_SHOP_FORM: BarberShopForm = {
@@ -50,7 +62,6 @@ const INITIAL_BARBER_SHOP_FORM: BarberShopForm = {
   cep: '',
   phone: '',
   mei: '',
-  imagemUrl: null,
   mapsUrl: null,
 };
 
@@ -84,8 +95,7 @@ export default function PainelAdmin() {
   const [modalAberto, setModalAberto] = useState(false);
   const [modoEdicao, setModoEdicao] = useState(false);
   const [barbeariaAtual, setBarbeariaAtual] = useState<BarberShopForm | null>(null);
-  const [foto, setFoto] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
   const [planModalOpen, setPlanModalOpen] = useState(false);
   const [selectedBarbeariaForPlans, setSelectedBarbeariaForPlans] = useState<number | null>(null);
   const [selectedBarbeariaId, setSelectedBarbeariaId] = useState<number | null>(null);
@@ -98,6 +108,15 @@ export default function PainelAdmin() {
   const [barberSaving, setBarberSaving] = useState(false);
   const [deletingBarberId, setDeletingBarberId] = useState<number | null>(null);
   const [barberError, setBarberError] = useState('');
+  const galleryImagesRef = useRef<GalleryImage[]>([]);
+
+  useEffect(() => {
+    galleryImagesRef.current = galleryImages;
+  }, [galleryImages]);
+
+  useEffect(() => () => {
+    revokeNewGalleryImageUrls(galleryImagesRef.current);
+  }, []);
 
   useEffect(() => {
     const usuario = parseStoredUser();
@@ -131,15 +150,38 @@ export default function PainelAdmin() {
     }
   }
 
+  function revokeNewGalleryImageUrls(images: GalleryImage[]) {
+    images.forEach((image) => {
+      if (image.kind === 'new' && image.url.startsWith('blob:')) {
+        URL.revokeObjectURL(image.url);
+      }
+    });
+  }
+
+  function clearGalleryImages() {
+    revokeNewGalleryImageUrls(galleryImagesRef.current);
+    setGalleryImages([]);
+  }
+
+  function buildExistingGalleryImages(imageUrls: string[]) {
+    return imageUrls.map((imageUrl, index) => ({
+      id: `existing-${index}-${imageUrl}`,
+      kind: 'existing' as const,
+      url: api.getPhotoUrl(imageUrl) || imageUrl,
+      sourceUrl: imageUrl,
+    }));
+  }
+
   function abrirModalNovo() {
     setBarbeariaAtual(INITIAL_BARBER_SHOP_FORM);
-    setFoto(null);
-    setPreviewUrl(null);
+    clearGalleryImages();
     setModoEdicao(false);
     setModalAberto(true);
   }
 
   function abrirModalEdicao(barbearia: AdminShop) {
+    const imageUrls = getEstablishmentImageUrls(barbearia);
+
     setBarbeariaAtual({
       id: barbearia.id,
       nome: barbearia.name || barbearia.nome || '',
@@ -151,14 +193,13 @@ export default function PainelAdmin() {
       cep: barbearia.fullAddress?.cep || barbearia.cep || '',
       phone: barbearia.phone || '',
       mei: barbearia.mei || '',
-      imagemUrl: barbearia.imagem_url || null,
       mapsUrl:
         (typeof barbearia.googleMapsUrl === 'string' && barbearia.googleMapsUrl) ||
         (typeof barbearia.google_maps_url === 'string' && barbearia.google_maps_url) ||
         null,
     });
-    setFoto(null);
-    setPreviewUrl(barbearia.imagem_url ? api.getPhotoUrl(barbearia.imagem_url) : null);
+    clearGalleryImages();
+    setGalleryImages(buildExistingGalleryImages(imageUrls));
     setModoEdicao(true);
     setModalAberto(true);
   }
@@ -167,8 +208,7 @@ export default function PainelAdmin() {
     setModalAberto(false);
     setBarbeariaAtual(null);
     setModoEdicao(false);
-    setFoto(null);
-    setPreviewUrl(null);
+    clearGalleryImages();
   }
 
   function handleChange(
@@ -186,36 +226,58 @@ export default function PainelAdmin() {
   }
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) {
+    const selectedFiles = Array.from(event.target.files || []);
+    if (selectedFiles.length === 0) {
       return;
     }
 
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      setErro('Por favor, selecione uma imagem valida (JPEG, PNG, GIF ou WebP)');
+    if (galleryImages.length + selectedFiles.length > MAX_ESTABLISHMENT_IMAGES) {
+      setErro(`Voce pode enviar no maximo ${MAX_ESTABLISHMENT_IMAGES} imagens por barbearia`);
+      event.target.value = '';
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setErro('A imagem deve ter no maximo 5MB');
-      return;
+    for (const file of selectedFiles) {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        setErro('Por favor, selecione imagens validas em JPEG, PNG, GIF ou WebP');
+        event.target.value = '';
+        return;
+      }
+
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        setErro('Cada imagem deve ter no maximo 5MB');
+        event.target.value = '';
+        return;
+      }
     }
 
     setErro('');
-    setFoto(file);
+    setGalleryImages((currentImages) => [
+      ...currentImages,
+      ...selectedFiles.map((file, index) => ({
+        id: `new-${Date.now()}-${index}-${file.name}`,
+        kind: 'new' as const,
+        url: URL.createObjectURL(file),
+        sourceUrl: file.name,
+        file,
+      })),
+    ]);
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result;
-      setPreviewUrl(typeof result === 'string' ? result : null);
-    };
-    reader.readAsDataURL(file);
+    event.target.value = '';
   }
 
-  function removePhoto() {
-    setFoto(null);
-    setPreviewUrl(modoEdicao && barbeariaAtual?.imagemUrl ? api.getPhotoUrl(barbeariaAtual.imagemUrl) : null);
+  function removeGalleryImage(imageToRemove: GalleryImage) {
+    if (imageToRemove.kind === 'new' && imageToRemove.url.startsWith('blob:')) {
+      URL.revokeObjectURL(imageToRemove.url);
+    }
+
+    setGalleryImages((currentImages) =>
+      currentImages.filter((image) => image.id !== imageToRemove.id),
+    );
+  }
+
+  function removeAllGalleryImages() {
+    clearGalleryImages();
     const fileInput = document.getElementById('foto-establishment-input');
     if (fileInput instanceof HTMLInputElement) {
       fileInput.value = '';
@@ -247,14 +309,24 @@ export default function PainelAdmin() {
       formDataToSend.append('cep', barbeariaAtual.cep);
       formDataToSend.append('phone', barbeariaAtual.phone || '');
       formDataToSend.append('mei', barbeariaAtual.mei || '');
+      formDataToSend.append(
+        'existing_imagem_urls',
+        JSON.stringify(
+          galleryImages
+            .filter((image) => image.kind === 'existing')
+            .map((image) => image.sourceUrl),
+        ),
+      );
 
       if (!modoEdicao) {
         formDataToSend.append('dono_id', String(usuario.id));
       }
 
-      if (foto) {
-        formDataToSend.append('foto', foto);
-      }
+      galleryImages
+        .filter((image): image is GalleryImage & { kind: 'new'; file: File } => image.kind === 'new' && Boolean(image.file))
+        .forEach((image) => {
+          formDataToSend.append('fotos', image.file);
+        });
 
       let establishmentId = barbeariaAtual.id ?? null;
 
@@ -469,9 +541,9 @@ export default function PainelAdmin() {
             {barbearias.map((barbearia) => (
               <div key={barbearia.id} className="shop-card admin-shop-card">
                 <div className="shop-image admin-shop-image">
-                  {barbearia.imagem_url ? (
+                  {getPrimaryEstablishmentImageUrl(barbearia) ? (
                     <img
-                      src={api.getPhotoUrl(barbearia.imagem_url) || undefined}
+                      src={api.getPhotoUrl(getPrimaryEstablishmentImageUrl(barbearia)) || undefined}
                       alt={barbearia.name || barbearia.nome || 'Barbearia'}
                       onError={(event) => {
                         const image = event.currentTarget;
@@ -483,7 +555,10 @@ export default function PainelAdmin() {
                       }}
                     />
                   ) : null}
-                  <div className="shop-image-placeholder" style={{ display: barbearia.imagem_url ? 'none' : 'flex' }}>
+                  <div
+                    className="shop-image-placeholder"
+                    style={{ display: getPrimaryEstablishmentImageUrl(barbearia) ? 'none' : 'flex' }}
+                  >
                     <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                       <polyline points="9 22 9 12 15 12 15 22" />
@@ -541,46 +616,66 @@ export default function PainelAdmin() {
 
               <form onSubmit={handleSubmit}>
                 <div className="admin-form-photo-preview">
-                  <div className="admin-form-photo-container">
-                    {previewUrl ? (
-                      <img src={previewUrl} alt="Preview" className="admin-form-photo-img" />
+                  <div className={`admin-form-photo-gallery ${galleryImages.length === 0 ? 'is-empty' : ''}`}>
+                    {galleryImages.length > 0 ? (
+                      galleryImages.map((image, index) => (
+                        <div key={image.id} className="admin-form-photo-tile">
+                          <img
+                            src={image.url}
+                            alt={`Imagem ${index + 1} da barbearia`}
+                            className="admin-form-photo-img"
+                          />
+                          <button
+                            type="button"
+                            className="admin-form-photo-tile-remove"
+                            onClick={() => removeGalleryImage(image)}
+                            aria-label={`Remover imagem ${index + 1}`}
+                          >
+                            x
+                          </button>
+                          <span className="admin-form-photo-index">{index + 1}</span>
+                        </div>
+                      ))
                     ) : (
-                      <svg
-                        width="80"
-                        height="80"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#9ca3af"
-                        strokeWidth="2"
-                        className="admin-form-photo-placeholder"
-                      >
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                        <polyline points="9 22 9 12 15 12 15 22" />
-                      </svg>
+                      <div className="admin-form-photo-container">
+                        <svg
+                          width="80"
+                          height="80"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#9ca3af"
+                          strokeWidth="2"
+                          className="admin-form-photo-placeholder"
+                        >
+                          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                          <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg>
+                      </div>
                     )}
                   </div>
 
                   <div className="admin-form-photo-actions">
                     <label htmlFor="foto-establishment-input" className="admin-form-photo-label">
-                      {previewUrl ? 'Trocar foto' : 'Adicionar foto'}
+                      {galleryImages.length > 0 ? 'Adicionar mais fotos' : 'Adicionar fotos'}
                     </label>
                     <input
                       id="foto-establishment-input"
                       type="file"
+                      multiple
                       accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                       onChange={handleFileChange}
                       style={{ display: 'none' }}
                     />
 
-                    {foto && (
-                      <button type="button" onClick={removePhoto} className="admin-form-photo-remove">
-                        Remover
+                    {galleryImages.length > 0 && (
+                      <button type="button" onClick={removeAllGalleryImages} className="admin-form-photo-remove">
+                        Limpar tudo
                       </button>
                     )}
                   </div>
 
                   <p className="admin-form-photo-hint">
-                    Formatos aceitos: JPEG, PNG, GIF, WebP (max. 5MB)
+                    Formatos aceitos: JPEG, PNG, GIF e WebP. Ate {MAX_ESTABLISHMENT_IMAGES} imagens, com maximo de 5MB por arquivo.
                   </p>
                 </div>
 

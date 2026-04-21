@@ -219,6 +219,17 @@
   gap: 1rem;
 }
 
+.admin-form-photo-gallery {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.9rem;
+}
+
+.admin-form-photo-gallery.is-empty {
+  display: block;
+}
+
 .admin-form-photo-container {
   width: 100%;
   max-width: 400px;
@@ -232,16 +243,62 @@
   justify-content: center;
 }
 
+.admin-form-photo-tile {
+  position: relative;
+  min-height: 140px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1a2027;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .admin-form-photo-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
+.admin-form-photo-tile-remove {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.admin-form-photo-tile-remove:hover {
+  background: rgba(220, 38, 38, 0.92);
+}
+
+.admin-form-photo-index {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
 .admin-form-photo-actions {
   display: flex;
   gap: 1rem;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .admin-form-photo-label {
@@ -278,6 +335,7 @@
 .admin-form-photo-hint {
   font-size: 0.8rem;
   color: #6b7280;
+  text-align: center;
 }
 
 /* Actions */

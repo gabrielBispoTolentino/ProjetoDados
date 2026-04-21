@@ -13,6 +13,7 @@ import type {
   ShopSummary,
   UserSubscription,
 } from '../types/domain';
+import { getEstablishmentImageUrls, getPrimaryEstablishmentImageUrl } from '../utils/establishmentImages';
 import './css/PainelCliente.css';
 
 const PAGE_SIZE = 10;
@@ -47,6 +48,7 @@ type ShopsListProps = {
 function normalizeShop(shop: Establishment): NormalizedShop {
   const ratingCount = Number(shop.ratingCount ?? shop.rating_count ?? 0);
   const ratingValue = Number(shop.rating ?? shop.rating_avg ?? 0);
+  const imageUrls = getEstablishmentImageUrls(shop);
 
   return {
     ...shop,
@@ -55,7 +57,8 @@ function normalizeShop(shop: Establishment): NormalizedShop {
     address: shop.address ?? shop.cidade ?? 'Sem endereco',
     rating: ratingCount > 0 ? ratingValue : 0,
     ratingCount,
-    imageUrl: shop.imageUrl ?? shop.imagem_url ?? shop.img ?? null,
+    imageUrl: imageUrls[0] ?? null,
+    imageUrls,
     latitude: shop.latitude ?? null,
     longitude: shop.longitude ?? null,
     googleMapsUrl:
@@ -259,9 +262,9 @@ function ShopsList({
           >
             <div className="shop-content-wrapper">
               <div className="shop-image">
-                {shop.imageUrl ? (
+                {getPrimaryEstablishmentImageUrl(shop) ? (
                   <img
-                    src={api.getPhotoUrl(shop.imageUrl) || undefined}
+                    src={api.getPhotoUrl(getPrimaryEstablishmentImageUrl(shop)) || undefined}
                     alt={shop.name}
                     onError={(event) => {
                       const image = event.currentTarget;
@@ -276,7 +279,7 @@ function ShopsList({
 
                 <div
                   className="shop-image-placeholder"
-                  style={{ display: shop.imageUrl ? 'none' : 'flex' }}
+                  style={{ display: getPrimaryEstablishmentImageUrl(shop) ? 'none' : 'flex' }}
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />

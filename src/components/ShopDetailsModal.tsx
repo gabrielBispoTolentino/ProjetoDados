@@ -4,7 +4,8 @@ import { api } from '../../server/api';
 import AvaliacoesBar from './AvaliaçõesBar';
 import PlanSubscriptionModal from './PlanSubscriptionModal';
 import RatingStars from './RatingStars';
-import type { ReviewSummary, ShopSummary } from '../types/domain';
+import type { ReviewPayload, ReviewSummary, ShopSummary } from '../types/domain';
+import { getEstablishmentImageUrls } from '../utils/establishmentImages';
 import './css/ShopDetailsModal.css';
 
 type DetailedShop = ShopSummary & {
@@ -52,6 +53,7 @@ export default function ShopDetailsModal({
   onSchedule,
 }: ShopDetailsModalProps) {
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [resolvedEmbedSrc, setResolvedEmbedSrc] = useState<string | null>(null);
   const [embedResolutionFailed, setEmbedResolutionFailed] = useState(false);
   const [reviews, setReviews] = useState<ReviewSummary[]>([]);
@@ -85,6 +87,46 @@ export default function ShopDetailsModal({
     }
 
     return getText(currentShop.address);
+  }
+
+  const currentShop = shop;
+  const imageUrls = getEstablishmentImageUrls(currentShop);
+  const hasMultipleImages = imageUrls.length > 1;
+  const safeImageIndex =
+    imageUrls.length > 0 ? ((currentImageIndex % imageUrls.length) + imageUrls.length) % imageUrls.length : 0;
+  const currentImageUrl = imageUrls[safeImageIndex] || null;
+  const imageUrl = currentImageUrl ? api.getPhotoUrl(currentImageUrl) : null;
+  const mapsUrl = getText(currentShop?.googleMapsUrl);
+  const mapsEmbedUrl = getText(currentShop?.googleMapsEmbedUrl);
+  const addressQuery =
+    currentShop && (!mapsUrl || !mapsEmbedUrl) ? buildAddressQuery(currentShop) : null;
+  const fallbackEmbedSrc = addressQuery ? buildEmbedUrl(addressQuery) : null;
+  const fallbackMapsUrl = addressQuery
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`
+    : null;
+  const externalMapsUrl = mapsUrl || fallbackMapsUrl;
+  const shouldResolveMapsUrl = Boolean(mapsUrl) && !mapsEmbedUrl;
+  const embedSrc =
+    mapsEmbedUrl ||
+    resolvedEmbedSrc ||
+    (!shouldResolveMapsUrl || embedResolutionFailed ? fallbackEmbedSrc : null);
+  const displayedRating = ratingSummary?.avg ?? Number(shop?.rating || 0);
+  const displayedRatingCount = ratingSummary?.count ?? Number(shop?.ratingCount || 0);
+
+  function showPreviousImage() {
+    if (imageUrls.length <= 1) {
+      return;
+    }
+
+    setCurrentImageIndex((currentIndex) => (currentIndex - 1 + imageUrls.length) % imageUrls.length);
+  }
+
+  function showNextImage() {
+    if (imageUrls.length <= 1) {
+      return;
+    }
+
+    setCurrentImageIndex((currentIndex) => (currentIndex + 1) % imageUrls.length);
   }
 
   useEffect(() => {
@@ -137,28 +179,6 @@ export default function ShopDetailsModal({
     };
   }, [isOpen, shop]);
 
-  const currentShop = shop;
-  const imageUrl = currentShop?.imageUrl ? api.getPhotoUrl(currentShop.imageUrl) : null;
-  const mapsUrl = getText(currentShop?.googleMapsUrl);
-  const mapsEmbedUrl = getText(currentShop?.googleMapsEmbedUrl);
-  const addressQuery =
-    currentShop && (!mapsUrl || !mapsEmbedUrl) ? buildAddressQuery(currentShop) : null;
-  const fallbackEmbedSrc = addressQuery
-    ? buildEmbedUrl(addressQuery)
-    : null;
-  const fallbackMapsUrl = addressQuery
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressQuery)}`
-    : null;
-
-  const externalMapsUrl = mapsUrl || fallbackMapsUrl;
-  const shouldResolveMapsUrl = Boolean(mapsUrl) && !mapsEmbedUrl;
-  const embedSrc =
-    mapsEmbedUrl ||
-    resolvedEmbedSrc ||
-    (!shouldResolveMapsUrl || embedResolutionFailed ? fallbackEmbedSrc : null);
-  const displayedRating = ratingSummary?.avg ?? Number(shop?.rating || 0);
-  const displayedRatingCount = ratingSummary?.count ?? Number(shop?.ratingCount || 0);
-
   useEffect(() => {
     let cancelled = false;
 
@@ -202,6 +222,37 @@ export default function ShopDetailsModal({
     };
   }, [mapsUrl, shouldResolveMapsUrl]);
 
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [currentShop?.id, isOpen]);
+
+  useEffect(() => {
+    if (currentImageIndex > 0 && currentImageIndex >= imageUrls.length) {
+      setCurrentImageIndex(0);
+    }
+  }, [currentImageIndex, imageUrls.length]);
+
+  useEffect(() => {
+    if (!isOpen || imageUrls.length <= 1) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        showPreviousImage();
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        showNextImage();
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [imageUrls.length, isOpen]);
+
   if (!isOpen || !shop) {
     return null;
   }
@@ -224,10 +275,34 @@ export default function ShopDetailsModal({
         </button>
 
         <div className="shop-details-header">
+          {hasMultipleImages && (
+            <>
+              <button
+                type="button"
+                className="shop-details-gallery-btn shop-details-gallery-btn-prev"
+                onClick={showPreviousImage}
+                aria-label="Ver imagem anterior"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                className="shop-details-gallery-btn shop-details-gallery-btn-next"
+                onClick={showNextImage}
+                aria-label="Ver proxima imagem"
+              >
+                ›
+              </button>
+              <div className="shop-details-gallery-counter">
+                {safeImageIndex + 1} / {imageUrls.length}
+              </div>
+            </>
+          )}
+
           {imageUrl ? (
             <img
               src={imageUrl}
-              alt={shop.name}
+              alt={`${shop.name} - imagem ${safeImageIndex + 1}`}
               className="shop-details-cover"
               onError={(event) => {
                 const image = event.currentTarget;
@@ -356,7 +431,7 @@ export default function ShopDetailsModal({
 
             <AvaliacoesBar
               estabelecimentoId={shop.id}
-              onSubmitted={(payload, result) => {
+              onSubmitted={(payload: ReviewPayload, result?: { ratingAvg?: number; ratingCount?: number }) => {
                 const storedUser = getStoredUser();
 
                 setReviews((currentReviews) => [

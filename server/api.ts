@@ -197,14 +197,14 @@ export const api = {
   },
 
   createEstablishmentWithPhoto(formData: FormData) {
-    return request<ApiMessageResponse & { id?: number | null; imagem_url?: string }>('/establishments', {
+    return request<ApiMessageResponse & { id?: number | null; imagem_url?: string; imagem_urls?: string[] }>('/establishments', {
       method: 'POST',
       body: formData,
     }, 'Erro ao criar estabelecimento');
   },
 
   createEstablishment(establishmentData: Record<string, unknown>) {
-    return request<ApiMessageResponse & { id?: number | null; imagem_url?: string }>('/establishments', {
+    return request<ApiMessageResponse & { id?: number | null; imagem_url?: string; imagem_urls?: string[] }>('/establishments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(establishmentData),
@@ -212,14 +212,14 @@ export const api = {
   },
 
   updateEstablishmentWithPhoto(id: ApiId, formData: FormData) {
-    return request<ApiMessageResponse & { imagem_url?: string }>(`/establishments/${id}`, {
+    return request<ApiMessageResponse & { imagem_url?: string; imagem_urls?: string[] }>(`/establishments/${id}`, {
       method: 'PUT',
       body: formData,
     }, 'Erro ao atualizar estabelecimento');
   },
 
   updateEstablishment(id: ApiId, establishmentData: Record<string, unknown>) {
-    return request<ApiMessageResponse & { imagem_url?: string }>(`/establishments/${id}`, {
+    return request<ApiMessageResponse & { imagem_url?: string; imagem_urls?: string[] }>(`/establishments/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(establishmentData),
