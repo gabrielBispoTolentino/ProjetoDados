@@ -96,6 +96,8 @@ export default function PainelAdmin() {
   const [modoEdicao, setModoEdicao] = useState(false);
   const [barbeariaAtual, setBarbeariaAtual] = useState<BarberShopForm | null>(null);
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [planModalOpen, setPlanModalOpen] = useState(false);
   const [selectedBarbeariaForPlans, setSelectedBarbeariaForPlans] = useState<number | null>(null);
   const [selectedBarbeariaId, setSelectedBarbeariaId] = useState<number | null>(null);
@@ -117,6 +119,21 @@ export default function PainelAdmin() {
   useEffect(() => () => {
     revokeNewGalleryImageUrls(galleryImagesRef.current);
   }, []);
+
+  useEffect(() => {
+    if (!modalAberto) {
+      return undefined;
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !saving) {
+        fecharModal();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [modalAberto, saving]);
 
   useEffect(() => {
     const usuario = parseStoredUser();
@@ -164,26 +181,33 @@ export default function PainelAdmin() {
   }
 
   function buildExistingGalleryImages(imageUrls: string[], imagePaths: string[]) {
-    return imageUrls.map((imageUrl, index) => ({
-      id: `existing-${index}-${imagePaths[index] || imageUrl}`,
-      kind: 'existing' as const,
-      url: imageUrl,
-      sourceUrl: imagePaths[index] || imageUrl,
-    }));
+    const imageCount = Math.max(imageUrls.length, imagePaths.length);
+
+    const images: GalleryImage[] = [];
+
+    Array.from({ length: imageCount }, (_, index) => {
+      const imagePath = imagePaths[index] || null;
+      const imageUrl = imageUrls[index] || imagePath;
+      const resolvedImageUrl = api.getPhotoUrl(imageUrl) || imageUrl;
+      const sourceUrl = imagePath || imageUrl;
+
+      if (!resolvedImageUrl || !sourceUrl) {
+        return;
+      }
+
+      images.push({
+        id: `existing-${index}-${sourceUrl}`,
+        kind: 'existing' as const,
+        url: resolvedImageUrl,
+        sourceUrl,
+      });
+    });
+
+    return images;
   }
 
-  function abrirModalNovo() {
-    setBarbeariaAtual(INITIAL_BARBER_SHOP_FORM);
-    clearGalleryImages();
-    setModoEdicao(false);
-    setModalAberto(true);
-  }
-
-  function abrirModalEdicao(barbearia: AdminShop) {
-    const imageUrls = getEstablishmentImageUrls(barbearia);
-    const imagePaths = getEstablishmentImagePaths(barbearia);
-
-    setBarbeariaAtual({
+  function buildBarberShopForm(barbearia: AdminShop): BarberShopForm {
+    return {
       id: barbearia.id,
       nome: barbearia.name,
       description: barbearia.description || '',
@@ -195,17 +219,57 @@ export default function PainelAdmin() {
       phone: barbearia.phone || '',
       mei: barbearia.mei ? String(barbearia.mei) : '',
       mapsUrl: barbearia.googleMapsUrl || null,
-    });
+    };
+  }
+
+  function abrirModalNovo() {
+    setBarbeariaAtual(INITIAL_BARBER_SHOP_FORM);
     clearGalleryImages();
-    setGalleryImages(buildExistingGalleryImages(imageUrls, imagePaths));
-    setModoEdicao(true);
+    setModalLoading(false);
+    setSaving(false);
+    setModoEdicao(false);
     setModalAberto(true);
   }
 
-  function fecharModal() {
+  async function abrirModalEdicao(barbearia: AdminShop) {
+    setErro('');
+    clearGalleryImages();
+    setBarbeariaAtual(null);
+    setModoEdicao(true);
+    setSaving(false);
+    setModalLoading(true);
+    setModalAberto(true);
+
+    try {
+      const detailedBarbearia = await api.getEstablishmentById(barbearia.id) as AdminShop;
+      const imageUrls = getEstablishmentImageUrls(detailedBarbearia);
+      const imagePaths = getEstablishmentImagePaths(detailedBarbearia);
+
+      setBarbeariaAtual(buildBarberShopForm(detailedBarbearia));
+      setGalleryImages(buildExistingGalleryImages(imageUrls, imagePaths));
+    } catch (caughtError) {
+      console.error('Erro ao carregar dados da barbearia para edicao:', caughtError);
+
+      const imageUrls = getEstablishmentImageUrls(barbearia);
+      const imagePaths = getEstablishmentImagePaths(barbearia);
+      setBarbeariaAtual(buildBarberShopForm(barbearia));
+      setGalleryImages(buildExistingGalleryImages(imageUrls, imagePaths));
+      setErro('Nao foi possivel carregar todos os dados atualizados da barbearia.');
+    } finally {
+      setModalLoading(false);
+    }
+  }
+
+  function fecharModal(force = false) {
+    if (saving && !force) {
+      return;
+    }
+
     setModalAberto(false);
     setBarbeariaAtual(null);
     setModoEdicao(false);
+    setModalLoading(false);
+    setSaving(false);
     clearGalleryImages();
   }
 
@@ -284,11 +348,18 @@ export default function PainelAdmin() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (saving || modalLoading) {
+      return;
+    }
+
     setErro('');
 
     if (!barbeariaAtual) {
       return;
     }
+
+    setSaving(true);
 
     try {
       const usuario = parseStoredUser();
@@ -345,11 +416,13 @@ export default function PainelAdmin() {
         });
       }
 
-      fecharModal();
+      fecharModal(true);
       await carregarBarbearias(usuario.id);
     } catch (caughtError) {
       console.error('Erro ao salvar barbearia:', caughtError);
       setErro(caughtError instanceof Error ? caughtError.message : 'Erro ao salvar barbearia');
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -596,7 +669,7 @@ export default function PainelAdmin() {
                       Barbeiros
                     </button>
 
-                    <button className="btn btn-primary admin-btn-edit" onClick={() => abrirModalEdicao(barbearia)}>
+                    <button className="btn btn-primary admin-btn-edit" onClick={() => void abrirModalEdicao(barbearia)}>
                       Editar
                     </button>
                     <button className="btn admin-btn-delete" onClick={() => void handleExcluir(barbearia.id)}>
@@ -610,12 +683,24 @@ export default function PainelAdmin() {
         )}
 
         {modalAberto && (
-          <div className="admin-modal-backdrop">
-            <div className="card admin-modal-container">
+          <div className="admin-modal-backdrop" onClick={() => fecharModal()}>
+            <div className="card admin-modal-container" onClick={(event) => event.stopPropagation()}>
+              <button
+                type="button"
+                className="admin-modal-close-btn"
+                onClick={() => fecharModal()}
+                disabled={saving}
+                aria-label="Fechar modal"
+              >
+                x
+              </button>
               <h2>{modoEdicao ? 'Editar Barbearia' : 'Nova Barbearia'}</h2>
 
               {erro && <div className="admin-error">{erro}</div>}
 
+              {modalLoading ? (
+                <div className="admin-modal-loading">Carregando dados da barbearia...</div>
+              ) : (
               <form onSubmit={handleSubmit}>
                 <div className="admin-form-photo-preview">
                   <div className={`admin-form-photo-gallery ${galleryImages.length === 0 ? 'is-empty' : ''}`}>
@@ -666,11 +751,12 @@ export default function PainelAdmin() {
                       multiple
                       accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                       onChange={handleFileChange}
+                      disabled={saving}
                       style={{ display: 'none' }}
                     />
 
                     {galleryImages.length > 0 && (
-                      <button type="button" onClick={removeAllGalleryImages} className="admin-form-photo-remove">
+                      <button type="button" onClick={removeAllGalleryImages} className="admin-form-photo-remove" disabled={saving}>
                         Limpar tudo
                       </button>
                     )}
@@ -769,14 +855,15 @@ export default function PainelAdmin() {
                 />
 
                 <div className="admin-form-actions">
-                  <button type="submit" className="btn btn-primary admin-form-btn-submit">
-                    {modoEdicao ? 'Salvar Alteracoes' : 'Criar Barbearia'}
+                  <button type="submit" className="btn btn-primary admin-form-btn-submit" disabled={saving}>
+                    {saving ? 'Salvando...' : modoEdicao ? 'Salvar Alteracoes' : 'Criar Barbearia'}
                   </button>
-                  <button type="button" className="btn btn-outline admin-form-btn-cancel" onClick={fecharModal}>
+                  <button type="button" className="btn btn-outline admin-form-btn-cancel" onClick={() => fecharModal()} disabled={saving}>
                     Cancelar
                   </button>
                 </div>
               </form>
+              )}
             </div>
           </div>
         )}
