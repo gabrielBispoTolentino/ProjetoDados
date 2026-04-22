@@ -2,6 +2,7 @@ import type {
   ApiId,
   ApiMessageResponse,
   AppointmentCreateResponse,
+  BarbershopPlanType,
   BarberSummary,
   AvailablePlan,
   BookingBarberOption,
@@ -90,6 +91,10 @@ async function request<T>(
 }
 
 export const api = {
+  getBarbershopPlanTypes() {
+    return request<BarbershopPlanType[]>('/barbershop-plan-types', {}, 'Erro ao buscar planos da barbearia');
+  },
+
   createUserWithPhoto(formData: FormData) {
     return request<ApiMessageResponse & { id: number | null; fotoUrl: string }>('/usuarios', {
       method: 'POST',
@@ -473,7 +478,23 @@ export const api = {
       body: JSON.stringify(payload),
     }, 'Erro ao gerar relatorio');
   },
+ generatePagamento(barberId: ApiId, valor: number) {
+  return request<ApiMessageResponse>('/pagamentos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ valor, id_admin: barberId }),
+  }, 'Erro ao gerar pagamento');
+},
 
+getPagamentos(barberId: ApiId) {
+  return request<ApiMessageResponse>(`/pagamentos/${barberId}`, {}, 'Erro ao buscar pagamentos');
+},
+
+payPagamento(pagamentoId: ApiId) {
+  return request<ApiMessageResponse>(`/pagamentos/${pagamentoId}/confirmar`, {
+    method: 'POST',
+  }, 'Erro ao confirmar pagamento');
+},
   getPhotoUrl(photoPath: string | null | undefined) {
     if (!photoPath) {
       return null;

@@ -51,7 +51,11 @@ export default function UserBar() {
     <>
       <div className="user-bar">
         <div className="user-bar-content">
-          <div className="user-bar-info">
+          <button
+            type="button"
+            className="user-bar-info user-profile-trigger"
+            onClick={() => setProfileModalOpen(true)}
+          >
             <div className="user-avatar">
               {fotoUrl && !avatarLoadFailed ? (
                 <img
@@ -78,7 +82,7 @@ export default function UserBar() {
               <span className="user-name">{usuario.nome}</span>
               <span className="user-email">{usuario.email}</span>
             </div>
-          </div>
+          </button>
 
           <div className="user-bar-actions">
             {isClient && (
@@ -97,7 +101,7 @@ export default function UserBar() {
             {isAdmin && (
               <>
                 <button type="button" onClick={() => setProfileModalOpen(true)}>
-                  Editar Perfil
+                  Meu Perfil
                 </button>
                 <button onClick={() => setAberto(true)}>Listar Agendamentos</button>
                 <BookedModal isOpen={aberto} onClose={() => setAberto(false)} />
@@ -107,7 +111,7 @@ export default function UserBar() {
             {isBarber && (
               <>
                 <button type="button" onClick={() => setProfileModalOpen(true)}>
-                  Editar Perfil
+                  Meu Perfil
                 </button>
                 <span className="user-email">Parceiro barbeiro</span>
               </>
@@ -115,7 +119,7 @@ export default function UserBar() {
 
             {isClient && (
               <button type="button" onClick={() => setProfileModalOpen(true)}>
-                Editar Perfil
+                Meu Perfil
               </button>
             )}
 

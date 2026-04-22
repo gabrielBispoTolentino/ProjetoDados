@@ -44,6 +44,11 @@ export interface UserSummary {
   verifycode?: string | null;
   verified?: boolean;
   userTable?: string | null;
+  barbershopPlanId?: EntityId | null;
+  barbershopPlanCode?: string | null;
+  barbershopPlanName?: string | null;
+  barbershopPlanPrice?: NumericValue | null;
+  barbershopPlanBillingCycle?: string | null;
 }
 
 export interface LoginCredentials {
@@ -69,6 +74,18 @@ export interface CreateUserPayload {
   cpf: string;
   telefone: string;
   role: string;
+  barbershop_plan_id?: number | string;
+}
+
+export interface BarbershopPlanType {
+  id: EntityId;
+  code: string;
+  name: string;
+  description?: string | null;
+  price: NumericValue;
+  billingCycle: string;
+  maxBarbers?: number | null;
+  maxEstablishments?: number | null;
 }
 export interface AdmFields{
   cnpj: string;
@@ -340,4 +357,10 @@ export interface GenerateReportLucroPayload {
   estabelecimento_id: EntityId;
   periodo_comeco: string;
   periodo_final: string;
+}
+export interface PagamentoAdmin {
+  id: EntityId;
+  estabelecimento_id: EntityId;
+  valor: NumericValue;
+  data_pagamento: string;
 }

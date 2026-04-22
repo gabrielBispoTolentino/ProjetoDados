@@ -34,6 +34,19 @@ function buildFormFromUser(user: UserSummary): ProfileFormData {
   };
 }
 
+function formatCurrency(value: unknown) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) {
+    return null;
+  }
+
+  return numericValue.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
+}
+
 export default function ProfileEditorModal({
   user,
   isOpen,
@@ -108,8 +121,14 @@ export default function ProfileEditorModal({
 
   const isBarber = currentUser.userTable === 'usuarioBarber';
   const isAdmin = currentUser.role === 'ADM_Estabelecimento';
+  const accountTypeLabel = isBarber
+    ? 'Parceiro barbeiro'
+    : isAdmin
+      ? 'Administrador da barbearia'
+      : 'Cliente';
   const photoUrl = api.getPhotoUrl(currentUser.fotoUrl || currentUser.foto_url || currentUser.imagem_url) || null;
   const displayedPhotoUrl = profilePreviewUrl || photoUrl;
+  const selectedPlanPrice = formatCurrency(currentUser.barbershopPlanPrice);
 
   function handleProfileChange(event: ChangeEvent<HTMLInputElement>) {
     const { name, value } = event.target;
@@ -261,12 +280,93 @@ export default function ProfileEditorModal({
         >
           x
         </button>
-        <h2>Editar Perfil</h2>
-        <p className="user-profile-subtitle">Atualize sua foto, dados de acesso e contato.</p>
+        <h2>Meu Perfil</h2>
+        <p className="user-profile-subtitle">Visualize os dados completos da sua conta e edite o que precisar.</p>
 
         {profileError && <div className="user-profile-error">{profileError}</div>}
 
         <form className="user-profile-form" onSubmit={handleProfileSubmit}>
+          <section className="user-profile-account-overview">
+            <div className="user-profile-account-header">
+              <div className="user-profile-account-photo">
+                {displayedPhotoUrl && !avatarLoadFailed ? (
+                  <img
+                    src={displayedPhotoUrl}
+                    alt={currentUser.nome}
+                    onError={() => setAvatarLoadFailed(true)}
+                  />
+                ) : (
+                  <svg
+                    width="48"
+                    height="48"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                )}
+              </div>
+
+              <div className="user-profile-account-copy">
+                <strong>{currentUser.nome}</strong>
+                <span>{accountTypeLabel}</span>
+                <span>{currentUser.email}</span>
+              </div>
+            </div>
+
+            <div className="user-profile-account-grid">
+              <div className="user-profile-account-item">
+                <span className="user-profile-account-label">CPF</span>
+                <strong>{currentUser.cpf || 'Nao informado'}</strong>
+              </div>
+              <div className="user-profile-account-item">
+                <span className="user-profile-account-label">Telefone</span>
+                <strong>{currentUser.telefone || 'Nao informado'}</strong>
+              </div>
+              <div className="user-profile-account-item">
+                <span className="user-profile-account-label">Tipo de conta</span>
+                <strong>{accountTypeLabel}</strong>
+              </div>
+
+              {isAdmin && (
+                <>
+                  <div className="user-profile-account-item">
+                    <span className="user-profile-account-label">CNPJ</span>
+                    <strong>{currentUser.cnpj || 'Nao informado'}</strong>
+                  </div>
+                  <div className="user-profile-account-item">
+                    <span className="user-profile-account-label">Plano selecionado</span>
+                    <strong>{currentUser.barbershopPlanName || 'Nao vinculado'}</strong>
+                  </div>
+                  <div className="user-profile-account-item">
+                    <span className="user-profile-account-label">Cobranca do plano</span>
+                    <strong>
+                      {selectedPlanPrice && currentUser.barbershopPlanBillingCycle
+                        ? `${selectedPlanPrice}/${currentUser.barbershopPlanBillingCycle}`
+                        : 'Nao disponivel'}
+                    </strong>
+                  </div>
+                </>
+              )}
+
+              {isBarber && (
+                <>
+                  <div className="user-profile-account-item">
+                    <span className="user-profile-account-label">Codigo de verificacao</span>
+                    <strong>{currentUser.verifycode || 'Nao disponivel'}</strong>
+                  </div>
+                  <div className="user-profile-account-item">
+                    <span className="user-profile-account-label">Status do parceiro</span>
+                    <strong>{currentUser.verified ? 'Verificado' : 'Pendente de verificacao'}</strong>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+
           <div
             className={`user-profile-photo-section ${isDraggingPhoto ? 'is-dragging' : ''}`}
             onDragOver={handlePhotoDragOver}

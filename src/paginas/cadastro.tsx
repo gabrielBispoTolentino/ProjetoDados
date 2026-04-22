@@ -1,8 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import SignupPlanPaymentModal from '../components/SignupPlanPaymentModal';
 import { api } from '../../server/api';
-import type { AdmFields, CreateUserPayload, UserFields } from '../types/domain';
+import type {
+  AdmFields,
+  BarbershopPlanType,
+  CreateUserPayload,
+  UserFields,
+  UserSummary,
+} from '../types/domain';
 import './css/Cadastro.css';
 
 type CadastroFormData = CreateUserPayload & Partial<AdmFields> & Partial<UserFields>;
@@ -15,7 +22,20 @@ const INITIAL_FORM_DATA: CadastroFormData = {
   telefone: '',
   role: '',
   cnpj: '',
+  barbershop_plan_id: '',
 };
+
+function getRedirectPathForUser(usuario: UserSummary) {
+  if (usuario.userTable === 'usuarioBarber') {
+    return '/barber-painel';
+  }
+
+  if (usuario.role === 'ADM_Estabelecimento') {
+    return '/painel-admin';
+  }
+
+  return '/painel';
+}
 
 export default function Cadastro() {
   const navigate = useNavigate();
@@ -24,13 +44,46 @@ export default function Cadastro() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
+  const [barbershopPlans, setBarbershopPlans] = useState<BarbershopPlanType[]>([]);
+  const [barbershopPlansLoading, setBarbershopPlansLoading] = useState(true);
+  const [barbershopPlansError, setBarbershopPlansError] = useState('');
+  const [adminSignupModalOpen, setAdminSignupModalOpen] = useState(false);
+
+  useEffect(() => {
+    void loadBarbershopPlans();
+  }, []);
+
+  async function loadBarbershopPlans() {
+    try {
+      setBarbershopPlansLoading(true);
+      setBarbershopPlansError('');
+      const plans = await api.getBarbershopPlanTypes();
+      setBarbershopPlans(plans);
+    } catch (caughtError) {
+      console.error(caughtError);
+      setBarbershopPlans([]);
+      setBarbershopPlansError(
+        caughtError instanceof Error ? caughtError.message : 'Erro ao carregar planos da barbearia.',
+      );
+    } finally {
+      setBarbershopPlansLoading(false);
+    }
+  }
 
   function handleChange(event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = event.target;
+    setErro('');
     setFormData((currentForm) => ({
       ...currentForm,
       [name]: value,
+      ...(name === 'role' && value !== 'ADM_Estabelecimento'
+        ? { cnpj: '', barbershop_plan_id: '' }
+        : {}),
     } as CadastroFormData));
+
+    if (name === 'role' && value !== 'ADM_Estabelecimento') {
+      closeSignupModal();
+    }
   }
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -70,8 +123,7 @@ export default function Cadastro() {
     }
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function submitCadastro() {
     setErro('');
     setCarregando(true);
 
@@ -87,13 +139,25 @@ export default function Cadastro() {
       if (foto) {
         formDataToSend.append('foto', foto);
       }
+
       const cnpj = formData.cnpj?.trim();
       if (formData.role === 'ADM_Estabelecimento' && cnpj) {
         formDataToSend.append('cnpj', cnpj);
+        formDataToSend.append('barbershop_plan_id', String(formData.barbershop_plan_id));
       }
 
-      await api.createUserWithPhoto(formDataToSend);
-      navigate('/login');
+      const response = await api.createUserWithPhoto(formDataToSend);
+
+      if (!response.id) {
+        throw new Error('Nao foi possivel identificar a conta criada.');
+      }
+
+      const usuarioCriado = await api.getUserById(response.id);
+      localStorage.setItem('usuarioId', String(usuarioCriado.id));
+      localStorage.setItem('usuario', JSON.stringify(usuarioCriado));
+
+      closeSignupModal();
+      navigate(getRedirectPathForUser(usuarioCriado));
     } catch (caughtError) {
       setErro(caughtError instanceof Error ? caughtError.message : 'Erro ao cadastrar. Tente novamente.');
       console.error(caughtError);
@@ -102,11 +166,45 @@ export default function Cadastro() {
     }
   }
 
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setErro('');
+
+    if (formData.role === 'ADM_Estabelecimento') {
+      if (barbershopPlansLoading) {
+        setErro('Os planos da barbearia ainda estao sendo carregados.');
+        return;
+      }
+
+      if (barbershopPlans.length === 0) {
+        setErro('Nao foi possivel carregar os planos da barbearia. Tente novamente em instantes.');
+        return;
+      }
+
+      setAdminSignupModalOpen(true);
+      return;
+    }
+
+    await submitCadastro();
+  }
+
+  function handleBarbershopPlanSelect(planId: number) {
+    setErro('');
+    setFormData((currentForm) => ({
+      ...currentForm,
+      barbershop_plan_id: String(planId),
+    }));
+  }
+
+  function closeSignupModal() {
+    setAdminSignupModalOpen(false);
+  }
+
   return (
     <div className="cadastro-container">
       <div className="cadastro-card">
         <h2>Criar Conta</h2>
-        {erro && <p className="cadastro-error">{erro}</p>}
+        {erro && !adminSignupModalOpen && <p className="cadastro-error">{erro}</p>}
 
         <form onSubmit={handleSubmit} className="cadastro-form">
           <div className="cadastro-photo-preview">
@@ -197,6 +295,7 @@ export default function Cadastro() {
             disabled={carregando}
             required
           />
+
           <input
             type="tel"
             name="telefone"
@@ -206,6 +305,7 @@ export default function Cadastro() {
             disabled={carregando}
             required
           />
+
           <label htmlFor="role" className="cadastro-role-label">
             Tipo de conta
           </label>
@@ -216,14 +316,14 @@ export default function Cadastro() {
             onChange={handleChange}
             disabled={carregando}
             required
-            
           >
             <option value="" disabled>
-                         Selecione o tipo de conta
+              Selecione o tipo de conta
             </option>
             <option value="Cliente">Cliente</option>
             <option value="ADM_Estabelecimento">Administrador da Barbearia</option>
           </select>
+
           {formData.role === 'ADM_Estabelecimento' && (
             <input
               type="text"
@@ -235,8 +335,9 @@ export default function Cadastro() {
               required
             />
           )}
+
           <button type="submit" className="cadastro-btn" disabled={carregando}>
-            {carregando ? 'Cadastrando...' : 'Cadastrar'}
+            {carregando ? 'Cadastrando...' : formData.role === 'ADM_Estabelecimento' ? 'Continuar' : 'Cadastrar'}
           </button>
         </form>
 
@@ -249,6 +350,19 @@ export default function Cadastro() {
           &larr; Voltar para Home
         </button>
       </div>
+
+      <SignupPlanPaymentModal
+        isOpen={adminSignupModalOpen}
+        plans={barbershopPlans}
+        loading={barbershopPlansLoading}
+        loadError={barbershopPlansError}
+        selectedPlanId={formData.barbershop_plan_id}
+        submitting={carregando}
+        submitError={erro}
+        onClose={closeSignupModal}
+        onSelectPlan={handleBarbershopPlanSelect}
+        onConfirm={submitCadastro}
+      />
     </div>
   );
 }
