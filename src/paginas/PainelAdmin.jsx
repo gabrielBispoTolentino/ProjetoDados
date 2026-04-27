@@ -4,6 +4,7 @@ import UserBar from './UserBar';
 import { api } from '../../server/api';
 
 
+
 function PainelAdmin() {
   const navigate = useNavigate();
   const [barbearias, setBarbearias] = useState([]);
@@ -19,7 +20,7 @@ function PainelAdmin() {
 
 const PainelAdmin = () => {
   // Lista de agendamentos (Estado inicial)
-  const [agendamentos, setAgendamentos] = useState([
+  const [agendamentos] = useState([
     { id: 1, cliente: " ", servico: " ", horario: " ", status: "Pendente" },
     { id: 2, cliente: " ", servico: " ", horario: "", status: "Concluído" },
   ]);
