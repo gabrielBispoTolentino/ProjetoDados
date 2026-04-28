@@ -1,0 +1,174 @@
+.marketplace-container {
+    padding: 20px;
+}
+
+.marketplace-header {
+    margin-bottom: 24px;
+}
+
+.marketplace-header h3 {
+    color: #e0e0e0;
+    font-size: 24px;
+    margin: 0 0 8px 0;
+}
+
+.marketplace-subtitle {
+    color: #9ca3af;
+    font-size: 14px;
+    margin: 0;
+}
+
+.marketplace-loading {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+    font-size: 16px;
+}
+
+.marketplace-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+}
+
+.marketplace-empty svg {
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.marketplace-empty p {
+    font-size: 18px;
+    color: #e0e0e0;
+    margin: 0 0 8px 0;
+}
+
+.marketplace-empty span {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.marketplace-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.marketplace-card {
+    background: linear-gradient(135deg, rgba(30, 30, 35, 0.95), rgba(20, 20, 25, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.marketplace-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.marketplace-card:hover {
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+}
+
+.marketplace-card:hover::before {
+    opacity: 1;
+}
+
+.marketplace-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.marketplace-card-header h4 {
+    color: #e0e0e0;
+    font-size: 18px;
+    margin: 0;
+    flex: 1;
+}
+
+.marketplace-badge {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.marketplace-description {
+    color: #9ca3af;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 16px 0;
+}
+
+.marketplace-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.marketplace-detail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-label {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.detail-value {
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.detail-value.price {
+    color: #10b981;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.btn-participar {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-participar:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-participar:active {
+    transform: translateY(0);
+}

@@ -1,0 +1,115 @@
+/* Login Page Styles */
+.login-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--bg-dark, #14181c);
+    /* Optional: Background image matching home but blurred/darkened */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=2074&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+}
+
+.login-card {
+    background-color: var(--surface, #2c3440);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    text-align: center;
+}
+
+.login-card h2 {
+    margin-top: 0;
+    margin-bottom: 2rem;
+    font-family: var(--font-heading, "Merriweather", serif);
+    font-size: 2rem;
+    color: #fff;
+    letter-spacing: -0.02em;
+}
+
+/* Inputs */
+.login-form input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    border: 1px solid #445566;
+    background-color: #f0f2f5;
+    /* Light input for contrast/readability */
+    color: #14181c;
+    font-size: 1rem;
+    box-sizing: border-box;
+    /* Important for padding */
+    transition: border-color 0.2s;
+}
+
+.login-form input:focus {
+    outline: none;
+    border-color: var(--accent, #00e054);
+    box-shadow: 0 0 0 3px rgba(0, 224, 84, 0.2);
+}
+
+/* Primary Button */
+.login-btn {
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 0.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--accent, #00e054);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background-color 0.2s, transform 0.1s;
+    font-family: var(--font-body, sans-serif);
+}
+
+.login-btn:hover {
+    background-color: #00b042;
+}
+
+.login-btn:active {
+    transform: scale(0.98);
+}
+
+.login-btn:disabled {
+    background-color: #556677;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Secondary Button (Back) */
+.login-back-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    color: #99aabb;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0.5rem;
+}
+
+.login-back-btn:hover {
+    color: #fff;
+}
+
+/* Error */
+.login-error {
+    background: rgba(220, 38, 38, 0.2);
+    border: 1px solid rgba(220, 38, 38, 0.5);
+    color: #fca5a5;
+    padding: 0.8rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}

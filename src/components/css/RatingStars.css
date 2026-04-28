@@ -1,0 +1,35 @@
+.rating-stars {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+.rating-stars-base,
+.rating-stars-fill {
+  display: block;
+  white-space: nowrap;
+}
+
+.rating-stars-base {
+  color: #445566;
+}
+
+.rating-stars-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  overflow: hidden;
+  color: #f5c451;
+}
+
+.rating-stars-sm {
+  font-size: 0.95rem;
+}
+
+.rating-stars-md {
+  font-size: 1.05rem;
+}
+
+.rating-stars-lg {
+  font-size: 1.2rem;
+}

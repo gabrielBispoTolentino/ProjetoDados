@@ -1,0 +1,264 @@
+.benefit-manager {
+    padding: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.benefit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.benefit-header h2 {
+    color: #e0e0e0;
+    margin: 0 0 8px 0;
+    font-size: 24px;
+}
+
+.benefit-subtitle {
+    color: #9ca3af;
+    margin: 0;
+    font-size: 14px;
+}
+
+.btn-close-benefit {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #e0e0e0;
+    font-size: 28px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-close-benefit:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    transform: rotate(90deg);
+}
+
+.btn-add-benefit {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+}
+
+.btn-add-benefit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.benefit-form {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+.benefit-loading {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+}
+
+.benefits-list h3 {
+    color: #e0e0e0;
+    font-size: 18px;
+    margin: 0 0 16px 0;
+}
+
+.no-benefits {
+    text-align: center;
+    padding: 40px;
+    color: #9ca3af;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.benefit-card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+    border-color: rgba(16, 185, 129, 0.5);
+    transform: translateY(-2px);
+}
+
+.benefit-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.benefit-order {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.benefit-type {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.benefit-type.desconto_percentual {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.benefit-type.desconto_fixo {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.benefit-description {
+    color: #e0e0e0;
+    font-size: 15px;
+    margin: 0 0 12px 0;
+    line-height: 1.5;
+}
+
+.benefit-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.benefit-detail {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.benefit-detail strong {
+    color: #e0e0e0;
+}
+
+.benefit-examples {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 32px;
+}
+
+.benefit-examples h4 {
+    color: #60a5fa;
+    margin: 0 0 12px 0;
+    font-size: 16px;
+}
+
+.benefit-examples ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #9ca3af;
+}
+
+.benefit-examples li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.benefit-examples strong {
+    color: #e0e0e0;
+}
+
+/* Form styles reused from PlanManager */
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    color: #b0b0b0;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.form-group small {
+    color: #6b7280;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.form-group input,
+.form-group select {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 10px;
+    color: #e0e0e0;
+    font-size: 14px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #10b981;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-submit {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-submit:hover {
+    background: #059669;
+}
+
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+}

@@ -1,0 +1,367 @@
+/* Painel Admin Dark Theme */
+.admin-main {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.admin-title {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-heading, serif);
+  font-size: 2rem;
+}
+
+.admin-error {
+  padding: 1rem;
+  background-color: rgba(220, 38, 38, 0.2);
+  color: #fca5a5;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(220, 38, 38, 0.4);
+}
+
+.admin-empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: #1f252e;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.admin-empty-text {
+  color: #99aabb;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+/* Grid */
+.admin-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.admin-shop-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #2c3440;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.admin-shop-image {
+  width: 100%;
+  height: 180px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #14181c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-shop-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-shop-image .shop-image-placeholder {
+  color: #4b5563;
+}
+
+.shop-info {
+  flex: 1;
+}
+
+.shop-name {
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+  font-family: var(--font-heading, serif);
+  font-size: 1.25rem;
+}
+
+.shop-address {
+  margin: 0;
+  color: #99aabb;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.admin-shop-phone {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.9rem;
+  color: #d1d5db;
+}
+
+.admin-shop-actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.admin-btn-edit {
+  flex: 1;
+  background-color: #2c3440;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.admin-btn-edit:hover {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+.admin-btn-delete {
+  flex: 1;
+  background-color: rgba(220, 38, 38, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.admin-btn-delete:hover {
+  background-color: rgba(220, 38, 38, 0.25);
+  color: #fff;
+}
+
+/* Modal */
+.admin-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.admin-modal-container {
+  background: var(--surface, #2c3440);
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.admin-modal-container h2 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: #fff;
+  font-family: var(--font-heading, serif);
+  text-align: center;
+}
+
+/* Form inputs - Dark Theme */
+.admin-modal-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #d1d5db;
+  font-size: 0.95rem;
+}
+
+.admin-modal-container input[type="text"],
+.admin-modal-container input[type="email"],
+.admin-modal-container input[type="password"],
+.admin-modal-container input[type="tel"],
+.admin-modal-container textarea {
+  width: 100%;
+  background: #14181c;
+  /* Dark input */
+  border: 1px solid #445566;
+  color: #fff;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+  box-sizing: border-box;
+}
+
+.admin-modal-container input:focus,
+.admin-modal-container textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.admin-modal-container input::placeholder,
+.admin-modal-container textarea::placeholder {
+  color: #556677;
+}
+
+/* Photo Upload */
+.admin-form-photo-preview {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.admin-form-photo-gallery {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.9rem;
+}
+
+.admin-form-photo-gallery.is-empty {
+  display: block;
+}
+
+.admin-form-photo-container {
+  width: 100%;
+  max-width: 400px;
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px dashed #445566;
+  background-color: #1a2027;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-form-photo-tile {
+  position: relative;
+  min-height: 140px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1a2027;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-form-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-form-photo-tile-remove {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.admin-form-photo-tile-remove:hover {
+  background: rgba(220, 38, 38, 0.92);
+}
+
+.admin-form-photo-index {
+  position: absolute;
+  left: 0.6rem;
+  bottom: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-form-photo-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.admin-form-photo-label {
+  padding: 0.6rem 1.2rem;
+  background-color: #2c3440;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.admin-form-photo-label:hover {
+  background-color: var(--accent);
+  color: #fff;
+}
+
+.admin-form-photo-remove {
+  padding: 0.6rem 1.2rem;
+  background-color: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.admin-form-photo-remove:hover {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+.admin-form-photo-hint {
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+/* Actions */
+.admin-form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-form-btn-submit {
+  flex: 2;
+  padding: 0.8rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.admin-form-btn-cancel {
+  flex: 1;
+  background: transparent;
+  color: #99aabb;
+  border: 1px solid #445566;
+}
+
+.admin-form-btn-cancel:hover {
+  color: #fff;
+  border-color: #fff;
+}
