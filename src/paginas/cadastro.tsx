@@ -143,6 +143,7 @@ export default function Cadastro() {
       const usuarioCriado = await api.getUserById(response.id);
       localStorage.setItem('usuarioId', String(usuarioCriado.id));
       localStorage.setItem('usuario', JSON.stringify(usuarioCriado));
+      localStorage.setItem('verifyEmail', usuarioCriado.email);
 
       closeSignupModal();
       navigate('/verify');

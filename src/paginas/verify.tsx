@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../server/api";
 import "./css/Verify.css";
@@ -6,33 +6,65 @@ import { UserSummary } from "../types/domain";
 
 export default function Verify() {
   const navigate = useNavigate();
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [usuario, setUsuario] = useState<UserSummary | null>(null);
+  const [code, setCode] = useState(["", "", "", "", "", "", "", ""]);
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
+
+  useEffect(() => {
+    const storedUsuario = localStorage.getItem('usuario');
+    if (!storedUsuario) {
+      navigate('/cadastro');
+      return;
+    }
+
+    try {
+      setUsuario(JSON.parse(storedUsuario));
+    } catch {
+      localStorage.removeItem('usuario');
+      navigate('/cadastro');
+    }
+  }, [navigate]);
+
   function getRedirectPathForUser(usuario: UserSummary) {
-  if (usuario.userTable === 'usuarioBarber') {
-    return '/barber-painel';
+    if (usuario.userTable === 'usuarioBarber') {
+      return '/barber-painel';
+    }
+
+    if (usuario.role === 'ADM_Estabelecimento') {
+      return '/painel-admin';
+    }
+
+    return '/painel';
   }
 
-  if (usuario.role === 'ADM_Estabelecimento') {
-    return '/painel-admin';
-  }
-
-  return '/painel';
-}
   const inputs = useRef<HTMLInputElement[]>([]);
-
-  const email = localStorage.getItem("verifyEmail");
+  const email = usuario?.email ?? localStorage.getItem('verifyEmail');
 
   function handleChange(value: string, index: number) {
-    if (!/^[0-9]?$/.test(value)) return;
-
     const newCode = [...code];
-    newCode[index] = value;
+    newCode[index] = value.toUpperCase();
     setCode(newCode);
 
-    if (value && index < 5) {
+    if (value && index < 7) {
       inputs.current[index + 1]?.focus();
+    }
+  }
+
+  function handlePaste(e: React.ClipboardEvent<HTMLInputElement>, index: number) {
+    e.preventDefault();
+    const pastedText = e.clipboardData.getData('text').toUpperCase();
+    const newCode = [...code];
+    
+    for (let i = 0; i < pastedText.length && index + i < 8; i++) {
+      newCode[index + i] = pastedText[i];
+    }
+    
+    setCode(newCode);
+    
+    const lastFilledIndex = Math.min(index + pastedText.length - 1, 7);
+    if (lastFilledIndex < 7) {
+      setTimeout(() => inputs.current[lastFilledIndex + 1]?.focus(), 0);
     }
   }
 
@@ -45,10 +77,15 @@ export default function Verify() {
   async function handleSubmit() {
     setErro("");
 
+    if (!email) {
+      setErro('Email de verificacao nao encontrado. Por favor, reinicie o cadastro.');
+      return;
+    }
+
     const finalCode = code.join("");
 
-    if (finalCode.length !== 6) {
-      setErro("Digite o código completo.");
+    if (finalCode.length !== 8) {
+      setErro("Digite o código completo (8 caracteres).");
       return;
     }
 
@@ -60,8 +97,7 @@ export default function Verify() {
         code: finalCode,
       });
       localStorage.removeItem("verifyEmail");
-      navigate(getRedirectPathForUser(JSON.parse(localStorage.getItem('usuario') || '{}')));
-
+      navigate(usuario ? getRedirectPathForUser(usuario) : '/login');
     } catch (err) {
       setErro("Código inválido ou expirado.");
     } finally {
@@ -70,6 +106,11 @@ export default function Verify() {
   }
 
   async function handleResend() {
+    if (!email) {
+      setErro('Email de verificacao nao encontrado. Por favor, reinicie o cadastro.');
+      return;
+    }
+
     try {
       await api.resendVerifyCode({ email });
       setErro("Código reenviado!");
@@ -94,8 +135,10 @@ export default function Verify() {
               value={digit}
               onChange={(e) => handleChange(e.target.value, i)}
               onKeyDown={(e) => handleBackspace(e, i)}
+              onPaste={(e) => handlePaste(e, i)}
               maxLength={1}
               disabled={carregando}
+              style={{ fontSize: '24px', padding: '12px', width: '50px', height: '50px' }}
             />
           ))}
         </div>
