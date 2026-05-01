@@ -12,7 +12,6 @@ import BarberPainel from './paginas/barberPainel';
 import Cadastro from './paginas/cadastro';
 import Login from './paginas/login';
 import NotFound from './paginas/NotFound';
-import ParceirosLogin from './paginas/parceirosLogin';
 import BarberSignup from './paginas/barberSignup';
 import PainelCliente from './paginas/painelCliente';
 import PainelAdmin from './paginas/PainelAdmin';
