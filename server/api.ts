@@ -2,6 +2,8 @@ import type {
   ApiId,
   ApiMessageResponse,
   AppointmentCreateResponse,
+  BarberInvitePayload,
+  BarberSignupPayload,
   BarbershopPlanType,
   BarberSummary,
   AvailablePlan,
@@ -520,5 +522,29 @@ payPagamento(pagamentoId: ApiId) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     }, 'Erro ao reenviar codigo');
+  },
+
+  validateBarbercode(barbercode: string) {
+    return request<ValidateBarbercodeResponse>('/barber-signup/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ barbercode }),
+    }, 'Erro ao validar codigo da barbearia');
+  },
+
+  barberSignup(data: BarberSignupPayload) {
+    return request<ApiMessageResponse & { id: number | null; usuario?: UserSummary | null }>('/barber-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }, 'Erro ao criar conta de barbeiro');
+  },
+
+  inviteBarber(data: BarberInvitePayload) {
+    return request<ApiMessageResponse>('/barber-invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }, 'Erro ao enviar convite para barbeiro');
   },
 };

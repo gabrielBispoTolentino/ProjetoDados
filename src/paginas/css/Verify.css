@@ -1,90 +1,179 @@
+/* Verify Page Styles */
 .verify-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  font-family: "Inter", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--bg-dark, #14181c);
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=80&w=2074&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
 }
 
 .verify-card {
-  background: #111827;
-  padding: 2.5rem;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-  color: white;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    background-color: var(--surface, #2c3440);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    text-align: center;
 }
 
 .verify-card h2 {
-  margin-bottom: 0.5rem;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-heading, "Merriweather", serif);
+    font-size: 2rem;
+    color: #fff;
+    letter-spacing: -0.02em;
 }
 
 .verify-card p {
-  color: #9ca3af;
-  margin-bottom: 2rem;
+    color: var(--text-muted, #99aabb);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
+/* Code Inputs */
 .verify-inputs {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
 }
 
 .verify-inputs input {
-  width: 45px;
-  height: 55px;
-  text-align: center;
-  font-size: 1.5rem;
-  border-radius: 10px;
-  border: 2px solid #374151;
-  background: #1f2937;
-  color: white;
-  outline: none;
-  transition: 0.2s;
+    width: 46px;
+    height: 54px;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    border-radius: 4px;
+    border: 1px solid var(--border, #445566);
+    background-color: #f0f2f5;
+    color: #14181c;
+    font-family: var(--font-body, sans-serif);
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
 }
 
 .verify-inputs input:focus {
-  border-color: #6366f1;
-  transform: scale(1.05);
+    border-color: var(--accent, #00e054);
+    box-shadow: 0 0 0 3px rgba(0, 224, 84, 0.2);
 }
 
+.verify-inputs input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Error */
 .verify-error {
-  display: block;
-  margin-bottom: 1rem;
-  color: #f87171;
-  font-size: 0.9rem;
+    display: block;
+    background: rgba(220, 38, 38, 0.2);
+    border: 1px solid rgba(220, 38, 38, 0.5);
+    color: #fca5a5;
+    padding: 0.8rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
 }
 
-.verify-card button {
-  width: 100%;
-  padding: 0.8rem;
-  border: none;
-  border-radius: 10px;
-  background: #6366f1;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.2s;
+/* Primary Button */
+.verify-btn {
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 0.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--accent, #00e054);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background-color 0.2s, transform 0.1s;
+    font-family: var(--font-body, sans-serif);
 }
 
-.verify-card button:hover {
-  background: #4f46e5;
+.verify-btn:hover {
+    background-color: var(--accent-hover, #00b042);
 }
 
+.verify-btn:active {
+    transform: scale(0.98);
+}
+
+.verify-btn:disabled {
+    background-color: #556677;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Resend */
 .verify-resend {
-  display: block;
-  margin-top: 1rem;
-  font-size: 0.85rem;
-  color: #9ca3af;
+    display: block;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted, #99aabb);
 }
 
 .verify-resend button {
-  background: none;
-  border: none;
-  color: #6366f1;
-  cursor: pointer;
+    background: transparent;
+    border: none;
+    color: var(--accent, #00e054);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.verify-resend button:hover {
+    color: var(--accent-hover, #00b042);
+}
+
+.verify-resend button:disabled {
+    color: #556677;
+    cursor: not-allowed;
+}
+
+/* Back Button */
+.verify-back-btn {
+    margin-top: 1.5rem;
+    background: transparent;
+    color: var(--text-muted, #99aabb);
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0.5rem;
+}
+
+.verify-back-btn:hover {
+    color: #fff;
+}
+
+@media (max-width: 480px) {
+    .verify-card {
+        padding: 1.5rem;
+    }
+
+    .verify-inputs {
+        gap: 6px;
+    }
+
+    .verify-inputs input {
+        width: 38px;
+        height: 46px;
+        font-size: 1.2rem;
+    }
 }

@@ -138,14 +138,14 @@ export default function Verify() {
               onPaste={(e) => handlePaste(e, i)}
               maxLength={1}
               disabled={carregando}
-              style={{ fontSize: '24px', padding: '12px', width: '50px', height: '50px' }}
+
             />
           ))}
         </div>
 
-        {erro && <span className="verify-error">{erro}</span>}
+        {erro && <div className="verify-error">{erro}</div>}
 
-        <button onClick={handleSubmit} disabled={carregando}>
+        <button className="verify-btn" onClick={handleSubmit} disabled={carregando}>
           {carregando ? "Verificando..." : "Verificar"}
         </button>
 
@@ -155,6 +155,10 @@ export default function Verify() {
             Reenviar
           </button>
         </span>
+
+        <button className="verify-back-btn" type="button" onClick={() => navigate('/login')} disabled={carregando}>
+          &larr; Voltar para Login
+        </button>
       </div>
     </div>
   );

@@ -130,6 +130,7 @@ export interface Establishment {
   rating?: NumericValue | null;
   ratingCount?: NumericValue | null;
   dono_id?: EntityId;
+  barbercode?: string | null;
   fullAddress?: {
     rua: string;
     cidade: string;
@@ -363,4 +364,27 @@ export interface PagamentoAdmin {
   estabelecimento_id: EntityId;
   valor: NumericValue;
   data_pagamento: string;
+}
+
+export interface BarberSignupPayload {
+  barbercode: string;
+  nome: string;
+  email: string;
+  senha: string;
+  cpf: string;
+  telefone: string;
+}
+
+export interface ValidateBarbercodeResponse {
+  valid: boolean;
+  establishment: {
+    id: number;
+    nome: string;
+  };
+}
+
+export interface BarberInvitePayload {
+  admin_user_id: EntityId;
+  establishment_id: EntityId;
+  email: string;
 }

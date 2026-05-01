@@ -32,7 +32,7 @@ export default function BarberPainel() {
 
   useEffect(() => {
     if (!usuario) {
-      navigate('/parceiros-login');
+      navigate('/login');
       return;
     }
 
