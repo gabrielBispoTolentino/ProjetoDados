@@ -12,9 +12,9 @@ import type {
 } from '../types/domain';
 import './css/Cadastro.css';
 
-type CadastroFormData = CreateUserPayload & Partial<AdmFields> & Partial<UserFields>;
+export type CadastroFormData = CreateUserPayload & Partial<AdmFields> & Partial<UserFields>;
 
-const INITIAL_FORM_DATA: CadastroFormData = {
+export const INITIAL_FORM_DATA: CadastroFormData = {
   nome: '',
   email: '',
   senha: '',
@@ -24,18 +24,6 @@ const INITIAL_FORM_DATA: CadastroFormData = {
   cnpj: '',
   barbershop_plan_id: '',
 };
-
-function getRedirectPathForUser(usuario: UserSummary) {
-  if (usuario.userTable === 'usuarioBarber') {
-    return '/barber-painel';
-  }
-
-  if (usuario.role === 'ADM_Estabelecimento') {
-    return '/painel-admin';
-  }
-
-  return '/painel';
-}
 
 export default function Cadastro() {
   const navigate = useNavigate();
@@ -157,7 +145,7 @@ export default function Cadastro() {
       localStorage.setItem('usuario', JSON.stringify(usuarioCriado));
 
       closeSignupModal();
-      navigate(getRedirectPathForUser(usuarioCriado));
+      navigate('/verify');
     } catch (caughtError) {
       setErro(caughtError instanceof Error ? caughtError.message : 'Erro ao cadastrar. Tente novamente.');
       console.error(caughtError);

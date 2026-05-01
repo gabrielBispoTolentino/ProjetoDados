@@ -506,4 +506,23 @@ payPagamento(pagamentoId: ApiId) {
 
     return buildUrl(photoPath);
   },
+  verifyUser(data: { email: string | null; code: string }) {
+  return fetch("/verify", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+},
+
+resendVerifyCode(data: { email: string | null }) {
+  return fetch("/resend-code", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+},
 };

@@ -15,6 +15,7 @@ import NotFound from './paginas/NotFound';
 import ParceirosLogin from './paginas/parceirosLogin';
 import PainelCliente from './paginas/painelCliente';
 import PainelAdmin from './paginas/PainelAdmin';
+import Verify from './paginas/verify';
 
 function Navbar() {
   return (
@@ -109,6 +110,7 @@ export default function App() {
         <Route path="/painel-admin" element={<PainelAdmin />} />
         <Route path="/barber-painel" element={<BarberPainel />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/verify" element={<Verify />} />  
       </Routes>
     </Router>
   );
