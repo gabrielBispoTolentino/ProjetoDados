@@ -11,7 +11,13 @@
 }
 
 .shop-details-modal {
-    background: var(--surface, #2c3440);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+
+    
     width: 100%;
     max-width: 800px;
     max-height: 90vh;

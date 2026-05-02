@@ -22,7 +22,13 @@
 }
 
 .modal-content-large {
-  background: linear-gradient(135deg, rgba(30, 30, 35, 0.98), rgba(20, 20, 25, 0.98));
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+
+  
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   width: 95%;
@@ -311,15 +317,21 @@
 
 .plan-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+}
+
+.plan-actions button {
+  padding: 0.45em 0.9em;
+  font-size: 0.8rem;
+  border-radius: 8px;
 }
 
 .btn-edit,
 .btn-delete {
-  flex: 1;
   padding: 8px 16px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   transition: opacity 0.2s;
@@ -340,7 +352,6 @@
 }
 
 .btn-secondary {
-  flex: 1;
   padding: 8px 16px;
   border: 1px solid rgba(59, 130, 246, 0.5);
   background: rgba(59, 130, 246, 0.1);

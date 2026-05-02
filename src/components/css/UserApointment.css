@@ -11,7 +11,13 @@
 }
 
 .appointments-modal {
-  background: var(--surface, #2c3440);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+
+  
   border-radius: 12px;
   padding: 1.5rem;
   width: 90%;
