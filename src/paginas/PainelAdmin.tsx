@@ -66,11 +66,7 @@ const INITIAL_BARBER_SHOP_FORM: BarberShopForm = {
 };
 
 const INITIAL_BARBER_FORM: BarberFormData = {
-  nome: '',
   email: '',
-  senha: '',
-  cpf: '',
-  telefone: '',
 };
 
 function parseStoredUser(): UserSummary | null {
@@ -522,21 +518,13 @@ export default function PainelAdmin() {
     setBarberError('');
 
     try {
-      const response = await api.createEstablishmentBarber(selectedBarbershopForBarbers.id, {
+      await api.inviteBarber({
         admin_user_id: usuario.id,
-        ...barberForm,
+        establishment_id: selectedBarbershopForBarbers.id,
+        email: barberForm.email,
       });
       setBarberForm(INITIAL_BARBER_FORM);
-      await carregarBarbeiros(selectedBarbershopForBarbers.id);
-      const verifycode =
-        typeof response.usuario?.verifycode === 'string' && response.usuario.verifycode
-          ? response.usuario.verifycode
-          : null;
-      feedback.success(
-        verifycode
-          ? `Barbeiro criado com sucesso! Codigo de verificacao: ${verifycode}`
-          : 'Barbeiro criado com sucesso!',
-      );
+      feedback.success(`Convite enviado com sucesso para ${barberForm.email}!`);
     } catch (caughtError) {
       console.error('Erro ao criar barbeiro:', caughtError);
       setBarberError(caughtError instanceof Error ? caughtError.message : 'Erro ao criar barbeiro');
@@ -642,6 +630,11 @@ export default function PainelAdmin() {
 
                   <div className="shop-info">
                     <h4 className="shop-name">{barbearia.name}</h4>
+                    {barbearia.barbercode && (
+                      <p className="admin-shop-phone" style={{ fontWeight: 'bold', color: 'var(--accent)' }}>
+                        Código da Barbearia: {barbearia.barbercode}
+                      </p>
+                    )}
                     <p className="shop-address">{barbearia.address || barbearia.fullAddress?.cidade || ''}</p>
                     {barbearia.phone && <p className="admin-shop-phone">Telefone: {barbearia.phone}</p>}
                   </div>

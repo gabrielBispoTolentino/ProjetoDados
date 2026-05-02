@@ -56,11 +56,6 @@ export interface LoginCredentials {
   senha: string;
 }
 
-export interface PartnerLoginCredentials {
-  email: string;
-  senha: string;
-  verifycode: string;
-}
 
 export interface LoginResponse {
   mensagem: string;
@@ -87,24 +82,17 @@ export interface BarbershopPlanType {
   maxBarbers?: number | null;
   maxEstablishments?: number | null;
 }
-export interface AdmFields{
+export interface AdmFields {
   cnpj: string;
 }
-export interface UserFields{
+
+export interface UserFields {
   cpf: string;
 }
-export interface UpdateUserPayload extends Partial<CreateUserPayload> {}
 
-export interface CreateBarberPayload {
-  admin_user_id: EntityId;
-  nome: string;
-  email: string;
-  senha: string;
-  cpf: string;
-  telefone: string;
-}
+export type UpdateUserPayload = Partial<CreateUserPayload>;
 
-export interface BarberSummary extends UserSummary {}
+export type BarberSummary = UserSummary;
 
 export interface BookingBarberOption {
   id: EntityId;
@@ -130,6 +118,7 @@ export interface Establishment {
   rating?: NumericValue | null;
   ratingCount?: NumericValue | null;
   dono_id?: EntityId;
+  barbercode?: string | null;
   fullAddress?: {
     rua: string;
     cidade: string;
@@ -259,7 +248,7 @@ export interface MarketplacePlan extends PlanBase {
   num_parceiros: number;
 }
 
-export interface AvailablePlan extends PlanBase {}
+export type AvailablePlan = PlanBase;
 
 export interface CreatePlanPayload {
   criador_estabelecimento_id: EntityId;
@@ -358,9 +347,26 @@ export interface GenerateReportLucroPayload {
   periodo_comeco: string;
   periodo_final: string;
 }
-export interface PagamentoAdmin {
-  id: EntityId;
-  estabelecimento_id: EntityId;
-  valor: NumericValue;
-  data_pagamento: string;
+
+export interface BarberSignupPayload {
+  barbercode: string;
+  nome: string;
+  email: string;
+  senha: string;
+  cpf: string;
+  telefone: string;
+}
+
+export interface ValidateBarbercodeResponse {
+  valid: boolean;
+  establishment: {
+    id: number;
+    nome: string;
+  };
+}
+
+export interface BarberInvitePayload {
+  admin_user_id: EntityId;
+  establishment_id: EntityId;
+  email: string;
 }

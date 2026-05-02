@@ -13,7 +13,13 @@
 }
 
 .subscriptions-modal {
-    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-amount));
+  -webkit-backdrop-filter: blur(var(--blur-amount));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+
+    
     border-radius: 16px;
     padding: 32px;
     max-width: 900px;

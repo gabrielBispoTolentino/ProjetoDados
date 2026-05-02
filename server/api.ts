@@ -2,11 +2,12 @@ import type {
   ApiId,
   ApiMessageResponse,
   AppointmentCreateResponse,
+  BarberInvitePayload,
+  BarberSignupPayload,
   BarbershopPlanType,
   BarberSummary,
   AvailablePlan,
   BookingBarberOption,
-  CreateBarberPayload,
   CreateAgendamentoPayload,
   CreatePlanPayload,
   CreateUserPayload,
@@ -14,7 +15,6 @@ import type {
   GenerateReportLucroPayload,
   LoginCredentials,
   LoginResponse,
-  PartnerLoginCredentials,
   MarketplacePlan,
   PlanBenefit,
   PlanBenefitPayload,
@@ -22,7 +22,6 @@ import type {
   ReportLucroEntry,
   ReviewPayload,
   ReviewsResponse,
-  ReviewSummary,
   Service,
   SubscribeToPlanPayload,
   SubscribeToPlanResponse,
@@ -32,6 +31,7 @@ import type {
   UserAppointment,
   UserSubscription,
   UserSummary,
+  ValidateBarbercodeResponse,
 } from '../src/types/domain';
 
 const configuredApiUrl = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
@@ -134,17 +134,6 @@ export const api = {
     );
   },
 
-  createEstablishmentBarber(establishmentId: ApiId, barberData: CreateBarberPayload) {
-    return request<ApiMessageResponse & { id: number | null; usuario?: BarberSummary | null }>(
-      `/establishments/${establishmentId}/barbers`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(barberData),
-      },
-      'Erro ao criar barbeiro',
-    );
-  },
 
   deleteEstablishmentBarber(establishmentId: ApiId, barberId: ApiId, adminUserId: ApiId) {
     return request<ApiMessageResponse>(
@@ -164,13 +153,6 @@ export const api = {
     }, 'Erro ao efetuar login');
   },
 
-  partnerLogin(credentials: PartnerLoginCredentials) {
-    return request<LoginResponse>('/login/parceiros', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credentials),
-    }, 'Erro ao efetuar login de parceiro');
-  },
 
   updateUserWithPhoto(id: ApiId, formData: FormData) {
     return request<ApiMessageResponse & { fotoUrl: string }>(`/usuarios/${id}`, {
@@ -343,9 +325,9 @@ export const api = {
     return request<ApiMessageResponse & { id?: number | null; ratingAvg?: number; ratingCount?: number }>(
       '/avaliacoes',
       {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(reviewData),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewData),
       },
       'Erro ao criar avaliacao',
     );
@@ -478,23 +460,25 @@ export const api = {
       body: JSON.stringify(payload),
     }, 'Erro ao gerar relatorio');
   },
- generatePagamento(barberId: ApiId, valor: number) {
-  return request<ApiMessageResponse>('/pagamentos', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ valor, id_admin: barberId }),
-  }, 'Erro ao gerar pagamento');
-},
 
-getPagamentos(barberId: ApiId) {
-  return request<ApiMessageResponse>(`/pagamentos/${barberId}`, {}, 'Erro ao buscar pagamentos');
-},
+  generatePagamento(barberId: ApiId, valor: number) {
+    return request<ApiMessageResponse>('/pagamentos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ valor, id_admin: barberId }),
+    }, 'Erro ao gerar pagamento');
+  },
 
-payPagamento(pagamentoId: ApiId) {
-  return request<ApiMessageResponse>(`/pagamentos/${pagamentoId}/confirmar`, {
-    method: 'POST',
-  }, 'Erro ao confirmar pagamento');
-},
+  getPagamentos(barberId: ApiId) {
+    return request<ApiMessageResponse>(`/pagamentos/${barberId}`, {}, 'Erro ao buscar pagamentos');
+  },
+
+  payPagamento(pagamentoId: ApiId) {
+    return request<ApiMessageResponse>(`/pagamentos/${pagamentoId}/confirmar`, {
+      method: 'POST',
+    }, 'Erro ao confirmar pagamento');
+  },
+
   getPhotoUrl(photoPath: string | null | undefined) {
     if (!photoPath) {
       return null;
@@ -505,5 +489,44 @@ payPagamento(pagamentoId: ApiId) {
     }
 
     return buildUrl(photoPath);
+  },
+  verifyUser(data: { email: string | null; code: string }) {
+    return request<ApiMessageResponse>('/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }, 'Erro ao verificar codigo');
+  },
+
+  resendVerifyCode(data: { email: string | null }) {
+    return request<ApiMessageResponse>('/resend-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }, 'Erro ao reenviar codigo');
+  },
+
+  validateBarbercode(barbercode: string) {
+    return request<ValidateBarbercodeResponse>('/barber-signup/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ barbercode }),
+    }, 'Erro ao validar codigo da barbearia');
+  },
+
+  barberSignup(data: BarberSignupPayload) {
+    return request<ApiMessageResponse & { id: number | null; usuario?: UserSummary | null }>('/barber-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }, 'Erro ao criar conta de barbeiro');
+  },
+
+  inviteBarber(data: BarberInvitePayload) {
+    return request<ApiMessageResponse>('/barber-invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }, 'Erro ao enviar convite para barbeiro');
   },
 };

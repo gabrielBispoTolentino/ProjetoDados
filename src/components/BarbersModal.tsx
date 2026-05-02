@@ -6,11 +6,7 @@ import type { BarberSummary, Establishment } from '../types/domain';
 import './css/BarbersModal.css';
 
 export type BarberFormData = {
-  nome: string;
   email: string;
-  senha: string;
-  cpf: string;
-  telefone: string;
 };
 
 type Props = {
@@ -70,6 +66,11 @@ export default function BarbersModal({
         <h2>Barbeiros</h2>
         <p className="admin-barber-subtitle">
           {barbershop.name}
+          {barbershop.barbercode && (
+            <span style={{ display: 'block', fontSize: '0.9em', marginTop: '4px', color: 'var(--accent)' }}>
+              Código: {barbershop.barbercode}
+            </span>
+          )}
         </p>
 
         {error && <div className="admin-error">{error}</div>}
@@ -133,18 +134,6 @@ export default function BarbersModal({
             <section className="admin-barber-panel admin-barber-create-panel">
               <h3>Novo barbeiro</h3>
               <form onSubmit={onSubmit} className="admin-barber-form">
-                <label htmlFor="barber-nome">Nome *</label>
-                <input
-                  id="barber-nome"
-                  type="text"
-                  name="nome"
-                  value={barberForm.nome}
-                  onChange={onChange}
-                  required
-                  disabled={saving}
-                  placeholder="Ex: Joao Silva"
-                />
-
                 <label htmlFor="barber-email">Email *</label>
                 <input
                   id="barber-email"
@@ -157,45 +146,9 @@ export default function BarbersModal({
                   placeholder="Ex: barbeiro@barbearia.com"
                 />
 
-                <label htmlFor="barber-senha">Senha *</label>
-                <input
-                  id="barber-senha"
-                  type="password"
-                  name="senha"
-                  value={barberForm.senha}
-                  onChange={onChange}
-                  required
-                  disabled={saving}
-                  placeholder="Crie uma senha"
-                />
-
-                <label htmlFor="barber-cpf">CPF *</label>
-                <input
-                  id="barber-cpf"
-                  type="text"
-                  name="cpf"
-                  value={barberForm.cpf}
-                  onChange={onChange}
-                  required
-                  disabled={saving}
-                  placeholder="Ex: 123.456.789-10"
-                />
-
-                <label htmlFor="barber-telefone">Telefone *</label>
-                <input
-                  id="barber-telefone"
-                  type="tel"
-                  name="telefone"
-                  value={barberForm.telefone}
-                  onChange={onChange}
-                  required
-                  disabled={saving}
-                  placeholder="Ex: (11) 98765-4321"
-                />
-
                 <div className="admin-form-actions">
                   <button type="submit" className="btn btn-primary admin-form-btn-submit" disabled={saving}>
-                    {saving ? 'Criando...' : 'Criar barbeiro'}
+                    {saving ? 'Enviando...' : 'Enviar convite'}
                   </button>
                   <button
                     type="button"

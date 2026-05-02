@@ -12,9 +12,10 @@ import BarberPainel from './paginas/barberPainel';
 import Cadastro from './paginas/cadastro';
 import Login from './paginas/login';
 import NotFound from './paginas/NotFound';
-import ParceirosLogin from './paginas/parceirosLogin';
+import BarberSignup from './paginas/barberSignup';
 import PainelCliente from './paginas/painelCliente';
 import PainelAdmin from './paginas/PainelAdmin';
+import Verify from './paginas/verify';
 
 function Navbar() {
   return (
@@ -29,7 +30,6 @@ function Navbar() {
       </div>
 
       <div className="navbar-menu">
-        <Link to="/parceiros-login" className="nav-link">Parceiros</Link>
         <Link to="/login" className="nav-link">Log in</Link>
         <Link to="/cadastro" className="nav-link">Registrar</Link>
       </div>
@@ -103,12 +103,13 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Navigation />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/parceiros-login" element={<ParceirosLogin />} />
+        <Route path="/barber-signup" element={<BarberSignup />} />
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/painel" element={<PainelCliente />} />
         <Route path="/painel-admin" element={<PainelAdmin />} />
         <Route path="/barber-painel" element={<BarberPainel />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/verify" element={<Verify />} />  
       </Routes>
     </Router>
   );
