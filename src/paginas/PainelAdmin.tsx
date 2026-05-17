@@ -106,11 +106,26 @@ export default function PainelAdmin() {
   const [barberSaving, setBarberSaving] = useState(false);
   const [deletingBarberId, setDeletingBarberId] = useState<number | null>(null);
   const [barberError, setBarberError] = useState('');
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const galleryImagesRef = useRef<GalleryImage[]>([]);
 
   useEffect(() => {
     galleryImagesRef.current = galleryImages;
   }, [galleryImages]);
+
+  useEffect(() => {
+    if (openMenuId === null) return undefined;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.admin-kebab-wrapper')) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [openMenuId]);
 
   useEffect(() => () => {
     revokeNewGalleryImageUrls(galleryImagesRef.current);
@@ -602,6 +617,52 @@ export default function PainelAdmin() {
 
               return (
                 <div key={barbearia.id} className="shop-card admin-shop-card">
+                  <div className="admin-kebab-wrapper">
+                    <button
+                      className="admin-kebab-trigger"
+                      aria-label="Menu de ações"
+                      onClick={() => setOpenMenuId(openMenuId === barbearia.id ? null : barbearia.id)}
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="5" r="1" />
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="12" cy="19" r="1" />
+                      </svg>
+                    </button>
+                    {openMenuId === barbearia.id && (
+                      <div className="admin-kebab-dropdown">
+                        <button
+                          className="admin-kebab-item"
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            void abrirModalEdicao(barbearia);
+                          }}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                          Editar
+                        </button>
+                        <button
+                          className="admin-kebab-item admin-kebab-item--danger"
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            void handleExcluir(barbearia.id);
+                          }}
+                        >
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
+                          </svg>
+                          Excluir
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="shop-image admin-shop-image">
                     {primaryImageUrl ? (
                       <img
@@ -641,32 +702,42 @@ export default function PainelAdmin() {
 
                   <div className="admin-shop-actions">
                     <button
-                      className="btn btn-secondary"
+                      className="btn btn-secondary admin-action-btn"
                       onClick={() => {
                         setSelectedBarbeariaForPlans(barbearia.id);
                         setPlanModalOpen(true);
                       }}
                     >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                        <line x1="9" y1="12" x2="15" y2="12" />
+                        <line x1="9" y1="16" x2="15" y2="16" />
+                      </svg>
                       Planos
                     </button>
                     <button
-                      className="btn btn-secondary"
+                      className="btn btn-secondary admin-action-btn"
                       onClick={() => {
                         setSelectedBarbeariaId(barbearia.id);
                         setReportModalOpen(true);
                       }}
                     >
-                      Relatorios
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10" />
+                        <line x1="12" y1="20" x2="12" y2="4" />
+                        <line x1="6" y1="20" x2="6" y2="14" />
+                      </svg>
+                      Relatórios
                     </button>
-                    <button className="btn btn-secondary" onClick={() => abrirModalBarbeiros(barbearia)}>
+                    <button className="btn btn-secondary admin-action-btn" onClick={() => abrirModalBarbeiros(barbearia)}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                      </svg>
                       Barbeiros
-                    </button>
-
-                    <button className="btn btn-primary admin-btn-edit" onClick={() => void abrirModalEdicao(barbearia)}>
-                      Editar
-                    </button>
-                    <button className="btn admin-btn-delete" onClick={() => void handleExcluir(barbearia.id)}>
-                      Excluir
                     </button>
                   </div>
                 </div>
@@ -685,7 +756,10 @@ export default function PainelAdmin() {
                 disabled={saving}
                 aria-label="Fechar modal"
               >
-                x
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
               <h2>{modoEdicao ? 'Editar Barbearia' : 'Nova Barbearia'}</h2>
 
@@ -711,7 +785,10 @@ export default function PainelAdmin() {
                             onClick={() => removeGalleryImage(image)}
                             aria-label={`Remover imagem ${index + 1}`}
                           >
-                            x
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <line x1="18" y1="6" x2="6" y2="18" />
+                              <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
                           </button>
                           <span className="admin-form-photo-index">{index + 1}</span>
                         </div>
@@ -895,7 +972,10 @@ export default function PainelAdmin() {
                   cursor: 'pointer',
                 }}
               >
-                x
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
               <PlanManager estabelecimentoId={selectedBarbeariaForPlans} />
             </div>
@@ -921,7 +1001,10 @@ export default function PainelAdmin() {
                   cursor: 'pointer',
                 }}
               >
-                x
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
               <ReportLucro estabelecimentoId={selectedBarbeariaId} />
             </div>
