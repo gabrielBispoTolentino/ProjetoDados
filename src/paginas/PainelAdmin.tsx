@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BarbersModal, { type BarberFormData } from '../components/BarbersModal';
-import UserBar from '../components/UserBar';
+import DashboardLayout from '../components/DashboardLayout';
 import { api } from '../../server/api';
 import PlanManager from '../components/PlanManager';
 import ReportLucro from '../components/ReportLucro';
@@ -15,6 +15,7 @@ import {
   getPrimaryEstablishmentImageUrl,
 } from '../utils/establishmentImages';
 import './css/PainelAdmin.css';
+import './css/PainelCliente.css';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
@@ -71,10 +72,7 @@ const INITIAL_BARBER_FORM: BarberFormData = {
 
 function parseStoredUser(): UserSummary | null {
   const usuarioStr = localStorage.getItem('usuario');
-  if (!usuarioStr) {
-    return null;
-  }
-
+  if (!usuarioStr) return null;
   try {
     return JSON.parse(usuarioStr) as UserSummary;
   } catch {
@@ -85,6 +83,7 @@ function parseStoredUser(): UserSummary | null {
 export default function PainelAdmin() {
   const navigate = useNavigate();
   const feedback = useFeedback();
+  const [usuario, setUsuario] = useState<UserSummary | null>(() => parseStoredUser());
   const [barbearias, setBarbearias] = useState<AdminShop[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState('');
@@ -107,7 +106,12 @@ export default function PainelAdmin() {
   const [deletingBarberId, setDeletingBarberId] = useState<number | null>(null);
   const [barberError, setBarberError] = useState('');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const galleryImagesRef = useRef<GalleryImage[]>([]);
+
+  const filteredBarbearias = barbearias.filter(b => 
+    (b.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     galleryImagesRef.current = galleryImages;
@@ -147,7 +151,6 @@ export default function PainelAdmin() {
   }, [modalAberto, saving]);
 
   useEffect(() => {
-    const usuario = parseStoredUser();
     if (!usuario) {
       navigate('/login');
       return;
@@ -160,7 +163,7 @@ export default function PainelAdmin() {
     }
 
     void carregarBarbearias(usuario.id);
-  }, [navigate]);
+  }, [navigate, usuario]);
 
   async function carregarBarbearias(donoId: number) {
     setLoading(true);
@@ -586,12 +589,24 @@ export default function PainelAdmin() {
     }
   }
 
+  const handleUserUpdate = (updatedUser: UserSummary) => {
+    localStorage.setItem('usuario', JSON.stringify(updatedUser));
+    setUsuario(updatedUser);
+  };
+
   return (
-    <>
-      <UserBar />
+    <DashboardLayout 
+      user={usuario} 
+      onUserUpdate={handleUserUpdate}
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
+    >
       <main className="admin-main">
-        <div className="admin-header">
-          <h2 className="admin-title">Minhas Barbearias</h2>
+        <div className="admin-header" style={{ marginBottom: '40px' }}>
+          <div>
+            <h1 className="shops-title">Minhas Barbearias</h1>
+            <p>Gerencie seus estabelecimentos e barbeiros.</p>
+          </div>
           <button className="btn btn-primary" onClick={abrirModalNovo}>
             + Nova Barbearia
           </button>
@@ -603,20 +618,17 @@ export default function PainelAdmin() {
           <div className="admin-grid">
             <AdminShopCardSkeletons count={4} />
           </div>
-        ) : barbearias.length === 0 ? (
+        ) : filteredBarbearias.length === 0 ? (
           <div className="admin-empty-state">
-            <p className="admin-empty-text">Voce ainda nao cadastrou nenhuma barbearia.</p>
-            <button className="btn btn-primary" onClick={abrirModalNovo}>
-              Cadastrar primeira barbearia
-            </button>
+            <p className="admin-empty-text">Nenhuma barbearia encontrada para sua busca.</p>
           </div>
         ) : (
           <div className="admin-grid">
-            {barbearias.map((barbearia) => {
+            {filteredBarbearias.map((barbearia) => {
               const primaryImageUrl = getPrimaryEstablishmentImageUrl(barbearia);
 
               return (
-                <div key={barbearia.id} className="shop-card admin-shop-card">
+                <div key={barbearia.id} className="shop-card">
                   <div className="admin-kebab-wrapper">
                     <button
                       className="admin-kebab-trigger"
@@ -663,7 +675,7 @@ export default function PainelAdmin() {
                     )}
                   </div>
 
-                  <div className="shop-image admin-shop-image">
+                  <div className="shop-image">
                     {primaryImageUrl ? (
                       <img
                         src={api.getPhotoUrl(primaryImageUrl) || undefined}
@@ -690,55 +702,43 @@ export default function PainelAdmin() {
                   </div>
 
                   <div className="shop-info">
-                    <h4 className="shop-name">{barbearia.name}</h4>
+                    <h3 className="shop-name">{barbearia.name}</h3>
                     {barbearia.barbercode && (
                       <p className="admin-shop-phone" style={{ fontWeight: 'bold', color: 'var(--accent)' }}>
-                        Código da Barbearia: {barbearia.barbercode}
+                        Código: {barbearia.barbercode}
                       </p>
                     )}
                     <p className="shop-address">{barbearia.address || barbearia.fullAddress?.cidade || ''}</p>
-                    {barbearia.phone && <p className="admin-shop-phone">Telefone: {barbearia.phone}</p>}
-                  </div>
-
-                  <div className="admin-shop-actions">
-                    <button
-                      className="btn btn-secondary admin-action-btn"
-                      onClick={() => {
-                        setSelectedBarbeariaForPlans(barbearia.id);
-                        setPlanModalOpen(true);
-                      }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-                        <line x1="9" y1="12" x2="15" y2="12" />
-                        <line x1="9" y1="16" x2="15" y2="16" />
-                      </svg>
-                      Planos
-                    </button>
-                    <button
-                      className="btn btn-secondary admin-action-btn"
-                      onClick={() => {
-                        setSelectedBarbeariaId(barbearia.id);
-                        setReportModalOpen(true);
-                      }}
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="20" x2="18" y2="10" />
-                        <line x1="12" y1="20" x2="12" y2="4" />
-                        <line x1="6" y1="20" x2="6" y2="14" />
-                      </svg>
-                      Relatórios
-                    </button>
-                    <button className="btn btn-secondary admin-action-btn" onClick={() => abrirModalBarbeiros(barbearia)}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                      Barbeiros
-                    </button>
+                    
+                    <div className="admin-shop-actions" style={{ marginTop: '20px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        className="btn btn-ghost"
+                        style={{ padding: '6px 12px', fontSize: '12px', flex: 1 }}
+                        onClick={() => {
+                          setSelectedBarbeariaForPlans(barbearia.id);
+                          setPlanModalOpen(true);
+                        }}
+                      >
+                        Planos
+                      </button>
+                      <button
+                        className="btn btn-ghost"
+                        style={{ padding: '6px 12px', fontSize: '12px', flex: 1 }}
+                        onClick={() => {
+                          setSelectedBarbeariaId(barbearia.id);
+                          setReportModalOpen(true);
+                        }}
+                      >
+                        Relatórios
+                      </button>
+                      <button 
+                        className="btn btn-ghost" 
+                        style={{ padding: '6px 12px', fontSize: '12px', flex: 1 }}
+                        onClick={() => abrirModalBarbeiros(barbearia)}
+                      >
+                        Barbeiros
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -748,7 +748,7 @@ export default function PainelAdmin() {
 
         {modalAberto && (
           <div className="admin-modal-backdrop" onClick={() => fecharModal()}>
-            <div className="card admin-modal-container" onClick={(event) => event.stopPropagation()}>
+            <div className="card admin-modal-container" onClick={(event) => event.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
               <button
                 type="button"
                 className="admin-modal-close-btn"
@@ -761,16 +761,16 @@ export default function PainelAdmin() {
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
-              <h2>{modoEdicao ? 'Editar Barbearia' : 'Nova Barbearia'}</h2>
+              <h2 style={{ marginBottom: '24px' }}>{modoEdicao ? 'Editar Barbearia' : 'Nova Barbearia'}</h2>
 
               {erro && <div className="admin-error">{erro}</div>}
 
               {modalLoading ? (
                 <div className="admin-modal-loading">Carregando dados da barbearia...</div>
               ) : (
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} className="cadastro-form">
                 <div className="admin-form-photo-preview">
-                  <div className={`admin-form-photo-gallery ${galleryImages.length === 0 ? 'is-empty' : ''}`}>
+                  <div className={`admin-form-photo-gallery ${galleryImages.length === 0 ? 'is-empty' : ''}`} style={{ background: 'var(--bg-dark)', borderRadius: '12px', padding: '12px' }}>
                     {galleryImages.length > 0 ? (
                       galleryImages.map((image, index) => (
                         <div key={image.id} className="admin-form-photo-tile">
@@ -802,7 +802,6 @@ export default function PainelAdmin() {
                           fill="none"
                           stroke="#9ca3af"
                           strokeWidth="2"
-                          className="admin-form-photo-placeholder"
                         >
                           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                           <polyline points="9 22 9 12 15 12 15 22" />
@@ -811,8 +810,8 @@ export default function PainelAdmin() {
                     )}
                   </div>
 
-                  <div className="admin-form-photo-actions">
-                    <label htmlFor="foto-establishment-input" className="admin-form-photo-label">
+                  <div className="admin-form-photo-actions" style={{ marginTop: '12px' }}>
+                    <label htmlFor="foto-establishment-input" className="cadastro-photo-label">
                       {galleryImages.length > 0 ? 'Adicionar mais fotos' : 'Adicionar fotos'}
                     </label>
                     <input
@@ -826,109 +825,127 @@ export default function PainelAdmin() {
                     />
 
                     {galleryImages.length > 0 && (
-                      <button type="button" onClick={removeAllGalleryImages} className="admin-form-photo-remove" disabled={saving}>
+                      <button type="button" onClick={removeAllGalleryImages} className="cadastro-photo-remove" disabled={saving}>
                         Limpar tudo
                       </button>
                     )}
                   </div>
-
-                  <p className="admin-form-photo-hint">
-                    Formatos aceitos: JPEG, PNG, GIF e WebP. Ate {MAX_ESTABLISHMENT_IMAGES} imagens, com maximo de 5MB por arquivo.
-                  </p>
                 </div>
 
-                <label>Nome da Barbearia *</label>
-                <input
-                  type="text"
-                  name="nome"
-                  value={barbeariaAtual?.nome || ''}
-                  onChange={handleChange}
-                  required
-                  placeholder="Ex: Barbearia Central"
-                />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="cadastro-role-label">Nome da Barbearia *</label>
+                    <input
+                      type="text"
+                      name="nome"
+                      value={barbeariaAtual?.nome || ''}
+                      onChange={handleChange}
+                      required
+                      placeholder="Ex: Barbearia Central"
+                    />
+                  </div>
 
-                <label>Descricao</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="cadastro-role-label">Telefone</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={barbeariaAtual?.phone || ''}
+                      onChange={handleChange}
+                      placeholder="Ex: (11) 98765-4321"
+                    />
+                  </div>
+                </div>
+
+                <label className="cadastro-role-label">Descricao</label>
                 <textarea
                   name="description"
                   value={barbeariaAtual?.description || ''}
                   onChange={handleChange}
                   rows={3}
                   placeholder="Descreva sua barbearia..."
-                  className="admin-form-textarea"
+                  style={{ background: 'var(--bg-dark)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--text)', padding: '12px', outline: 'none' }}
                 />
 
-                <label>Rua/Avenida *</label>
-                <input
-                  type="text"
-                  name="rua"
-                  value={barbeariaAtual?.rua || ''}
-                  onChange={handleChange}
-                  required
-                  placeholder="Ex: Rua das Flores, 123"
-                />
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="cadastro-role-label">Rua/Avenida *</label>
+                    <input
+                      type="text"
+                      name="rua"
+                      value={barbeariaAtual?.rua || ''}
+                      onChange={handleChange}
+                      required
+                      placeholder="Ex: Rua das Flores, 123"
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="cadastro-role-label">CEP *</label>
+                    <input
+                      type="text"
+                      name="cep"
+                      value={barbeariaAtual?.cep || ''}
+                      onChange={handleChange}
+                      required
+                      placeholder="Ex: 12345-678"
+                    />
+                  </div>
+                </div>
 
-                <label>Cidade *</label>
-                <input
-                  type="text"
-                  name="cidade"
-                  value={barbeariaAtual?.cidade || ''}
-                  onChange={handleChange}
-                  required
-                  placeholder="Ex: Sao Paulo"
-                />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="cadastro-role-label">Cidade *</label>
+                    <input
+                      type="text"
+                      name="cidade"
+                      value={barbeariaAtual?.cidade || ''}
+                      onChange={handleChange}
+                      required
+                      placeholder="Ex: Sao Paulo"
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="cadastro-role-label">Estado *</label>
+                    <input
+                      type="text"
+                      name="stado"
+                      value={barbeariaAtual?.stado || ''}
+                      onChange={handleChange}
+                      required
+                      placeholder="Ex: SP"
+                      maxLength={2}
+                    />
+                  </div>
+                </div>
 
-                <label>Estado *</label>
-                <input
-                  type="text"
-                  name="stado"
-                  value={barbeariaAtual?.stado || ''}
-                  onChange={handleChange}
-                  required
-                  placeholder="Ex: SP"
-                  maxLength={2}
-                />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="cadastro-role-label">MEI (CNPJ)</label>
+                    <input
+                      type="text"
+                      name="mei"
+                      value={barbeariaAtual?.mei || ''}
+                      onChange={handleChange}
+                      placeholder="Ex: 12.345.678/0001-90"
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label className="cadastro-role-label">URL do Google Maps</label>
+                    <input
+                      type="text"
+                      name="mapsUrl"
+                      value={barbeariaAtual?.mapsUrl || ''}
+                      onChange={handleChange}
+                      placeholder="Ex: https://maps.google.com/..."
+                    />
+                  </div>
+                </div>
 
-                <label>CEP *</label>
-                <input
-                  type="text"
-                  name="cep"
-                  value={barbeariaAtual?.cep || ''}
-                  onChange={handleChange}
-                  required
-                  placeholder="Ex: 12345-678"
-                />
-
-                <label>Telefone</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={barbeariaAtual?.phone || ''}
-                  onChange={handleChange}
-                  placeholder="Ex: (11) 98765-4321"
-                />
-
-                <label>MEI (CNPJ)</label>
-                <input
-                  type="text"
-                  name="mei"
-                  value={barbeariaAtual?.mei || ''}
-                  onChange={handleChange}
-                  placeholder="Ex: 12.345.678/0001-90"
-                />
-                <label>URL do Google Maps</label>
-                <input
-                  type="text"
-                  name="mapsUrl"
-                  value={barbeariaAtual?.mapsUrl || ''}
-                  onChange={handleChange}
-                  placeholder="Ex: https://maps.google.com/?cid=1234567890"
-                />
-
-                <div className="admin-form-actions">
-                  <button type="submit" className="btn btn-primary admin-form-btn-submit" disabled={saving}>
+                <div className="admin-form-actions" style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={saving}>
                     {saving ? 'Salvando...' : modoEdicao ? 'Salvar Alteracoes' : 'Criar Barbearia'}
                   </button>
-                  <button type="button" className="btn btn-outline admin-form-btn-cancel" onClick={() => fecharModal()} disabled={saving}>
+                  <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={() => fecharModal()} disabled={saving}>
                     Cancelar
                   </button>
                 </div>
@@ -955,22 +972,10 @@ export default function PainelAdmin() {
 
         {planModalOpen && selectedBarbeariaForPlans && (
           <div className="admin-modal-backdrop" onClick={() => setPlanModalOpen(false)}>
-            <div className="card admin-modal-container" style={{ maxWidth: '1200px' }} onClick={(event) => event.stopPropagation()}>
+            <div className="card admin-modal-container" style={{ maxWidth: '1200px', background: 'var(--surface)', border: '1px solid var(--border)' }} onClick={(event) => event.stopPropagation()}>
               <button
                 onClick={() => setPlanModalOpen(false)}
-                style={{
-                  position: 'absolute',
-                  top: '16px',
-                  right: '16px',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: 'none',
-                  color: '#e0e0e0',
-                  fontSize: '24px',
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                }}
+                className="admin-modal-close-btn"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -984,22 +989,10 @@ export default function PainelAdmin() {
 
         {reportModalOpen && selectedBarbeariaId && (
           <div className="admin-modal-backdrop" onClick={() => setReportModalOpen(false)}>
-            <div className="card admin-modal-container" style={{ maxWidth: '1400px' }} onClick={(event) => event.stopPropagation()}>
+            <div className="card admin-modal-container" style={{ maxWidth: '1400px', background: 'var(--surface)', border: '1px solid var(--border)' }} onClick={(event) => event.stopPropagation()}>
               <button
                 onClick={() => setReportModalOpen(false)}
-                style={{
-                  position: 'absolute',
-                  top: '16px',
-                  right: '16px',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: 'none',
-                  color: '#e0e0e0',
-                  fontSize: '24px',
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  cursor: 'pointer',
-                }}
+                className="admin-modal-close-btn"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -1011,6 +1004,6 @@ export default function PainelAdmin() {
           </div>
         )}
       </main>
-    </>
+    </DashboardLayout>
   );
 }

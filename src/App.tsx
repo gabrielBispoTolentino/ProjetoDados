@@ -17,21 +17,25 @@ import PainelCliente from './paginas/painelCliente';
 import PainelAdmin from './paginas/PainelAdmin';
 import Verify from './paginas/verify';
 
+const IconScissor = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/>
+    <line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/>
+    <line x1="8.12" y1="8.12" x2="12" y2="12"/>
+  </svg>
+);
+
 function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-brand">
-        <div className="dots">
-          <div className="dot dot-red" />
-          <div className="dot dot-white" />
-          <div className="dot dot-blue" />
-        </div>
+        <div className="logo-icon"><IconScissor /></div>
         <span>Dinamic Cut</span>
       </div>
 
       <div className="navbar-menu">
         <Link to="/login" className="nav-link">Log in</Link>
-        <Link to="/cadastro" className="nav-link">Registrar</Link>
+        <Link to="/cadastro" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '14px' }}>Registrar</Link>
       </div>
     </nav>
   );
@@ -43,17 +47,21 @@ function Navigation() {
   return (
     <main className="hero">
       <Navbar />
-      <div className="hero-content">
+      <div className="hero-content fade-in">
         <h1 className="hero-title reveal">
-          Cortes dinamicos para o seu estilo.
+          Cortes dinâmicos para o seu estilo.
           <br />
           Escolha seu corte hoje.
           <br />
-          Defina seu estilo de amanha.
+          Defina seu estilo de amanhã.
         </h1>
 
-        <button className="hero-cta-button reveal" onClick={() => navigate('/cadastro')}>
-          Agende um corte ou se torne um parceiro
+        <p style={{ color: 'var(--text-muted)', marginBottom: '32px', fontSize: '18px' }} className="reveal" data-revealdelay="100ms">
+          Agende serviços premium nas melhores barbearias da região.
+        </p>
+
+        <button className="btn btn-primary reveal" style={{ padding: '16px 32px', fontSize: '16px' }} onClick={() => navigate('/cadastro')} data-revealdelay="200ms">
+          Agende um corte ou torne-se parceiro
         </button>
       </div>
     </main>

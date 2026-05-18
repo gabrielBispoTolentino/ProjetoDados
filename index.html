@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <!-- Fontes modernas (Minimalista) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dinamic Cut</title>
@@ -12,60 +11,4 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
-  <!DOCTYPE html>
-< lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Barbearia - Sistema de Agendamento</title>
-    <style>
-        /* Estilos básicos para a UI */
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        .menu { margin-bottom: 20px; }
-        .form { display: none; margin-bottom: 20px; } /* Esconde os formulários inicialmente */
-        .output { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
-        button { margin: 5px; padding: 10px; }
-        input { margin: 5px; padding: 5px; }
-    </style>
-</head>
-<body>
-    <h1>Sistema de Barbearia</h1>
-    
-    <!-- Menu principal -->
-    <div class="menu">
-        <button id="btn-agendar">Agendar Corte</button>
-        <button id="btn-listar">Listar Agendamentos</button>
-        <button id="btn-cancelar">Cancelar Agendamento</button>
-        <button id="btn-sair">Sair</button>
-    </div>
-
-
-<table id="tabela-agendamentos">
-  <tbody id="corpo-tabela"></tbody>
-</table>
-    <!-- Formulário para agendar -->
-    <div id="form-agendar" class="form">
-        <h3>Agendar Corte</h3>
-        <input type="text" id="nome" placeholder="Nome do cliente"><br>
-        <input type="text" id="data" placeholder="Data (DD/MM/YYYY)"><br>
-        <input type="text" id="horario" placeholder="Horário (HH:MM)"><br>
-        <input type="text" id="servico" placeholder="Serviço (ex.: Corte simples, Barba)"><br>
-        <button id="btn-confirmar-agendar">Confirmar</button>
-        <button id="btn-voltar-agendar">Voltar</button>
-    </div>
-    
-    <!-- Formulário para cancelar -->
-    <div id="form-cancelar" class="form">
-        <h3>Cancelar Agendamento</h3>
-        <input type="text" id="nome-cancelar" placeholder="Nome do cliente"><br>
-        <input type="text" id="data-cancelar" placeholder="Data (DD/MM/YYYY)"><br>
-        <button id="btn-confirmar-cancelar">Confirmar</button>
-        <button id="btn-voltar-cancelar">Voltar</button>
-    </div>
-    
-    <!-- Área de saída (mensagens e listas) -->
-    <div id="output" class="output"></div>
-    
-    <!-- Script JavaScript -->
-    <script src="agendamento.js"></script>
-</body>
 </html>

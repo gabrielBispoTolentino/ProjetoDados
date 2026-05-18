@@ -3,6 +3,7 @@ import type { ChangeEvent, DragEvent, FormEvent } from 'react';
 import { api } from '../../server/api';
 import type { UserSummary } from '../types/domain';
 import { useFeedback } from './FeedbackProvider';
+import './css/ProfileEditorModal.css';
 
 type ProfileEditorModalProps = {
   user: UserSummary;
@@ -414,41 +415,47 @@ export default function ProfileEditorModal({
             />
           </div>
 
-          <label htmlFor="profile-nome">Nome</label>
-          <input
-            id="profile-nome"
-            type="text"
-            name="nome"
-            value={profileForm.nome}
-            onChange={handleProfileChange}
-            disabled={savingProfile || loadingProfile}
-            required
-          />
+          <div className="form-group">
+            <label htmlFor="profile-nome">Nome</label>
+            <input
+              id="profile-nome"
+              type="text"
+              name="nome"
+              value={profileForm.nome}
+              onChange={handleProfileChange}
+              disabled={savingProfile || loadingProfile}
+              required
+            />
+          </div>
 
-          <label htmlFor="profile-email">Email</label>
-          <input
-            id="profile-email"
-            type="email"
-            name="email"
-            value={profileForm.email}
-            onChange={handleProfileChange}
-            disabled={savingProfile || loadingProfile}
-            required
-          />
+          <div className="form-group">
+            <label htmlFor="profile-email">Email</label>
+            <input
+              id="profile-email"
+              type="email"
+              name="email"
+              value={profileForm.email}
+              onChange={handleProfileChange}
+              disabled={savingProfile || loadingProfile}
+              required
+            />
+          </div>
 
-          <label htmlFor="profile-telefone">Telefone</label>
-          <input
-            id="profile-telefone"
-            type="tel"
-            name="telefone"
-            value={profileForm.telefone}
-            onChange={handleProfileChange}
-            disabled={savingProfile || loadingProfile}
-            required
-          />
+          <div className="form-group">
+            <label htmlFor="profile-telefone">Telefone</label>
+            <input
+              id="profile-telefone"
+              type="tel"
+              name="telefone"
+              value={profileForm.telefone}
+              onChange={handleProfileChange}
+              disabled={savingProfile || loadingProfile}
+              required
+            />
+          </div>
 
           {isAdmin && (
-            <>
+            <div className="form-group">
               <label htmlFor="profile-cnpj">CNPJ</label>
               <input
                 id="profile-cnpj"
@@ -459,53 +466,61 @@ export default function ProfileEditorModal({
                 disabled={savingProfile || loadingProfile}
                 required
               />
-            </>
+            </div>
           )}
 
           {isBarber && (
             <>
-              <label htmlFor="profile-verifycode">Codigo de verificacao</label>
-              <input
-                id="profile-verifycode"
-                type="text"
-                value={currentUser.verifycode || 'Nao disponivel'}
-                disabled
-                readOnly
-              />
-              <p className="user-profile-note">Esse codigo e gerado pela barbearia e nao pode ser alterado.</p>
+              <div className="form-group">
+                <label htmlFor="profile-verifycode">Codigo de verificacao</label>
+                <input
+                  id="profile-verifycode"
+                  type="text"
+                  value={currentUser.verifycode || 'Nao disponivel'}
+                  disabled
+                  readOnly
+                />
+                <p className="user-profile-note">Esse codigo e gerado pela barbearia e nao pode ser alterado.</p>
+              </div>
 
-              <label htmlFor="profile-verified">Status do parceiro</label>
-              <input
-                id="profile-verified"
-                type="text"
-                value={currentUser.verified ? 'Verificado' : 'Pendente de verificacao'}
-                disabled
-                readOnly
-              />
+              <div className="form-group">
+                <label htmlFor="profile-verified">Status do parceiro</label>
+                <input
+                  id="profile-verified"
+                  type="text"
+                  value={currentUser.verified ? 'Verificado' : 'Pendente de verificacao'}
+                  disabled
+                  readOnly
+                />
+              </div>
             </>
           )}
 
-          <label htmlFor="profile-senha">Nova senha</label>
-          <input
-            id="profile-senha"
-            type="password"
-            name="senha"
-            value={profileForm.senha}
-            onChange={handleProfileChange}
-            disabled={savingProfile || loadingProfile}
-            placeholder="Deixe em branco para manter a atual"
-          />
+          <div className="form-group">
+            <label htmlFor="profile-senha">Nova senha</label>
+            <input
+              id="profile-senha"
+              type="password"
+              name="senha"
+              value={profileForm.senha}
+              onChange={handleProfileChange}
+              disabled={savingProfile || loadingProfile}
+              placeholder="Deixe em branco para manter a atual"
+            />
+          </div>
 
-          <label htmlFor="profile-confirmar-senha">Confirmar nova senha</label>
-          <input
-            id="profile-confirmar-senha"
-            type="password"
-            name="confirmarSenha"
-            value={profileForm.confirmarSenha}
-            onChange={handleProfileChange}
-            disabled={savingProfile || loadingProfile}
-            placeholder="Repita a nova senha"
-          />
+          <div className="form-group">
+            <label htmlFor="profile-confirmar-senha">Confirmar nova senha</label>
+            <input
+              id="profile-confirmar-senha"
+              type="password"
+              name="confirmarSenha"
+              value={profileForm.confirmarSenha}
+              onChange={handleProfileChange}
+              disabled={savingProfile || loadingProfile}
+              placeholder="Repita a nova senha"
+            />
+          </div>
 
           <div className="user-profile-actions">
             <button type="submit" disabled={savingProfile || loadingProfile}>

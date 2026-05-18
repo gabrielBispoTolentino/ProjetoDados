@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../server/api';
-import UserBar from '../components/UserBar';
-import SearchBar from '../components/SearchBar';
+import DashboardLayout from '../components/DashboardLayout';
 import BookingModal from '../components/BookingModal';
 import ShopDetailsModal from '../components/ShopDetailsModal';
 import { useFeedback } from '../components/FeedbackProvider';
@@ -12,6 +11,7 @@ import type {
   PaymentMethodId,
   ShopSummary,
   UserSubscription,
+  UserSummary,
 } from '../types/domain';
 import { getEstablishmentImageUrls, getPrimaryEstablishmentImageUrl } from '../utils/establishmentImages';
 import './css/PainelCliente.css';
@@ -235,8 +235,6 @@ function ShopsList({
 
   return (
     <section className="shops-section">
-      <h3 className="shops-title">Barbearias disponiveis</h3>
-
       {error && <div className="loader error">{error}</div>}
 
       <div className="shops-list" role="list">
@@ -255,7 +253,6 @@ function ShopsList({
               className="shop-card"
               role="listitem"
               onClick={() => setDetailsShop(shop)}
-              style={{ cursor: 'pointer' }}
             >
               <div className="shop-content-wrapper">
                 <div className="shop-image">
@@ -285,23 +282,19 @@ function ShopsList({
                 </div>
 
                 <div className="shop-info">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <h4 className="shop-name">{shop.name}</h4>
-                    {userSubscriptions.includes(shop.id) && (
-                      <span className="subscription-badge" title="Voce tem assinatura ativa nesta barbearia">
-                        *
-                      </span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    {userSubscriptions.includes(shop.id) ? (
+                      <span className="subscription-badge">Assinante</span>
+                    ) : (
+                      <span className="subscription-badge" style={{ background: 'var(--surface-hover)', color: 'var(--text-muted)' }}>Verificado</span>
                     )}
+                    <span className="shop-rating">★ {Number(shop.rating || 0).toFixed(1)}</span>
                   </div>
+                  <h3 className="shop-name">{shop.name}</h3>
                   <p className="shop-address">{shop.address}</p>
+                  
                   <div className="shop-rating-row">
-                    <div className="shop-rating">
-                      {Number(shop.rating || 0).toFixed(1)}{' '}
-                      <span style={{ color: '#6b7280', fontWeight: '400' }}>
-                        ({shop.ratingCount || 0})
-                      </span>
-                    </div>
-
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{shop.ratingCount || 0} avaliações</span>
                     <button
                       className="schedule-btn"
                       onClick={(event) => {
@@ -337,8 +330,19 @@ function ShopsList({
   );
 }
 
+function parseStoredUser(): UserSummary | null {
+  const usuarioStr = localStorage.getItem('usuario');
+  if (!usuarioStr) return null;
+  try {
+    return JSON.parse(usuarioStr) as UserSummary;
+  } catch {
+    return null;
+  }
+}
+
 export default function PainelCliente() {
   const feedback = useFeedback();
+  const [usuario, setUsuario] = useState<UserSummary | null>(() => parseStoredUser());
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedShop, setSelectedShop] = useState<NormalizedShop | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -368,19 +372,33 @@ export default function PainelCliente() {
     feedback.success('Agendamento criado com sucesso!');
   }
 
+  const handleUserUpdate = (updatedUser: UserSummary) => {
+    localStorage.setItem('usuario', JSON.stringify(updatedUser));
+    setUsuario(updatedUser);
+  };
+
   return (
-    <>
-      <UserBar />
+    <DashboardLayout 
+      user={usuario} 
+      onUserUpdate={handleUserUpdate}
+      searchQuery={searchQuery}
+      onSearchChange={setSearchQuery}
+    >
       <main className="painel-main">
-        <div className="painel-header">
-          <div style={{ marginLeft: 'auto' }}>
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              sort={sortOption}
-              onSortChange={(value) => setSortOption(value as SortOption)}
-            />
-          </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+          <h1 className="shops-title" style={{ margin: 0 }}>Barbearias disponiveis</h1>
+          <select 
+            className="searchbar-select" 
+            value={sortOption} 
+            onChange={(e) => setSortOption(e.target.value as SortOption)}
+          >
+            <option value="relevance">Relevância</option>
+            <option value="my-subscriptions">Minhas Assinaturas</option>
+            <option value="alpha-asc">A-Z</option>
+            <option value="alpha-desc">Z-A</option>
+            <option value="rating-desc">Melhor Avaliadas</option>
+            <option value="reviews-desc">Mais Populares</option>
+          </select>
         </div>
 
         <ShopsList
@@ -399,6 +417,6 @@ export default function PainelCliente() {
           selectedShop={selectedShop}
         />
       </main>
-    </>
+    </DashboardLayout>
   );
 }
